@@ -1,3 +1,6 @@
-require 'editor'
-require 'keymaps'
-require 'plugins.nvim-tree'
+require('color-scheme')
+require('editor')
+require('key-maps')
+
+-- Plugin configurations
+require('plugins.nvim-tree')

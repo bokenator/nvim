@@ -1,3 +1,6 @@
 [submodule "pack/plugins/start/nvim-tree.lua"]
 	path = pack/plugins/start/nvim-tree.lua
 	url = https://github.com/nvim-tree/nvim-tree.lua.git
+[submodule "pack/plugins/start/vscode.nvim"]
+	path = pack/plugins/start/vscode.nvim
+	url = https://github.com/Mofiqul/vscode.nvim.git
