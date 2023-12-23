@@ -12,8 +12,3 @@ vim.g.maplocalleader = ' '
 vim.keymap.set('v', '<', '<gv', options)
 vim.keymap.set('v', '>', '>gv', options)
 
--- nvim-tree
-vim.keymap.set('n', '<C-n>', ':NvimTreeToggle<CR>', options)
-vim.keymap.set('n', '<leader>r', ':NvimTreeRefresh<CR>', options)
-vim.keymap.set('n', '<leader>n', ':NvimTreeFindFile<CR>', options)
-

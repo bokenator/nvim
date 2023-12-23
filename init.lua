@@ -1,4 +1,3 @@
-require 'nvim-tree'.setup {}
-
 require 'editor'
 require 'keymaps'
+require 'plugins.nvim-tree'
