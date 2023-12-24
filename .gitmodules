@@ -4,3 +4,6 @@
 [submodule "pack/plugins/start/vscode.nvim"]
 	path = pack/plugins/start/vscode.nvim
 	url = https://github.com/Mofiqul/vscode.nvim.git
+[submodule "pack/plugins/start/nvim-lspconfig"]
+	path = pack/plugins/start/nvim-lspconfig
+	url = https://github.com/neovim/nvim-lspconfig.git
