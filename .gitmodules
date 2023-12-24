@@ -10,3 +10,9 @@
 [submodule "pack/plugins/start/nvim-autopairs"]
 	path = pack/plugins/start/nvim-autopairs
 	url = https://github.com/windwp/nvim-autopairs.git
+[submodule "pack/plugins/start/nvim-treesitter"]
+	path = pack/plugins/start/nvim-treesitter
+	url = https://github.com/nvim-treesitter/nvim-treesitter.git
+[submodule "pack/plugins/start/nvim-treesitter-textobjects"]
+	path = pack/plugins/start/nvim-treesitter-textobjects
+	url = https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git
