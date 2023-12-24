@@ -7,3 +7,6 @@
 [submodule "pack/plugins/start/nvim-lspconfig"]
 	path = pack/plugins/start/nvim-lspconfig
 	url = https://github.com/neovim/nvim-lspconfig.git
+[submodule "pack/plugins/start/nvim-autopairs"]
+	path = pack/plugins/start/nvim-autopairs
+	url = https://github.com/windwp/nvim-autopairs.git
