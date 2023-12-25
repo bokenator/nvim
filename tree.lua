@@ -30,7 +30,7 @@ vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', options)
 vim.keymap.set('n', '<leader>r', ':NvimTreeRefresh<CR>', options)
 vim.keymap.set('n', '<leader>n', ':NvimTreeFindFile<CR>', options)
 
-local icons = require('../icons')
+local icons = require('./icons')
 
 require('nvim-tree').setup {
 	on_attach = on_attach,
@@ -42,7 +42,7 @@ require('nvim-tree').setup {
     	full_name = false,
     	highlight_opened_files = 'none',
     	root_folder_label = ':t',
-    	indent_width = 4,
+    	indent_width = 2,
     	indent_markers = {
         	enable = false,
         	inline_arrows = true,
@@ -83,10 +83,10 @@ require('nvim-tree').setup {
         	},
 		},
 		special_files = {
-			'Cargo.toml',
-			'Makefile',
-			'README.md',
-			'readme.md'
+			-- 'Cargo.toml',
+			-- 'Makefile',
+			-- 'README.md',
+			-- 'readme.md'
 		},
 		symlink_destination = true,
 	},
