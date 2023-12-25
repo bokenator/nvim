@@ -1,9 +1,15 @@
-require('color-scheme')
-require('editor')
-require('key-maps')
+-- package.path = package.path .. ";/root/.config/nvim/?.lua"
+directory = debug.getinfo(1, 'S').source:sub(2):match('^(.*[/\\])')
+package.path = package.path .. ';' .. directory .. '?.lua'
 
--- Plugin configurations
-require('plugins.nvim-autopairs')
-require('plugins.nvim-tree')
-require('plugins.nvim-treesitter')
-require('plugins.nvim-lspconfig')
+require('./autopairs')
+require('./bufdelete')
+require('./colorscheme')
+require('./comment')
+require('./editor')
+require('./icons')
+require('./keymaps')
+require('./lspconfig')
+require('./tree')
+require('./treesitter')
+

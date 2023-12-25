@@ -1,12 +1,18 @@
 require('nvim-treesitter.configs').setup({
 	ensure_installed = {
+		'javascript',
+		'json',
 		'lua',
+		'markdown',
+		'python',
 		'rust',
+		'toml',
+		'typescript',
 	},
 	ignore_install = {
 		'',
 	},
-	sync_install = true,
+	sync_install = false,
 	highlight = {
 		enable = true,
 		disable = {
@@ -15,9 +21,6 @@ require('nvim-treesitter.configs').setup({
 		additional_vim_regex_highlighting = false,
 	},
 	indent = {
-		enable = true,
-	},
-	autotag = {
 		enable = true,
 	},
 	autopairs = {
@@ -37,6 +40,7 @@ require('nvim-treesitter.configs').setup({
 			enable = true,
 			set_jumps = true, -- whether to set jumps in the jumplist
 			goto_next_start = {
+				[']b'] = '@block.outer',
 				[']m'] = '@function.outer',
 				[']]'] = { query = '@class.outer', desc = 'Next class start' },
 				--
@@ -73,8 +77,7 @@ require('nvim-treesitter.configs').setup({
 		},
 		select = {
 			enable = true,
-			-- Automatically jump forward to textobj, similar to targets.vim
-			lookahead = true,
+			lookahead = true,		-- Automatically jump forward to textobj, similar to targets.vim
 			keymaps = {
 				-- You can use the capture groups defined in textobjects.scm
 				['af'] = '@function.outer',
