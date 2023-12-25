@@ -1,5 +1,5 @@
 local lspconfig = require('lspconfig')
-local icons = require('../icons')
+local icons = require('config.icons')
 
 local on_attach = function(client, buffer_number)
 	local options = {

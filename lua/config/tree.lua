@@ -30,7 +30,9 @@ vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', options)
 vim.keymap.set('n', '<leader>r', ':NvimTreeRefresh<CR>', options)
 vim.keymap.set('n', '<leader>n', ':NvimTreeFindFile<CR>', options)
 
-local icons = require('./icons')
+local icons = require('config.icons')
+
+require('nvim-web-devicons').setup({})
 
 require('nvim-tree').setup {
 	on_attach = on_attach,
