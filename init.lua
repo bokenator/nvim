@@ -5,12 +5,8 @@ require('config.colorscheme')
 require('config.comment')
 require('config.editor')
 require('config.icons')
+require('config.indentline')
 require('config.keymaps')
 require('config.lspconfig')
 require('config.tree')
 require('config.treesitter')
-
-vim.cmd [[
-hi NormalFloat guibg=NONE
-hi FloatBorder guibg=NONE
-]]
