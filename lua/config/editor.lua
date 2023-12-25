@@ -15,4 +15,4 @@ vim.opt.tabstop = 4		-- Insert 2 spaces for a tab
 vim.opt.cursorline = true	-- Highlight the current line
 vim.opt.number = true		-- Set numbered lines
 vim.opt.relativenumber = true	-- Set relative numbered lines
-
+vim.opt.signcolumn = 'yes'		-- Always show the sign column, otherwise it would shift whenever diagnostic is shown

@@ -1,3 +1,4 @@
+require('config.autocmds')
 require('config.autopairs')
 require('config.bufdelete')
 require('config.colorscheme')
@@ -9,3 +10,7 @@ require('config.lspconfig')
 require('config.tree')
 require('config.treesitter')
 
+vim.cmd [[
+hi NormalFloat guibg=NONE
+hi FloatBorder guibg=NONE
+]]

@@ -7,22 +7,22 @@ local on_attach = function(client, buffer_number)
 		silent = true,
 	}
 	
-	vim.api.nvim_buf_set_keymap(buffer_number, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", options)
-	vim.api.nvim_buf_set_keymap(buffer_number, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", options)
-	vim.api.nvim_buf_set_keymap(buffer_number, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", options)
-	vim.api.nvim_buf_set_keymap(buffer_number, "n", "gI", "<cmd>lua vim.lsp.buf.implementation()<CR>", options)
-	vim.api.nvim_buf_set_keymap(buffer_number, "n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", options)
-	vim.api.nvim_buf_set_keymap(buffer_number, "n", "gl", "<cmd>lua vim.diagnostic.open_float()<CR>", options)
+	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', options)
+	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', options)
+	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', options)
+	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gI', '<cmd>lua vim.lsp.buf.implementation()<CR>', options)
+	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', options)
+	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gl', '<cmd>lua vim.diagnostic.open_float()<CR>', options)
 end
 
 vim.diagnostic.config({
 	signs = {
 		active = true,
 		values = {
-			{ name = "DiagnosticSignError", text = icons.diagnostics.Error },
-			{ name = "DiagnosticSignWarn", text = icons.diagnostics.Warning },
-			{ name = "DiagnosticSignHint", text = icons.diagnostics.Hint },
-			{ name = "DiagnosticSignInfo", text = icons.diagnostics.Information },
+			{ name = 'DiagnosticSignError', text = icons.diagnostics.Error },
+			{ name = 'DiagnosticSignWarn', text = icons.diagnostics.Warning },
+			{ name = 'DiagnosticSignHint', text = icons.diagnostics.Hint },
+			{ name = 'DiagnosticSignInfo', text = icons.diagnostics.Information },
 		},
 	},
 	virtual_text = false,
@@ -31,28 +31,37 @@ vim.diagnostic.config({
     severity_sort = true,
     float = {
 		focusable = true,
-		style = "minimal",
-		border = "rounded",
-		source = "always",
-		header = "",
-		prefix = "",
+		style = 'minimal',
+		border = 'rounded',
+		source = 'always',
+		header = '',
+		prefix = '',
     },
 })
+
+-- Enable icons for diagnostic signs
+for _, sign in ipairs(vim.tbl_get(vim.diagnostic.config(), 'signs', 'values') or {}) do
+	vim.fn.sign_define(sign.name, {
+		texthl = sign.name,
+		text = sign.text,
+		numhl = sign.name,
+	})
+end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
 	properties = {
-		"documentation",
-		"detail",
-		"additionalTextEdits",
+		'documentation',
+		'detail',
+		'additionalTextEdits',
 	},
 }
 
 lspconfig['rust_analyzer'].setup({
 	on_attach = on_attach,
 	capabilities = capabilities,
-	settings = {
+	--settings = {
 		['rust-analyzer'] = {
 			checkOnSave = true,
 			diagnostics = {
@@ -70,6 +79,6 @@ lspconfig['rust_analyzer'].setup({
 			inlayHints = {
 			},
 		},
-	}
+	--}
 })
 
