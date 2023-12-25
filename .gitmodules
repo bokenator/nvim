@@ -16,9 +16,6 @@
 [submodule "pack/plugins/start/nvim-treesitter-textobjects"]
 	path = pack/plugins/start/nvim-treesitter-textobjects
 	url = https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git
-[submodule "pack/plugins/start/bufdelete.nvim"]
-	path = pack/plugins/start/bufdelete.nvim
-	url = https://github.com/famiu/bufdelete.nvim.git
 [submodule "pack/plugins/start/comment"]
 	path = pack/plugins/start/comment
 	url = https://github.com/numToStr/Comment.nvim.git
