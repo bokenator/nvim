@@ -50,7 +50,8 @@ end
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-lspconfig['rust_analyzer'].setup({
+-- Rust
+lspconfig.rust_analyzer.setup({
 	on_attach = on_attach,
 	capabilities = capabilities,
 	settings = {
@@ -74,3 +75,8 @@ lspconfig['rust_analyzer'].setup({
 	}
 })
 
+-- Typescript
+lspconfig.tsserver.setup({
+	on_attach = on_attach,
+	capabilities = capabilities,
+})
