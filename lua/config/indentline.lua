@@ -5,6 +5,6 @@ require('ibl').setup({
 		char = icons.ui.LineLeft,
 	},
 	scope = {
-		char = icons.ui.LineLeft,
+		enabled = false,
 	},
 })
