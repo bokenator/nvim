@@ -19,3 +19,8 @@ require('nvim-autopairs').setup({
 	map_c_h = false,					-- Map the <C-h> key to delete a pair
 	map_c_w = false,					-- Map <c-w> to delete a pair if possible
 })
+
+vim.g.VM_maps = {
+	['I BS'] = '', -- disable backspace mapping
+}
+

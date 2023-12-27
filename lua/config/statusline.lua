@@ -12,7 +12,10 @@ require('lualine').setup({
 	sections = {
 		lualine_a = { 'mode' },
 		lualine_b = { 'branch', 'diff' },
-		lualine_c = { 'filename', 'location' },
+		lualine_c = {
+			{'filename', show_filename_only = false},
+			'location',
+		},
 		lualine_x = { 'diagnostics' },
 		lualine_y = { 'filetype' },
 		lualine_z = { 'progress' },
