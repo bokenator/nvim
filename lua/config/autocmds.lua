@@ -60,3 +60,10 @@ vim.api.nvim_create_autocmd({ 'VimResized' }, {
 		vim.cmd 'tabdo wincmd ='
 	end,
 })
+
+-- Show visual confirmation of yanked content
+vim.api.nvim_create_autocmd({ 'TextYankPost' }, {
+	callback = function()
+		vim.highlight.on_yank { higroup = 'Visual', timeout = 40 }
+	end,
+})
