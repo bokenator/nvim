@@ -11,6 +11,7 @@ vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
 -- Bind q to closing windows
 vim.api.nvim_create_autocmd({ 'FileType' }, {
 	pattern = {
+		'netrw',
 		'Jaq',
 		'qf',
 		'git',
@@ -41,14 +42,6 @@ vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
 
 -- Disable command mode
 vim.api.nvim_create_autocmd({ 'CmdWinEnter' }, {
-	callback = function()
-		vim.cmd 'quit'
-	end,
-})
-
--- Disable netrw
-vim.api.nvim_create_autocmd({'FileType'}, {
-	pattern = 'netrw',
 	callback = function()
 		vim.cmd 'quit'
 	end,
