@@ -12,6 +12,7 @@ git subtree pull --prefix pack/plugins/start/comment https://github.com/numToStr
 git subtree pull --prefix pack/plugins/start/devicons https://github.com/nvim-tree/nvim-web-devicons.git master --squash
 git subtree pull --prefix pack/plugins/start/indentline https://github.com/lukas-reineke/indent-blankline.nvim.git master --squash
 git subtree pull --prefix pack/plugins/start/lspconfig https://github.com/neovim/nvim-lspconfig.git master --squash
+git subtree pull --prefix pack/plugins/start/rust https://github.com/rust-lang/rust.vim.git master --squash
 git subtree pull --prefix pack/plugins/start/statusline https://github.com/nvim-lualine/lualine.nvim.git master --squash
 git subtree pull --prefix pack/plugins/start/tree https://github.com/nvim-tree/nvim-tree.lua.git master --squash
 git subtree pull --prefix pack/plugins/start/treesitter https://github.com/nvim-treesitter/nvim-treesitter.git master --squash
