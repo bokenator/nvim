@@ -305,6 +305,9 @@ M.refresh = function(bufnr)
         end
     end
 
+    -- Repeat indent virtual text on wrapped lines when 'breakindent' is set.
+    local repeat_indent = utils.has_repeat_indent(bufnr, config)
+
     for i, line in ipairs(lines) do
         local row = i + offset
         if line_skipped[i] then
@@ -475,6 +478,7 @@ M.refresh = function(bufnr)
             vim.api.nvim_buf_set_extmark(bufnr, namespace, row - 1, 0, {
                 virt_text = virt_text,
                 virt_text_pos = "overlay",
+                virt_text_repeat_linebreak = repeat_indent or nil,
                 hl_mode = "combine",
                 priority = config.indent.priority,
                 strict = false,
