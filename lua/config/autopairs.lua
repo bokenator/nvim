@@ -5,7 +5,13 @@ require('nvim-autopairs').setup({
 	},
 	enable_check_bracket_line = false,
 	check_ts = true,
-	disable_filetype = { "TelescopePrompt", "spectre_panel" },
+	disable_filetype = {
+		'TelescopePrompt',
+		'spectre_panel',
+	},
+	disable_in_macro = true,			-- Disable when recording or executing a macro
+	disable_in_visual_block = false,	-- Disable when insert after visual block mode
+	disable_in_replace_mode = true,
 	ignored_next_char = string.gsub([[ [%w%%%'%[%"%.] ]], '%s+', ''),
 	enable_moveright = true,
 	enable_afterquote = true,  			-- Add bracket pairs after quote
@@ -13,7 +19,6 @@ require('nvim-autopairs').setup({
 	enable_bracket_in_quote = true,
 	enable_abbr = false, 				-- Trigger abbreviation
 	break_undo = true,					-- Switch for basic rule break undo sequence
-	check_ts = false,
 	map_cr = true,
 	map_bs = true,						-- Map the <BS> key
 	map_c_h = false,					-- Map the <C-h> key to delete a pair

@@ -22,6 +22,9 @@ require('nvim-treesitter.configs').setup({
 	},
 	indent = {
 		enable = true,
+		disable = {
+			--'rust',
+		}
 	},
 	autopairs = {
 		enable = true,
