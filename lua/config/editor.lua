@@ -22,3 +22,6 @@ vim.opt.fillchars = {			-- Hide the vertical bar separating tree and editor
 	eob = ' ',
 }
 vim.g.rust_recommended_style = true
+vim.g.VM_maps = {
+	['I BS'] = '', 				-- disable backspace mapping for multi-cursor
+}
