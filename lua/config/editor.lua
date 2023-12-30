@@ -5,10 +5,7 @@ vim.opt.pumheight = 10			-- Popup menu height
 vim.opt.pumblend = 10
 vim.showtabline = 1				-- Always show tabs
 vim.opt.smartcase = true		-- Smart case
---vim.opt.autoindent = true
---vim.opt.smartindent = false		-- Make indenting starter again
---vim.opt.cindent = false
---vim.opt.indentexpr = GetRustIndent
+vim.opt.smartindent = true		-- Make indenting starter again
 vim.opt.swapfile = false		-- Creates a swapfile
 vim.opt.termguicolors = true	-- Set term gui colors
 vim.opt.undofile = true			-- Enable persistent undo
@@ -24,4 +21,4 @@ vim.opt.fillchars = {			-- Hide the vertical bar separating tree and editor
 	vert = ' ',
 	eob = ' ',
 }
-vim.g.rust_recommended_style = false
+vim.g.rust_recommended_style = true

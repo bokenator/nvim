@@ -21,9 +21,9 @@ require('nvim-treesitter.configs').setup({
 		additional_vim_regex_highlighting = false,
 	},
 	indent = {
-		enable = false,
+		enable = true,
 		disable = {
-			--'rust',
+			'rust',
 		}
 	},
 	autopairs = {
@@ -72,14 +72,18 @@ require('nvim-treesitter.configs').setup({
 			-- Use if you want more granular movements
 			-- Make it even more gradual by adding multiple queries and regex.
 			goto_next = {
+				[']f'] = '@function.outer',
+				[']F'] = '@function.inner',
 				[']d'] = '@conditional.outer',
 			},
 			goto_previous = {
+				['[f'] = '@function.outer',
+				['[F'] = '@function.inner',
 				['[d'] = '@conditional.outer',
 			}
 		},
 		select = {
-			enable = true,
+			enable = false,
 			lookahead = true,		-- Automatically jump forward to textobj, similar to targets.vim
 			keymaps = {
 				-- You can use the capture groups defined in textobjects.scm
