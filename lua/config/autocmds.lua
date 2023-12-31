@@ -2,9 +2,14 @@
 vim.api.nvim_create_augroup('LintOnSave', {clear = true})
 vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
 	group = 'LintOnSave',
-	pattern = '*.rs',
+	pattern = {
+		'*.rs',
+		'*.ts',
+		'*.js',
+		'*.json',
+	},
 	callback = function()
-		vim.lsp.buf.format({ async = true })
+		vim.lsp.buf.format({ async = false })
 	end,
 })
 

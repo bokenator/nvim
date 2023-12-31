@@ -77,11 +77,28 @@ lspconfig.rust_analyzer.setup({
 			inlayHints = {
 			},
 		},
-	}
+	},
 })
 
--- Typescript
+-- JSON
+lspconfig.jsonls.setup({
+	on_attach = on_attach,
+	capabilities = capabilities,
+	settings = {
+		json = {
+			format = {
+				enable = true,
+			},
+		},
+		validate = {
+			enable = true,
+		},
+	},
+})
+
+-- Typescript/javascript
 lspconfig.tsserver.setup({
 	on_attach = on_attach,
 	capabilities = capabilities,
 })
+
