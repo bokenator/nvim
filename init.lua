@@ -1,6 +1,5 @@
 require('config.autocmds')
 require('config.autopairs')
-require('config.bufdelete')
 require('config.cmp')
 require('config.colorscheme')
 require('config.comment')

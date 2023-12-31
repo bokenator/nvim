@@ -9,7 +9,6 @@ require('mason-lspconfig').setup({
 		'lua_ls',
 		'tsserver',
 		'jsonls',
-		'tomlls',
 		'rust_analyzer',
 	}
 })
