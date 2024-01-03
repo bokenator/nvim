@@ -98,7 +98,11 @@ require('nvim-tree').setup {
 		update_root = true,
 		ignore_list = {},
 	},
-
+	git = {
+	   enable = true,
+	   ignore = false,
+	   timeout = 500,
+   },
 	diagnostics = {
 		enable = true,
 		show_on_dirs = true,
