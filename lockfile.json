@@ -1,6 +1,6 @@
 {
   "ada": {
-    "revision": "f21f13afe0410311be1f78959a25aee393c569c9"
+    "revision": "a1e54e4e0347db6a37099822181e5cdf0d180198"
   },
   "agda": {
     "revision": "c21c3a0f996363ed17b8ac99d827fe5a4821f217"
@@ -417,10 +417,10 @@
     "revision": "28d3b2e25a0b1881d1b47ed1924ca276c7003d45"
   },
   "ocaml": {
-    "revision": "694c57718fd85d514f8b81176038e7a4cfabcaaf"
+    "revision": "4abfdc1c7af2c6c77a370aee974627be1c285b3b"
   },
   "ocaml_interface": {
-    "revision": "694c57718fd85d514f8b81176038e7a4cfabcaaf"
+    "revision": "4abfdc1c7af2c6c77a370aee974627be1c285b3b"
   },
   "ocamllex": {
     "revision": "4b9898ccbf198602bb0dec9cd67cc1d2c0a4fad2"
@@ -552,7 +552,7 @@
     "revision": "79456e6080f50fc1ca7c21845794308fa5d35a51"
   },
   "scala": {
-    "revision": "696965ee3bafd47f4b5204d1e63b4ea4b52d9f9b"
+    "revision": "7891815f42dca9ed6aeb464c2edc39d479ab965c"
   },
   "scfg": {
     "revision": "6deae0cbb458c849a4d1e2985093e9c9c32d7fd0"
@@ -591,7 +591,7 @@
     "revision": "05f949d3c1c15e3261473a244d3ce87777374dec"
   },
   "sql": {
-    "revision": "b599f6a1ca37cb5bae827a424cd98371a0d91bdc"
+    "revision": "fd70fb358d164cd93fbe2674a9cca276dc5203f7"
   },
   "squirrel": {
     "revision": "e8b5835296f931bcaa1477d3c5a68a0c5c2ba034"
@@ -636,7 +636,7 @@
     "revision": "33482c92a0dfa694491d34e167a1d2f52b0dccb1"
   },
   "templ": {
-    "revision": "14d105789af342f7f0c32bff2fec1a6edec59f60"
+    "revision": "f5c56b4739ea3303d125f6b7363645af631b85a1"
   },
   "terraform": {
     "revision": "e135399cb31b95fac0760b094556d1d5ce84acf0"
@@ -693,7 +693,7 @@
     "revision": "4c5ecd6326ebd61f6f9a22a370cbd100e0d601da"
   },
   "v": {
-    "revision": "b59edeac4a819999ebc5a78bbd384bd30bf6fa30"
+    "revision": "9ac84e62396bb13c8f1d11f967f0c0f2dec1a448"
   },
   "vala": {
     "revision": "8f690bfa639f2b83d1fb938ed3dd98a7ba453e8b"
@@ -720,7 +720,7 @@
     "revision": "a041228ae64632f59b9bd37346a0dbcb7817f36b"
   },
   "wing": {
-    "revision": "d85ef04bb7e75e2627348b45a5f357a2c7fbee91"
+    "revision": "6437741d19632ae502fc335441c895cd94729db3"
   },
   "xcompose": {
     "revision": "01344fed31a3cd37a63f03357ec80cbc592a93b5"
