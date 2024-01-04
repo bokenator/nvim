@@ -22,14 +22,14 @@ require('lualine').setup({
 		lualine_y = { 'filetype' },
 		lualine_z = { 'progress' },
 	},
-	winbar = {
-		lualine_a = {},
-		lualine_b = {},
-		lualine_c = {'buffers'},
-		lualine_x = {},
-		lualine_y = {},
-		lualine_z = {}
-	},
+	-- winbar = {
+	-- 	lualine_a = {},
+	-- 	lualine_b = {},
+	-- 	lualine_c = {'buffers'},
+	-- 	lualine_x = {},
+	-- 	lualine_y = {},
+	-- 	lualine_z = {}
+	-- },
 	extensions = {
 		'nvim-tree',
 	},
