@@ -3,7 +3,19 @@ local colors = require('vscode.colors').get_colors()
 require('bufferline').setup({
 	highlights = {
 		-- When the buffer is selected, and cursor is in the buffer window
+		error_selected = {
+			fg = colors.vscFront,
+		},
+		hint_selected = {
+			fg = colors.vscFront,
+		},
+		info_selected = {
+			fg = colors.vscFront,
+		},
 		modified_selected = {
+			fg = colors.vscFront,
+		},
+		warning_selected = {
 			fg = colors.vscFront,
 		},
 		-- When the buffer is selected, but cursor is in another window
@@ -13,7 +25,19 @@ require('bufferline').setup({
 		close_button_visible = {
 			fg = colors.vscFront,
 		},
+		error_visible = {
+			fg = colors.vscFront,
+		},
+		hint_visible = {
+			fg = colors.vscFront,
+		},
+		info_visible = {
+			fg = colors.vscFront,
+		},
 		modified_visible = {
+			fg = colors.vscFront,
+		},
+		warning_visible = {
 			fg = colors.vscFront,
 		},
 		-- When the buffer is not selected
@@ -23,7 +47,19 @@ require('bufferline').setup({
 		close_button = {
 			fg = colors.vscLeftLight,
 		},
+		error = {
+			fg = colors.vscLeftLight,
+		},
+		hint = {
+			fg = colors.vscLeftLight,
+		},
+		info = {
+			fg = colors.vscLeftLight,
+		},
 		modified = {
+			fg = colors.vscLeftLight,
+		},
+		warning = {
 			fg = colors.vscLeftLight,
 		},
 	},
