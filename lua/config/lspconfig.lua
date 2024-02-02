@@ -69,7 +69,7 @@ lspconfig.rust_analyzer.setup({
 				},
 			},
 			imports = {
-				preferNoStd = true,
+				preferNoStd = false,
 				granularity = {
 					enforce = true,
 				},
