@@ -7,11 +7,11 @@ local on_attach = function(client, buffer_number)
 		silent = true,
 	}
 	
-	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', options)
-	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', options)
+	-- vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', options)
+	-- vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', options)
 	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', options)
-	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gI', '<cmd>lua vim.lsp.buf.implementation()<CR>', options)
-	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', options)
+	-- vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gI', '<cmd>lua vim.lsp.buf.implementation()<CR>', options)
+	-- vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', options)
 	vim.api.nvim_buf_set_keymap(buffer_number, 'n', 'gl', '<cmd>lua vim.diagnostic.open_float()<CR>', options)
 end
 
