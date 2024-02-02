@@ -11,6 +11,7 @@ git subtree pull --prefix pack/plugins/start/cmp-path https://github.com/hrsh7th
 git subtree pull --prefix pack/plugins/start/cmp-vsnip https://github.com/hrsh7th/cmp-vsnip.git main --squash
 git subtree pull --prefix pack/plugins/start/comment https://github.com/numToStr/Comment.nvim.git master --squash
 git subtree pull --prefix pack/plugins/start/devicons https://github.com/nvim-tree/nvim-web-devicons.git master --squash
+git subtree pull --prefix pack/plugins/start/goto-preview https://github.com/rmagatti/goto-preview.git main --squash
 git subtree pull --prefix pack/plugins/start/indentline https://github.com/lukas-reineke/indent-blankline.nvim.git master --squash
 git subtree pull --prefix pack/plugins/start/mason https://github.com/williamboman/mason.nvim.git main --squash
 git subtree pull --prefix pack/plugins/start/mason-lspconfig https://github.com/williamboman/mason-lspconfig.nvim.git main --squash
