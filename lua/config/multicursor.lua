@@ -2,10 +2,10 @@ local multipleCursors = require('multiple-cursors')
 
 multipleCursors.setup({
 	pre_hook = function()
-		require('nvim-autopairs').disable()
+		vim.g.minipairs_disable = true
 	end,
 	post_hook = function()
-		require('nvim-autopairs').enable()
+		vim.g.minipairs_disable = false
 	end,
 })
 
