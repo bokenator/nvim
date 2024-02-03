@@ -10,9 +10,7 @@ preview.setup({
 	resizing_mappings = false,
 	post_open_hook = nil,
 	post_close_hook = nil,
-	references = { -- Configure the telescope UI for slowing the references cycling window.
-		telescope = require('telescope.themes').get_dropdown({ hide_preview = false })
-	},
+	references = {},
 	focus_on_open = true,
 	dismiss_on_move = false,
 	force_close = true,
