@@ -1,6 +1,7 @@
 local multipleCursors = require('multiple-cursors')
 
 multipleCursors.setup({
+	match_visible_only = false,
 	pre_hook = function()
 		vim.g.minipairs_disable = true
 	end,
@@ -16,4 +17,5 @@ vim.keymap.set('n', '<C-k>', '<cmd>MultipleCursorsAddUp<CR>', options)
 vim.keymap.set({'n', 'i'}, '<C-LeftMouse>', '<cmd>MultipleCursorsMouseAddDelete<CR>', options)
 vim.keymap.set({'n', 'x'}, '<Leader>a', '<cmd>MultipleCursorsAddBySearchV<CR>', options)
 vim.keymap.set({'n', 'x'}, '<Leader>A', '<cmd>MultipleCursorsAddBySearchV<CR>', options)
+vim.keymap.set({'n', 'x'}, '<C-a>', '<cmd>MultipleCursorsAddBySearchOne<CR>', options)
 
