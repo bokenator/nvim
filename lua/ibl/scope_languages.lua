@@ -284,7 +284,6 @@ local M = {
         interpolated_expression = true,
     },
     lua = {
-        chunk = true,
         do_statement = true,
         while_statement = true,
         repeat_statement = true,
@@ -298,6 +297,27 @@ local M = {
     },
     mlir = {
         region = true,
+    },
+    nim = {
+        ["if"] = true,
+        case = true,
+        try = true,
+
+        ["for"] = true,
+        ["while"] = true,
+        block = true,
+        static_statement = true,
+        proc_declaration = true,
+        func_declaration = true,
+        method_declaration = true,
+        iterator_declaration = true,
+        converter_declaration = true,
+        template_declaration = true,
+        macro_declaration = true,
+        proc_expression = true,
+        func_expression = true,
+        iterator_expression = true,
+        concept_declaration = true,
     },
     nix = {
         let_expression = true,
@@ -337,11 +357,15 @@ local M = {
 
         exceptionHandler = true,
     },
+    perl = {
+        block = true,
+        block_statement = true,
+    },
     php = {
         class_declaration = true,
         method_declaration = true,
         function_definition = true,
-        anonymous_function_creation_expression = true,
+        anonymous_function = true,
     },
     pony = {
         use_statement = true,
@@ -651,6 +675,7 @@ M.cpp = vim.tbl_extend("keep", M.c, {
     catch_clause = true,
     requires_expression = true,
 })
+M.angular = M.html
 M.arduino = M.cpp
 M.cuda = M.cpp
 M.astro = M.html
@@ -669,7 +694,11 @@ M.luau = M.lua
 M.nqc = M.c
 M.objc = M.c
 M.ocaml_interface = M.ocaml
+M.svelte = M.html
 M.tsx = vim.tbl_extend("keep", M.ecma, { jsx_element = true })
 M.typescript = M.ecma
+M.vue = vim.tbl_extend("keep", M.html, {
+    template_element = true,
+})
 
 return M

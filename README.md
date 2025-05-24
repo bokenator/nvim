@@ -9,12 +9,18 @@ This plugin requires the latest stable version of Neovim.
 
 ## Install
 
-Use your favourite plugin manager to install.
+Use your favorite plugin manager to install.
 
 For [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
-{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} }
+{
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    ---@module "ibl"
+    ---@type ibl.config
+    opts = {},
+}
 ```
 
 For [pckr.nvim](https://github.com/lewis6991/pckr.nvim):
