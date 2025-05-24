@@ -62,6 +62,18 @@ local function validate_user_options(options)
     local item = deprecations[key]
     if item then vim.schedule(function() vim.deprecate(item.name, item.alternative, item.version, "bufferline") end) end
   end
+  if options.diagnostics == "nvim_lsp" and options.diagnostics_update_in_insert then
+    vim.schedule(
+      function()
+        vim.deprecate(
+          "diagnostics_update_in_insert",
+          "vim.diagnostic.config { update_in_insert = true }",
+          "4.6.3",
+          "bufferline"
+        )
+      end
+    )
+  end
 end
 
 ---@param options bufferline.Options
@@ -646,8 +658,10 @@ local function get_defaults()
     show_close_icon = true,
     show_tab_indicators = true,
     show_duplicate_prefix = true,
+    duplicates_across_groups = true,
     enforce_regular_tabs = false,
     always_show_bufferline = true,
+    auto_toggle_bufferline = true,
     persist_buffer_sort = true,
     move_wraps_at_ends = false,
     max_prefix_length = 15,
@@ -655,10 +669,14 @@ local function get_defaults()
     diagnostics = false,
     diagnostics_indicator = nil,
     diagnostics_update_in_insert = true,
+    diagnostics_update_on_event = true,
     offsets = {},
     groups = { items = {}, options = { toggle_hidden_on_enter = true } },
     hover = { enabled = false, reveal = {}, delay = 200 },
     debug = { logging = false },
+    pick = {
+      alphabet = "abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMOPQRSTUVWXYZ1234567890",
+    },
   }
   return { options = opts, highlights = derive_colors(opts.style_preset) }
 end

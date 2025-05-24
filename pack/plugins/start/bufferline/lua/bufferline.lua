@@ -88,6 +88,7 @@ end
 
 --- If the item count has changed and the next tabline status is different then update it
 local function toggle_bufferline()
+  if not config.options.auto_toggle_bufferline then return end
   local item_count = config:is_tabline() and utils.get_tab_count() or utils.get_buf_count()
   local status = (config.options.always_show_bufferline or item_count > 1) and 2 or 0
   if vim.o.showtabline ~= status then vim.o.showtabline = status end
@@ -180,16 +181,17 @@ local function setup_commands()
   })
 end
 
+local function setup_diagnostic_handler(preferences)
+  if preferences.options.diagnostics == "nvim_lsp" and preferences.options.diagnostics_update_on_event then
+    vim.diagnostic.handlers["bufferline"] = {
+      show = function() ui.refresh() end,
+      hide = function() ui.refresh() end,
+    }
+  end
+end
+
 ---@param conf bufferline.UserConfig?
 function M.setup(conf)
-  if not utils.is_current_stable_release() then
-    utils.notify(
-      "bufferline.nvim requires Neovim 0.7 or higher, please use tag 1.* or update your neovim",
-      "error",
-      { once = true }
-    )
-    return
-  end
   conf = conf or {}
   config.setup(conf)
   groups.setup(conf) -- Groups must be set up before the config is applied
@@ -199,6 +201,7 @@ function M.setup(conf)
   hover.setup(preferences)
   setup_commands()
   setup_autocommands(preferences)
+  setup_diagnostic_handler(preferences)
   vim.o.tabline = "%!v:lua.nvim_bufferline()"
   toggle_bufferline()
 end

@@ -80,10 +80,10 @@ The available configuration are:
                 style = 'icon' | 'underline' | 'none',
             },
             buffer_close_icon = '󰅖',
-            modified_icon = '●',
-            close_icon = '',
-            left_trunc_marker = '',
-            right_trunc_marker = '',
+            modified_icon = '● ',
+            close_icon = ' ',
+            left_trunc_marker = ' ',
+            right_trunc_marker = ' ',
             --- name_formatter can be used to change the buffer's label in the bufferline.
             --- Please note some names can/will break the
             --- bufferline so use this at your discretion knowing that it has
@@ -91,7 +91,7 @@ The available configuration are:
             name_formatter = function(buf)  -- buf contains:
                   -- name                | str        | the basename of the active file
                   -- path                | str        | the full path of the active file
-                  -- bufnr (buffer only) | int        | the number of the active buffer
+                  -- bufnr               | int        | the number of the active buffer
                   -- buffers (tabs only) | table(int) | the numbers of the buffers in the tab
                   -- tabnr (tabs only)   | int        | the "handle" of the tab, can be converted to its ordinal number using: `vim.api.nvim_tabpage_get_number(buf.tabnr)`
             end,
@@ -100,7 +100,8 @@ The available configuration are:
             truncate_names = true, -- whether or not tab names should be truncated
             tab_size = 18,
             diagnostics = false | "nvim_lsp" | "coc",
-            diagnostics_update_in_insert = false,
+            diagnostics_update_in_insert = false, -- only applies to coc
+            diagnostics_update_on_event = true, -- use nvim's diagnostic handler
             -- The diagnostics indicator can be set to nil to keep the buffer name highlight but delete the highlighting
             diagnostics_indicator = function(count, level, diagnostics_dict, context)
                 return "("..count..")"
@@ -150,6 +151,7 @@ The available configuration are:
             show_close_icon = true | false,
             show_tab_indicators = true | false,
             show_duplicate_prefix = true | false, -- whether to show duplicate buffer prefix
+            duplicates_across_groups = true, -- whether to consider duplicate paths in different groups as duplicates
             persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
             move_wraps_at_ends = false, -- whether or not the move command "wraps" at the first or last position
             -- can also be a table containing 2 custom separators
@@ -157,6 +159,7 @@ The available configuration are:
             separator_style = "slant" | "slope" | "thick" | "thin" | { 'any', 'any' },
             enforce_regular_tabs = false | true,
             always_show_bufferline = true | false,
+            auto_toggle_bufferline = true | false,
             hover = {
                 enabled = true,
                 delay = 200,
@@ -164,8 +167,13 @@ The available configuration are:
             },
             sort_by = 'insert_after_current' |'insert_at_end' | 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
                 -- add custom logic
-                return buffer_a.modified > buffer_b.modified
-            end
+                local modified_a = vim.fn.getftime(buffer_a.path)
+                local modified_b = vim.fn.getftime(buffer_b.path)
+                return modified_a > modified_b
+            end,
+            pick = {
+              alphabet = "abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMOPQRSTUVWXYZ1234567890",
+            },
         }
     }
 <
@@ -311,7 +319,7 @@ a custom function in your setup.
     --- this should return a string
     --- Don't get too fancy as this function will be executed a lot
     diagnostics_indicator = function(count, level)
-        local icon = level:match("error") and " " or ""
+        local icon = level:match("error") and " " or " "
         return " " .. icon .. count
     end
 <
@@ -332,7 +340,7 @@ current buffer and only have them appear for other buffers.
             return ''
         end
 
-        return ''
+        return ' '
     end
 <
 
@@ -356,7 +364,7 @@ In order to group buffers specify a list of groups in your config e.g.
         name = "Tests", -- Mandatory
         highlight = {underline = true, sp = "blue"}, -- Optional
         priority = 2, -- determines where it will appear relative to other groups (Optional)
-        icon = "", -- Optional
+        icon = " ", -- Optional
         matcher = function(buf) -- Mandatory
           return buf.filename:match('%_test') or buf.filename:match('%_spec')
         end,
@@ -434,7 +442,7 @@ to other groups e.g.
     options = {
         groups = {
             items = {
-                require('bufferline.groups').builtin.pinned:with({ icon = "" })
+                require('bufferline.groups').builtin.pinned:with({ icon = "󰐃 " })
                 ... -- other items
             }
         }
@@ -481,7 +489,9 @@ are available to use using >lua
     sort_by = function(buffer_a, buffer_b)
         print(vim.inspect(buffer_a))
         -- add custom logic
-        return buffer_a.modified > buffer_b.modified
+        local modified_a = vim.fn.getftime(buffer_a.path)
+        local modified_b = vim.fn.getftime(buffer_b.path)
+        return modified_a > modified_b
     end
 <
 
@@ -571,7 +581,7 @@ A user can also execute arbitrary functions against a buffer using the
     function _G.bdel(num)
         require('bufferline').exec(num, function(buf, visible_buffers)
             vim.cmd('bdelete '..buf.id)
-        end
+        end)
     end
 
     vim.cmd [[
@@ -650,6 +660,19 @@ this can also be mapped to something like
 >vim
   nnoremap <silent> gD :BufferLinePickClose<CR>
 >
+
+You can configure the characters used for selecting buffers using the 
+`pick.alphabet` option. By default, both uppercase and lowercase 
+alphanumeric characters are used.
+>lua
+    options = {
+        pick = {
+            alphabet = "abcdefghijklmopqrstuvwxyz"
+        }
+    }
+<
+
+With the configuration above, bufferline will only use lowercase letters.
 
 ==============================================================================
 MOUSE ACTIONS                                     *bufferline-mouse-actions*
@@ -1124,19 +1147,19 @@ to be shown in a list of tables. For example:
         local hint = #vim.diagnostic.get(0, {severity = seve.HINT})
 
         if error ~= 0 then
-            table.insert(result, {text = "  " .. error, fg = "#EC5241"})
+            table.insert(result, {text = "  " .. error, link = "DiagnosticError"})
         end
 
         if warning ~= 0 then
-            table.insert(result, {text = "  " .. warning, fg = "#EFB839"})
+            table.insert(result, {text = "  " .. warning, link = "DiagnosticWarn"})
         end
 
         if hint ~= 0 then
-            table.insert(result, {text = "  " .. hint, fg = "#A3BA5E"})
+            table.insert(result, {text = "  " .. hint, link = "DiagnosticHint"})
         end
 
         if info ~= 0 then
-            table.insert(result, {text = "  " .. info, fg = "#7EA9A7"})
+            table.insert(result, {text = "  " .. info, link = "DiagnosticInfo"})
         end
         return result
     end,

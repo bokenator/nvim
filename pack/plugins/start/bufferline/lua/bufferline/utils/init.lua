@@ -10,6 +10,8 @@ local M = {}
 local fn, api = vim.fn, vim.api
 local strwidth = api.nvim_strwidth
 
+local is_version_11 = fn.has("nvim-0.11") == 1
+
 function M.is_test()
   ---@diagnostic disable-next-line: undefined-global
   return __TEST
@@ -121,21 +123,45 @@ function M.tbl_reverse_lookup(tbl)
   return ret
 end
 
-M.path_sep = vim.startswith(vim.loop.os_uname().sysname, "Windows") and "\\" or "/"
+--- creates a table containing the forward and reversed mapping from the provided
+--- table.
+--- similar to the now deprecated vim.tbl_add_reverse_lookup
+--- @generic K,V
+--- @param tbl table<K,V>
+--- @return table<V,K>
+function M.tbl_add_reverse_lookup(tbl)
+  local ret = {}
+  for k, v in pairs(tbl) do
+    ret[k] = v
+    ret[v] = k
+  end
 
--- The provided api nvim_is_buf_loaded filters out all hidden buffers
---- @param buf_num integer
-function M.is_valid(buf_num)
-  if not buf_num or buf_num < 1 then return false end
-  local exists = vim.api.nvim_buf_is_valid(buf_num)
-  return vim.bo[buf_num].buflisted and exists
+  return ret
+end
+
+M.path_sep = fn.has("win32") == 1 and "\\" or "/"
+
+-- The provided api nvim_is_buf_valid filters out all invalid or unlisted buffers
+--- @param buf table
+function M.is_valid(buf)
+  if not buf.bufnr or buf.bufnr < 1 then return false end
+  local valid = vim.api.nvim_buf_is_valid(buf.bufnr)
+  if not valid then return false end
+  return buf.listed == 1
 end
 
 ---@return integer
 function M.get_buf_count() return #fn.getbufinfo({ buflisted = 1 }) end
 
 ---@return integer[]
-function M.get_valid_buffers() return vim.tbl_filter(M.is_valid, vim.api.nvim_list_bufs()) end
+function M.get_valid_buffers()
+  local bufs = vim.fn.getbufinfo()
+  local valid_bufs = {}
+  for _, buf in ipairs(bufs) do
+    if M.is_valid(buf) then table.insert(valid_bufs, buf.bufnr) end
+  end
+  return valid_bufs
+end
 
 ---@return integer
 function M.get_tab_count() return #fn.gettabinfo() end
@@ -150,7 +176,9 @@ function M.notify(msg, level, opts)
   level = vim.log.levels[level:upper()]
   if type(msg) == "table" then msg = table.concat(msg, "\n") end
   local nopts = { title = "Bufferline" }
-  if opts.once then return vim.schedule(function() vim.notify_once(msg, level, nopts) end) end
+  if opts.once then
+    return vim.schedule(function() vim.notify_once(msg, level, nopts) end)
+  end
   vim.schedule(function() vim.notify(msg, level, nopts) end)
 end
 
@@ -160,8 +188,8 @@ function M.restore_positions()
   local ok, paths = pcall(vim.json.decode, str)
   if not ok or type(paths) ~= "table" or #paths == 0 then return nil end
   local ids = vim.tbl_map(function(path)
-    local escaped = vim.fn.fnameescape(path)
-    return vim.fn.bufnr("^" .. escaped .. "$" --[[@as integer]])
+    local escaped = fn.fnameescape(path)
+    return fn.bufnr("^" .. escaped .. "$" --[[@as integer]])
   end, paths)
   return vim.tbl_filter(function(id) return id ~= -1 end, ids)
 end
@@ -189,6 +217,7 @@ function M.get_icon(opts)
     if icon then return icon, hl end
   end
 
+  if not config.options.show_buffer_icons then return "", "" end
   local loaded, webdev_icons = pcall(require, "nvim-web-devicons")
   if opts.directory then
     local hl = loaded and "DevIconDefault" or nil
@@ -209,14 +238,6 @@ function M.get_icon(opts)
   if not icon then return "", "" end
   return icon, hl
 end
-
-local current_stable = {
-  major = 0,
-  minor = 7, -- TODO: bump this 0.9 by 30/04/2023
-  patch = 0,
-}
-
-function M.is_current_stable_release() return vim.version().minor >= current_stable.minor end
 
 -- truncate a string based on number of display columns/cells it occupies
 -- so that multibyte characters are not broken up mid character
@@ -250,8 +271,11 @@ function M.truncate_name(name, word_limit)
   return truncate_by_cell(name, word_limit - 1) .. constants.ELLIPSIS
 end
 
--- TODO: deprecate this in nvim-0.11 or use strict lists
---- Determine which list-check function to use
-M.is_list = vim.tbl_isarray or vim.tbl_islist
+---@diagnostic disable: deprecated
+-- TODO: deprecate this in nvim-0.11 or use strict lists. Determine which list-check function to use
+M.is_list = vim.isarray or vim.islist or vim.tbl_isarray or vim.tbl_islist
+
+---@diagnostic disable: deprecated
+function M.tbl_flatten(t) return is_version_11 and vim.iter(t):flatten(math.huge):totable() or vim.tbl_flatten(t) end
 
 return M
