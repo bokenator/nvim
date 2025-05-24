@@ -54,13 +54,33 @@ end
 cmp.register_source = function(name, s)
   local src = source.new(name, s)
   cmp.core:register_source(src)
+  vim.api.nvim_exec_autocmds('User', {
+    pattern = 'CmpRegisterSource',
+    data = {
+      source_id = src.id,
+    },
+  })
   return src.id
 end
 
 ---Unregister completion source
 ---@param id integer
 cmp.unregister_source = function(id)
-  cmp.core:unregister_source(id)
+  local s = cmp.core:unregister_source(id)
+  if s then
+    vim.api.nvim_exec_autocmds('User', {
+      pattern = 'CmpUnregisterSource',
+      data = {
+        source_id = id,
+      },
+    })
+  end
+end
+
+---Get registered sources.
+---@return cmp.Source[]
+cmp.get_registered_sources = function()
+  return cmp.core:get_registered_sources()
 end
 
 ---Get current configuration.
@@ -88,6 +108,12 @@ cmp.visible = cmp.sync(function()
   return cmp.core.view:visible() or vim.fn.pumvisible() == 1
 end)
 
+---Get what number candidates are currently selected.
+---If not selected, nil is returned.
+cmp.get_selected_index = cmp.sync(function()
+  return cmp.core.view:get_selected_index()
+end)
+
 ---Get current selected entry or nil
 cmp.get_selected_entry = cmp.sync(function()
   return cmp.core.view:get_selected_entry()
@@ -108,6 +134,7 @@ cmp.close = cmp.sync(function()
   if cmp.core.view:visible() then
     local release = cmp.core:suspend()
     cmp.core.view:close()
+    cmp.core:reset()
     vim.schedule(release)
     return true
   else
@@ -120,6 +147,7 @@ cmp.abort = cmp.sync(function()
   if cmp.core.view:visible() then
     local release = cmp.core:suspend()
     cmp.core.view:abort()
+    cmp.core:reset()
     vim.schedule(release)
     return true
   else
@@ -300,6 +328,12 @@ cmp.status = function()
   end
 end
 
+---Ensures that cmp is the last receiver of the events specified.
+---@param events string[]
+cmp.resubscribe = function(events)
+  autocmd.resubscribe(events)
+end
+
 ---@type cmp.Setup
 cmp.setup = setmetatable({
   global = function(c)
@@ -351,7 +385,7 @@ autocmd.subscribe('CursorMovedI', function()
 end)
 
 -- If make this asynchronous, the completion menu will not close when the command output is displayed.
-autocmd.subscribe({ 'InsertLeave', 'CmdlineLeave' }, function()
+autocmd.subscribe({ 'InsertLeave', 'CmdlineLeave', 'CmdwinEnter' }, function()
   cmp.core:reset()
   cmp.core.view:close()
 end)
