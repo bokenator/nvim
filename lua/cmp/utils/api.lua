@@ -47,7 +47,7 @@ end
 ---@return { [1]: integer, [2]: integer }
 api.get_cursor = function()
   if api.is_cmdline_mode() then
-    return { math.min(vim.o.lines, vim.o.lines - (vim.api.nvim_get_option('cmdheight') - 1)), vim.fn.getcmdpos() - 1 }
+    return { math.min(vim.o.lines, vim.o.lines - (vim.api.nvim_get_option_value('cmdheight', {}) - 1)), vim.fn.getcmdpos() - 1 }
   end
   return vim.api.nvim_win_get_cursor(0)
 end
@@ -65,6 +65,17 @@ end
 api.get_cursor_before_line = function()
   local cursor = api.get_cursor()
   return string.sub(api.get_current_line(), 1, cursor[2])
+end
+
+--- Applies a list of text edits to a buffer. Preserves 'buflisted' state.
+---@param text_edits lsp.TextEdit[]
+---@param bufnr integer Buffer id
+---@param position_encoding 'utf-8'|'utf-16'|'utf-32'
+api.apply_text_edits = function(text_edits, bufnr, position_encoding)
+  -- preserve 'buflisted' state because vim.lsp.util.apply_text_edits forces it to true
+  local prev_buflisted = vim.bo[bufnr].buflisted
+  vim.lsp.util.apply_text_edits(text_edits, bufnr, position_encoding)
+  vim.bo[bufnr].buflisted = prev_buflisted
 end
 
 return api

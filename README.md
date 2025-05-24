@@ -29,7 +29,7 @@ Setup
 
 This example configuration uses `vim-plug` as the plugin manager and `vim-vsnip` as a snippet plugin.
 
-```lua
+```vim
 call plug#begin(s:plug_dir)
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -45,6 +45,10 @@ Plug 'hrsh7th/vim-vsnip'
 " For luasnip users.
 " Plug 'L3MON4D3/LuaSnip'
 " Plug 'saadparwaiz1/cmp_luasnip'
+
+" For mini.snippets users.
+" Plug 'echasnovski/mini.snippets'
+" Plug 'abeldekat/cmp-mini-snippets'
 
 " For ultisnips users.
 " Plug 'SirVer/ultisnips'
@@ -68,6 +72,13 @@ lua <<EOF
         -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
         -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
         -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+        -- vim.snippet.expand(args.body) -- For native neovim snippets (Neovim v0.10+)
+
+        -- For `mini.snippets` users:
+        -- local insert = MiniSnippets.config.expand.insert or MiniSnippets.default_insert
+        -- insert({ body = args.body }) -- Insert at cursor
+        -- cmp.resubscribe({ "TextChangedI", "TextChangedP" })
+        -- require("cmp.config").set_onetime({ sources = {} })
       end,
     },
     window = {
@@ -92,14 +103,16 @@ lua <<EOF
     })
   })
 
+  -- To use git you need to install the plugin petertriho/cmp-git and uncomment lines below
   -- Set configuration for specific filetype.
-  cmp.setup.filetype('gitcommit', {
+  --[[ cmp.setup.filetype('gitcommit', {
     sources = cmp.config.sources({
-      { name = 'git' }, -- You can specify the `git` source if [you were installed it](https://github.com/petertriho/cmp-git).
+      { name = 'git' },
     }, {
       { name = 'buffer' },
     })
-  })
+ })
+ require("cmp_git").setup() ]]-- 
 
   -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
   cmp.setup.cmdline({ '/', '?' }, {
@@ -116,7 +129,8 @@ lua <<EOF
       { name = 'path' }
     }, {
       { name = 'cmdline' }
-    })
+    }),
+    matching = { disallow_symbol_nonprefix_matching = false }
   })
 
   -- Set up lspconfig.
