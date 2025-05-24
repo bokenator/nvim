@@ -1,5 +1,10 @@
 local lib = require "goto-preview.lib"
 
+local function get_offset_encoding()
+  local client = vim.lsp.get_clients({ bufnr = 0 })[1]
+  return client and client.offset_encoding or 'utf-16'
+end
+
 local M = {
   conf = {
     width = 120, -- Width of the floating window
@@ -20,26 +25,29 @@ local M = {
         return uri, { range.start.line + 1, range.start.character }
       end,
     },
-    post_open_hook = nil, -- A function taking two arguments, a buffer and a window to be ran as a hook.
-    post_close_hook = nil, -- A function taking two arguments, a buffer and a window to be ran as a hook.
+    post_open_hook = nil,     -- A function taking two arguments, a buffer and a window to be ran as a hook.
+    post_close_hook = nil,    -- A function taking two arguments, a buffer and a window to be ran as a hook.
     references = {
+      provider = "telescope", -- telescope|fzf_lua|snacks|mini_pick|default
       telescope = nil,
     },
-    focus_on_open = true, -- Focus the floating window when opening it.
-    dismiss_on_move = false, -- Dismiss the floating window when moving the cursor.
-    force_close = true, -- passed into vim.api.nvim_win_close's second argument. See :h nvim_win_close
-    bufhidden = "wipe", -- the bufhidden option to set on the floating window. See :h bufhidden
-    stack_floating_preview_windows = true, -- Whether to nest floating windows
-    same_file_float_preview = true, -- Whether to open a new floating window for a reference within the current file
+    focus_on_open = true,                                        -- Focus the floating window when opening it.
+    dismiss_on_move = false,                                     -- Dismiss the floating window when moving the cursor.
+    force_close = true,                                          -- passed into vim.api.nvim_win_close's second argument. See :h nvim_win_close
+    bufhidden = "wipe",                                          -- the bufhidden option to set on the floating window. See :h bufhidden
+    stack_floating_preview_windows = true,                       -- Whether to nest floating windows
+    same_file_float_preview = true,                              -- Whether to open a new floating window for a reference within the current file
     preview_window_title = { enable = true, position = "left" }, -- Whether to set the preview window title as the filename
+    zindex = 1,                                                  -- Starting zindex for the stack of floating windows
+    vim_ui_input = false,                                        -- Whether to override vim.ui.input with our custom implementation
   },
 }
 
 M.setup = function(conf)
   conf = conf or {}
   M.conf = vim.tbl_deep_extend("force", M.conf, conf)
-  lib.logger.debug("non-lib:", vim.inspect(M.conf))
   lib.setup_lib(M.conf)
+  lib.logger.debug("non-lib:", vim.inspect(M.conf))
   lib.setup_aucmds()
 
   if M.conf.default_mappings then
@@ -47,6 +55,11 @@ M.setup = function(conf)
   end
   if M.conf.resizing_mappings then
     M.apply_resizing_mappings()
+  end
+
+  -- Setup custom input UI if enabled
+  if M.conf.vim_ui_input then
+    lib.setup_custom_input()
   end
 end
 
@@ -60,9 +73,10 @@ end
 ---        • dismiss_on_move boolean: Dismiss the floating window when moving the cursor.
 --- @see require("goto-preview").setup()
 M.lsp_request_definition = function(opts)
-  local params = vim.lsp.util.make_position_params()
+  local params = vim.lsp.util.make_position_params(nil, get_offset_encoding())
   local lsp_call = "textDocument/definition"
   local success, _ = pcall(vim.lsp.buf_request, 0, lsp_call, params, lib.get_handler(lsp_call, opts))
+  lib.logger.debug("lsp_request_definition", success)
   if not success then
     print_lsp_error(lsp_call)
   end
@@ -74,9 +88,10 @@ end
 ---        • dismiss_on_move boolean: Dismiss the floating window when moving the cursor.
 --- @see require("goto-preview").setup()
 M.lsp_request_type_definition = function(opts)
-  local params = vim.lsp.util.make_position_params()
+  local params = vim.lsp.util.make_position_params(nil, get_offset_encoding())
   local lsp_call = "textDocument/typeDefinition"
   local success, _ = pcall(vim.lsp.buf_request, 0, lsp_call, params, lib.get_handler(lsp_call, opts))
+  lib.logger.debug("lsp_request_type_definition", success)
   if not success then
     print_lsp_error(lsp_call)
   end
@@ -88,9 +103,10 @@ end
 ---        • dismiss_on_move boolean: Dismiss the floating window when moving the cursor.
 --- @see require("goto-preview").setup()
 M.lsp_request_implementation = function(opts)
-  local params = vim.lsp.util.make_position_params()
+  local params = vim.lsp.util.make_position_params(nil, get_offset_encoding())
   local lsp_call = "textDocument/implementation"
   local success, _ = pcall(vim.lsp.buf_request, 0, lsp_call, params, lib.get_handler(lsp_call, opts))
+  lib.logger.debug("lsp_request_implementation", success)
   if not success then
     print_lsp_error(lsp_call)
   end
@@ -102,16 +118,17 @@ end
 ---        • dismiss_on_move boolean: Dismiss the floating window when moving the cursor.
 --- @see require("goto-preview").setup()
 M.lsp_request_declaration = function(opts)
-  local params = vim.lsp.util.make_position_params()
+  local params = vim.lsp.util.make_position_params(nil, get_offset_encoding())
   local lsp_call = "textDocument/declaration"
   local success, _ = pcall(vim.lsp.buf_request, 0, lsp_call, params, lib.get_handler(lsp_call, opts))
+  lib.logger.debug("lsp_request_declaration", success)
   if not success then
     print_lsp_error(lsp_call)
   end
 end
 
 M.lsp_request_references = function(opts)
-  local params = vim.lsp.util.make_position_params()
+  local params = vim.lsp.util.make_position_params(nil, get_offset_encoding())
 
   lib.logger.debug("params pre manipulation", vim.inspect(params))
   if not params.context then
