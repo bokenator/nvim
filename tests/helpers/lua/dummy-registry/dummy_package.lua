@@ -1,14 +1,15 @@
-local Pkg = require "mason-core.package"
-
-return Pkg.new {
+return {
     name = "dummy",
-    desc = [[This is a dummy package.]],
-    categories = { Pkg.Cat.LSP },
-    languages = { Pkg.Lang.DummyLang },
+    description = [[This is a dummy package.]],
+    licenses = {},
+    categories = { "LSP" },
+    languages = { "DummyLang" },
     homepage = "https://example.com",
-    ---@async
-    ---@param ctx InstallContext
-    install = function(ctx)
-        ctx.receipt:with_primary_source { type = "dummy" }
-    end,
+    source = {
+        id = "pkg:mason/dummy@1.0.0",
+        install = function() end,
+    },
+    neovim = {
+        lspconfig = "dummylsp",
+    },
 }

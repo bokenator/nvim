@@ -2,15 +2,15 @@ local Optional = require "mason-core.optional"
 local _ = require "mason-core.functional"
 local a = require "mason-core.async"
 local notify = require "mason-lspconfig.notify"
+local registry = require "mason-registry"
 
 ---@async
 ---@param user_args string[]: The arguments, as provided by the user.
 local function parse_packages_from_user_args(user_args)
-    local registry = require "mason-registry"
     local Package = require "mason-core.package"
-    local server_mapping = require "mason-lspconfig.mappings.server"
-    local language_mapping = require "mason-lspconfig.mappings.language"
-    local language_map = language_mapping.get_language_map()
+    local mappings = require "mason-lspconfig.mappings"
+    local server_mapping = mappings.get_mason_map()
+    local filetype_map = mappings.get_filetype_map()
 
     return _.filter_map(function(server_specifier)
         local server_name, version = Package.Parse(server_specifier)
@@ -19,15 +19,18 @@ local function parse_packages_from_user_args(user_args)
             .of_nilable(server_mapping.lspconfig_to_package[server_name])
             -- 2. if not, check if it's a language specifier (e.g., "typescript" or "java")
             :or_(function()
-                return Optional.of_nilable(language_map[server_name])
+                return Optional
+                    .of_nilable(filetype_map[server_name])
                     :if_not_present(function()
                         notify(("Could not find LSP server %q."):format(server_name), vim.log.levels.ERROR)
                     end)
+                    -- Remove server configurations that aren't available for installation via Mason
+                    :map(
+                        _.filter_map(function(server_name)
+                            return Optional.of_nilable(server_mapping.lspconfig_to_package[server_name])
+                        end)
+                    )
                     :map(function(package_names)
-                        package_names = _.filter(function(package_name)
-                            return server_mapping.package_to_lspconfig[package_name] ~= nil
-                        end, package_names)
-
                         if #package_names == 0 then
                             return nil
                         end
@@ -55,13 +58,13 @@ end
 
 ---@async
 local function parse_packages_from_heuristics()
-    local server_mapping = require "mason-lspconfig.mappings.server"
-    local registry = require "mason-registry"
+    local mappings = require "mason-lspconfig.mappings"
+    local server_mapping = mappings.get_mason_map()
+    local filetype_mapping = mappings.get_filetype_map()
 
     -- Prompt user which server they want to install (based on the current filetype)
     local current_ft = vim.api.nvim_buf_get_option(vim.api.nvim_get_current_buf(), "filetype")
-    local filetype_mapping = require "mason-lspconfig.mappings.filetype"
-    local server_names = _.flatten(_.concat(filetype_mapping[current_ft] or {}, filetype_mapping["*"] or {}))
+    local server_names = filetype_mapping[current_ft] or {}
     if #server_names == 0 then
         notify(("No LSP servers found for filetype %q."):format(current_ft), vim.log.levels.ERROR)
         return {}
@@ -90,6 +93,7 @@ local parse_packages_to_install = _.cond {
 }
 
 local LspInstall = a.scope(function(servers)
+    a.wait(registry.refresh)
     local packages_to_install = parse_packages_to_install(servers)
     if #packages_to_install > 0 then
         require("mason.api.command").MasonInstall(_.map(function(target)
@@ -113,7 +117,7 @@ end, {
 })
 
 local function LspUninstall(servers)
-    local server_mapping = require "mason-lspconfig.mappings.server"
+    local server_mapping = require("mason-lspconfig.mappings").get_mason_map()
     require("mason.api.command").MasonUninstall(_.map(function(lspconfig_name)
         return server_mapping.lspconfig_to_package[lspconfig_name] or lspconfig_name
     end, servers))
@@ -132,9 +136,9 @@ end, {
 _G.mason_lspconfig_completion = {
     available_server_completion = function()
         local available_servers = require("mason-lspconfig").get_available_servers()
-        local language_mapping = require "mason-lspconfig.mappings.language"
+        local mappings = require "mason-lspconfig.mappings"
         local sort_deduped = _.compose(_.sort_by(_.identity), _.uniq_by(_.identity))
-        local completions = sort_deduped(_.concat(_.keys(language_mapping.get_language_map()), available_servers))
+        local completions = sort_deduped(_.concat(_.keys(mappings.get_filetype_map()), available_servers))
         return table.concat(completions, "\n")
     end,
     installed_server_completion = function()
