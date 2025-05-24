@@ -11,10 +11,12 @@ Install the plugin with your preferred package manager:
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
-return {
+{
     'windwp/nvim-autopairs',
     event = "InsertEnter",
-    opts = {} -- this is equalent to setup({}) function
+    config = true
+    -- use opts = {} for passing setup options
+    -- this is equivalent to setup({}) function
 }
 ```
 
@@ -32,31 +34,36 @@ EOF
 
 ```lua
 use {
-	"windwp/nvim-autopairs",
-    config = function() require("nvim-autopairs").setup {} end
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+        require("nvim-autopairs").setup {}
+    end
 }
 ```
 
 ## Default values
 
 ``` lua
-local disable_filetype = { "TelescopePrompt", "spectre_panel" }
-local disable_in_macro = true  -- disable when recording or executing a macro
-local disable_in_visualblock = false -- disable when insert after visual block mode
-local disable_in_replace_mode = true
-local ignored_next_char = [=[[%w%%%'%[%"%.%`%$]]=]
-local enable_moveright = true
-local enable_afterquote = true  -- add bracket pairs after quote
-local enable_check_bracket_line = true  --- check bracket in same line
-local enable_bracket_in_quote = true --
-local enable_abbr = false -- trigger abbreviation
-local break_undo = true -- switch for basic rule break undo sequence
-local check_ts = false
-local map_cr = true
-local map_bs = true  -- map the <BS> key
-local map_c_h = false  -- Map the <C-h> key to delete a pair
-local map_c_w = false -- map <c-w> to delete a pair if possible
-
+{
+    enabled = function(bufnr) return true end, -- control if auto-pairs should be enabled when attaching to a buffer
+    disable_filetype = { "TelescopePrompt", "spectre_panel", "snacks_picker_input" },
+    disable_in_macro = true, -- disable when recording or executing a macro
+    disable_in_visualblock = false, -- disable when insert after visual block mode
+    disable_in_replace_mode = true,
+    ignored_next_char = [=[[%w%%%'%[%"%.%`%$]]=],
+    enable_moveright = true,
+    enable_afterquote = true, -- add bracket pairs after quote
+    enable_check_bracket_line = true, --- check bracket in same line
+    enable_bracket_in_quote = true, --
+    enable_abbr = false, -- trigger abbreviation
+    break_undo = true, -- switch for basic rule break undo sequence
+    check_ts = false,
+    map_cr = true,
+    map_bs = true, -- map the <BS> key
+    map_c_h = false, -- Map the <C-h> key to delete a pair
+    map_c_w = false, -- map <c-w> to delete a pair if possible
+}
 ```
 
 ### Override default values
@@ -126,7 +133,7 @@ cmp.event:on(
           ---@param rules table
           ---@param commit_character table<string>
           handler = function(char, item, bufnr, rules, commit_character)
-            -- Your handler function. Inpect with print(vim.inspect{char, item, bufnr, rules, commit_character})
+            -- Your handler function. Inspect with print(vim.inspect{char, item, bufnr, rules, commit_character})
           end
         }
       },
@@ -350,6 +357,7 @@ Before        Input         After
 ``` lua
   require('nvim-autopairs').disable()
   require('nvim-autopairs').enable()
+  require('nvim-autopairs').toggle()
   require('nvim-autopairs').remove_rule('(') -- remove rule (
   require('nvim-autopairs').clear_rules() -- clear all rules
   require('nvim-autopairs').get_rules('"')
@@ -412,4 +420,5 @@ npairs.setup({
 ## Sponsors
 
 Thanks to everyone who sponsors my projects and makes continued development maintenance possible!
-<!-- patreon --><a href="https://github.com/t4t5"><img src="https://github.com/t4t5.png" width="60px" alt="" /></a><!-- patreon-->
+
+<!-- sponsors --><a href="https://github.com/looshch"><img src="https:&#x2F;&#x2F;github.com&#x2F;looshch.png" width="60px" alt="User avatar: george looshch" /></a><!-- sponsors -->
