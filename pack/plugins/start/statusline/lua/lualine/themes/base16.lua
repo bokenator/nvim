@@ -50,7 +50,8 @@ local function setup_default()
   }
 end
 
-local function setup_base16()
+local function setup_base16_nvim()
+  -- Continue to load nvim-base16
   local loaded, base16 = pcall(require, 'base16-colorscheme')
 
   if not loaded then
@@ -89,4 +90,38 @@ local function setup_base16()
   }
 end
 
-return setup_base16() or setup_default()
+local function setup_base16_vim()
+  -- Check if tinted-theming/base16-vim is already loaded
+  if vim.g.base16_gui00 and vim.g.base16_gui0F then
+    return setup {
+      bg = vim.g.base16_gui01,
+      alt_bg = vim.g.base16_gui02,
+      dark_fg = vim.g.base16_gui03,
+      fg = vim.g.base16_gui04,
+      light_fg = vim.g.base16_gui05,
+      normal = vim.g.base16_gui0D,
+      insert = vim.g.base16_gui0B,
+      visual = vim.g.base16_gui0E,
+      replace = vim.g.base16_gui09,
+    }
+  end
+
+  -- base16-vim has been renamed to tinted-vim along with colors
+  -- context: https://github.com/nvim-lualine/lualine.nvim/pull/1352
+  if vim.g.tinted_gui00 and vim.g.tinted_gui0F then
+    return setup {
+      bg = vim.g.tinted_gui01,
+      alt_bg = vim.g.tinted_gui02,
+      dark_fg = vim.g.tinted_gui03,
+      fg = vim.g.tinted_gui04,
+      light_fg = vim.g.tinted_gui05,
+      normal = vim.g.tinted_gui0D,
+      insert = vim.g.tinted_gui0B,
+      visual = vim.g.tinted_gui0E,
+      replace = vim.g.tinted_gui09,
+    }
+  end
+  return nil
+end
+
+return setup_base16_vim() or setup_base16_nvim() or setup_default()
