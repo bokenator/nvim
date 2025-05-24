@@ -90,13 +90,10 @@
   (where)
   "let"
   "in"
-  "class"
   "instance"
   "derive"
   "foreign"
   "data"
-  "newtype"
-  "type"
   "as"
   "hiding"
   "do"
@@ -108,18 +105,25 @@
   "infixr"
 ] @keyword
 
+[
+  "type"
+  "newtype"
+  "class"
+] @keyword.type
+
 (class_instance
   "else" @keyword)
 
 (type_role_declaration
   "role" @keyword
-  role: (type_role) @type.qualifier)
-
-(hole) @character.special
+  role: (type_role) @keyword.modifier)
 
 ; `_` wildcards in if-then-else and case-of expressions,
 ; as well as record updates and operator sections
-(wildcard) @variable.parameter
+[
+  "_"
+  (hole)
+] @character.special
 
 ; ----------------------------------------------------------------------------
 ; Functions and variables

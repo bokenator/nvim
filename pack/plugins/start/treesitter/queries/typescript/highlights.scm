@@ -1,4 +1,5 @@
 ; inherits: ecma
+
 "require" @keyword.import
 
 (import_require_clause
@@ -6,12 +7,8 @@
 
 [
   "declare"
-  "enum"
-  "export"
   "implements"
-  "interface"
   "type"
-  "namespace"
   "override"
   "module"
   "asserts"
@@ -21,14 +18,17 @@
 ] @keyword
 
 [
+  "namespace"
+  "interface"
+  "enum"
+] @keyword.type
+
+[
   "keyof"
   "satisfies"
 ] @keyword.operator
 
 (as_expression
-  "as" @keyword.operator)
-
-(export_statement
   "as" @keyword.operator)
 
 (mapped_type_clause
@@ -40,7 +40,7 @@
   "protected"
   "public"
   "readonly"
-] @type.qualifier
+] @keyword.modifier
 
 ; types
 (type_identifier) @type
@@ -145,10 +145,10 @@
 
 ; Parameters
 (required_parameter
-  (identifier) @variable.parameter)
+  pattern: (identifier) @variable.parameter)
 
 (optional_parameter
-  (identifier) @variable.parameter)
+  pattern: (identifier) @variable.parameter)
 
 (required_parameter
   (rest_pattern
@@ -193,14 +193,16 @@
 (method_signature
   name: (_) @function.method)
 
+(abstract_method_signature
+  name: (property_identifier) @function.method)
+
 ; property signatures
 (property_signature
   name: (property_identifier) @function.method
-  type:
-    (type_annotation
-      [
-        (union_type
-          (parenthesized_type
-            (function_type)))
-        (function_type)
-      ]))
+  type: (type_annotation
+    [
+      (union_type
+        (parenthesized_type
+          (function_type)))
+      (function_type)
+    ]))

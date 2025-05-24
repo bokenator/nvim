@@ -8,7 +8,9 @@
 ; Types
 ;------
 ((type_constructor) @type.builtin
-  (#any-of? @type.builtin "int" "char" "bytes" "string" "float" "bool" "unit" "exn" "array" "list" "option" "int32" "int64" "nativeint" "format6" "lazy_t"))
+  (#any-of? @type.builtin
+    "int" "char" "bytes" "string" "float" "bool" "unit" "exn" "array" "list" "option" "int32"
+    "int64" "nativeint" "format6" "lazy_t"))
 
 [
   (class_name)
@@ -30,6 +32,9 @@
 
 (value_pattern) @variable.parameter
 
+((value_pattern) @character.special
+  (#eq? @character.special "_"))
+
 ; Functions
 ;----------
 (let_binding
@@ -38,11 +43,10 @@
 
 (let_binding
   pattern: (value_name) @function
-  body:
-    [
-      (fun_expression)
-      (function_expression)
-    ])
+  body: [
+    (fun_expression)
+    (function_expression)
+  ])
 
 (value_specification
   (value_name) @function)
@@ -55,23 +59,20 @@
 ; Application
 ;------------
 (infix_expression
-  left:
-    (value_path
-      (value_name) @function.call)
+  left: (value_path
+    (value_name) @function.call)
   operator: (concat_operator) @_operator
   (#eq? @_operator "@@"))
 
 (infix_expression
   operator: (rel_operator) @_operator
-  right:
-    (value_path
-      (value_name) @function.call)
+  right: (value_path
+    (value_name) @function.call)
   (#eq? @_operator "|>"))
 
 (application_expression
-  function:
-    (value_path
-      (value_name) @function.call))
+  function: (value_path
+    (value_name) @function.call))
 
 ((value_name) @function.builtin
   (#any-of? @function.builtin "raise" "raise_notrace" "failwith" "invalid_arg"))
@@ -91,7 +92,7 @@
 ;----------
 ; Don't let normal parens take priority over this
 ((unit) @constant.builtin
-  (#set! "priority" 105))
+  (#set! priority 105))
 
 (boolean) @boolean
 
@@ -122,7 +123,6 @@
   "as"
   "assert"
   "begin"
-  "class"
   "constraint"
   "end"
   "external"
@@ -134,15 +134,19 @@
   "method"
   "module"
   "new"
-  "object"
   "of"
   "sig"
-  "struct"
-  "type"
   "val"
   "when"
   "with"
 ] @keyword
+
+[
+  "object"
+  "class"
+  "struct"
+  "type"
+] @keyword.type
 
 [
   "lazy"
@@ -151,7 +155,7 @@
   "rec"
   "private"
   "virtual"
-] @type.qualifier
+] @keyword.modifier
 
 [
   "fun"
@@ -270,6 +274,9 @@
   ":="
   ".."
 ] @punctuation.delimiter
+
+(range_pattern
+  ".." @character.special)
 
 ; Operators
 ;----------

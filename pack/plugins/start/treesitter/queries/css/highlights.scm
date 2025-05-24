@@ -56,7 +56,7 @@
   "only"
 ] @keyword.operator
 
-(important) @type.qualifier
+(important) @keyword.modifier
 
 (attribute_selector
   (plain_value) @string)
@@ -71,6 +71,8 @@
 (attribute_name) @tag.attribute
 
 (namespace_name) @module
+
+(keyframes_name) @variable
 
 ((property_name) @variable
   (#lua-match? @variable "^[-][-]"))
@@ -102,4 +104,6 @@
   ")"
   "("
   "}"
+  "["
+  "]"
 ] @punctuation.bracket

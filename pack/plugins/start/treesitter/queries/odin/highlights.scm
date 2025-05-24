@@ -14,9 +14,6 @@
 [
   "foreign"
   "using"
-  "struct"
-  "enum"
-  "union"
   "defer"
   "cast"
   "transmute"
@@ -25,6 +22,13 @@
   "bit_set"
   "matrix"
 ] @keyword
+
+[
+  "struct"
+  "enum"
+  "union"
+  "bit_field"
+] @keyword.type
 
 "proc" @keyword.function
 
@@ -36,7 +40,7 @@
 [
   "distinct"
   "dynamic"
-] @keyword.storage
+] @keyword.modifier
 
 ; Conditionals
 [
@@ -60,7 +64,7 @@
     "else"
     "when"
   ] @keyword.conditional.ternary)
-  (#set! "priority" 105))
+  (#set! priority 105))
 
 ; Repeats
 [
@@ -129,7 +133,13 @@
 
 ((type
   (identifier) @type.builtin)
-  (#any-of? @type.builtin "bool" "byte" "b8" "b16" "b32" "b64" "int" "i8" "i16" "i32" "i64" "i128" "uint" "u8" "u16" "u32" "u64" "u128" "uintptr" "i16le" "i32le" "i64le" "i128le" "u16le" "u32le" "u64le" "u128le" "i16be" "i32be" "i64be" "i128be" "u16be" "u32be" "u64be" "u128be" "float" "double" "f16" "f32" "f64" "f16le" "f32le" "f64le" "f16be" "f32be" "f64be" "complex32" "complex64" "complex128" "complex_float" "complex_double" "quaternion64" "quaternion128" "quaternion256" "rune" "string" "cstring" "rawptr" "typeid" "any"))
+  (#any-of? @type.builtin
+    "bool" "byte" "b8" "b16" "b32" "b64" "int" "i8" "i16" "i32" "i64" "i128" "uint" "u8" "u16" "u32"
+    "u64" "u128" "uintptr" "i16le" "i32le" "i64le" "i128le" "u16le" "u32le" "u64le" "u128le" "i16be"
+    "i32be" "i64be" "i128be" "u16be" "u32be" "u64be" "u128be" "float" "double" "f16" "f32" "f64"
+    "f16le" "f32le" "f64le" "f16be" "f32be" "f64be" "complex32" "complex64" "complex128"
+    "complex_float" "complex_double" "quaternion64" "quaternion128" "quaternion256" "rune" "string"
+    "cstring" "rawptr" "typeid" "any"))
 
 "..." @type.builtin
 
@@ -142,6 +152,10 @@
   "::")
 
 (union_declaration
+  (identifier) @type
+  "::")
+
+(bit_field_declaration
   (identifier) @type
   "::")
 
@@ -178,8 +192,8 @@
   (identifier) @type)
 
 ((identifier) @type
-  (#lua-match? @type "^[A-Z][a-zA-Z0-9]*$")
-  (#not-has-parent? @type parameter procedure_declaration))
+  (#lua-match? @type "^[_A-Z][_a-zA-Z0-9]*$")
+  (#not-has-parent? @type parameter procedure_declaration call_expression))
 
 ; Fields
 (member_expression

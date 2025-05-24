@@ -98,10 +98,11 @@ As languages differ quite a lot, here is a set of captures available to you when
 #### Identifiers
 
 ```query
-@variable            ; various variable names
-@variable.builtin    ; built-in variable names (e.g. `this`)
-@variable.parameter  ; parameters of a function
-@variable.member     ; object and struct fields
+@variable                    ; various variable names
+@variable.builtin            ; built-in variable names (e.g. `this`)
+@variable.parameter          ; parameters of a function
+@variable.parameter.builtin  ; special parameters (e.g. `_`, `it`)
+@variable.member             ; object and struct fields
 
 @constant          ; constant identifiers
 @constant.builtin  ; built-in constant values
@@ -111,6 +112,7 @@ As languages differ quite a lot, here is a set of captures available to you when
 @module.builtin    ; built-in modules or namespaces
 @label             ; GOTO and other labels (e.g. `label:` in C), including heredoc labels
 ```
+
 #### Literals
 
 ```query
@@ -137,10 +139,10 @@ As languages differ quite a lot, here is a set of captures available to you when
 @type             ; type or class definitions and annotations
 @type.builtin     ; built-in types
 @type.definition  ; identifiers in type definitions (e.g. `typedef <type> <identifier>` in C)
-@type.qualifier   ; type qualifiers (e.g. `const`)
 
-@attribute        ; attribute annotations (e.g. Python decorators)
-@property         ; the key in key/value pairs
+@attribute          ; attribute annotations (e.g. Python decorators, Rust lifetimes)
+@attribute.builtin  ; builtin annotations (e.g. `@property` in Python)
+@property           ; the key in key/value pairs
 ```
 
 #### Functions
@@ -165,8 +167,9 @@ As languages differ quite a lot, here is a set of captures available to you when
 @keyword.coroutine         ; keywords related to coroutines (e.g. `go` in Go, `async/await` in Python)
 @keyword.function          ; keywords that define a function (e.g. `func` in Go, `def` in Python)
 @keyword.operator          ; operators that are English words (e.g. `and` / `or`)
-@keyword.import            ; keywords for including modules (e.g. `import` / `from` in Python)
-@keyword.storage           ; modifiers that affect storage in memory or life-time
+@keyword.import            ; keywords for including or exporting modules (e.g. `import` / `from` in Python)
+@keyword.type              ; keywords describing namespaces and composite types (e.g. `struct`, `enum`)
+@keyword.modifier          ; keywords modifying other constructs (e.g. `const`, `static`, `public`)
 @keyword.repeat            ; keywords related to loops (e.g. `for` / `while`)
 @keyword.return            ; keywords like `return` and `yield`
 @keyword.debug             ; keywords related to debugging
@@ -193,10 +196,10 @@ As languages differ quite a lot, here is a set of captures available to you when
 @comment               ; line and block comments
 @comment.documentation ; comments documenting code
 
-@comment.error         ; error-type comments (e.g. `ERROR`, `FIXME`, `DEPRECATED:`)
-@comment.warning       ; warning-type comments (e.g. `WARNING:`, `FIX:`, `HACK:`)
-@comment.todo          ; todo-type comments (e.g. `TODO:`, `WIP:`, `FIXME:`)
-@comment.note          ; note-type comments (e.g. `NOTE:`, `INFO:`, `XXX`)
+@comment.error         ; error-type comments (e.g. `ERROR`, `FIXME`, `DEPRECATED`)
+@comment.warning       ; warning-type comments (e.g. `WARNING`, `FIX`, `HACK`)
+@comment.todo          ; todo-type comments (e.g. `TODO`, `WIP`)
+@comment.note          ; note-type comments (e.g. `NOTE`, `INFO`, `XXX`)
 ```
 
 #### Markup
@@ -210,10 +213,15 @@ Mainly for markup languages.
 @markup.underline      ; underlined text (only for literal underline markup!)
 
 @markup.heading        ; headings, titles (including markers)
+@markup.heading.1      ; top-level heading
+@markup.heading.2      ; section heading
+@markup.heading.3      ; subsection heading
+@markup.heading.4      ; and so on
+@markup.heading.5      ; and so forth
+@markup.heading.6      ; six levels ought to be enough for anybody
 
 @markup.quote          ; block quotes
 @markup.math           ; math environments (e.g. `$ ... $` in LaTeX)
-@markup.environment    ; environments (e.g. in LaTeX)
 
 @markup.link           ; text references, footnotes, citations, etc.
 @markup.link.label     ; link, reference descriptions
@@ -236,6 +244,7 @@ Mainly for markup languages.
 
 ```query
 @tag           ; XML-style tag names (and similar)
+@tag.builtin   ; builtin tag names (e.g. HTML5 tags)
 @tag.attribute ; XML-style tag attributes
 @tag.delimiter ; XML-style tag delimiters
 ```
@@ -278,7 +287,7 @@ A conceal can be restricted to part of the capture via the [`#offset!` directive
 #### Priority
 
 Captures can be assigned a priority to control precedence of highlights via the
-`#set! "priority" <number>` directive (see `:h treesitter-highlight-priority`).
+`#set! priority <number>` directive (see `:h treesitter-highlight-priority`).
 The default priority for treesitter highlights is `100`; queries should only
 set priorities between `90` and `120`, to avoid conflict with other sources of
 highlighting (such as diagnostics or LSP semantic tokens).
@@ -327,7 +336,7 @@ doSomething(); // Should point to the declaration as the definition
 ```query
 (function_declaration
   ((identifier) @local.definition.var)
-   (#set! "definition.var.scope" "parent"))
+   (#set! definition.var.scope "parent"))
 ```
 
 Possible scope values are:

@@ -32,7 +32,7 @@
 (alias_expression
   (identifier) @label)
 
-(storage_identifier) @keyword.storage
+(storage_identifier) @keyword.modifier
 
 (_
   function_name: (identifier) @function)
@@ -43,7 +43,6 @@
   ","
   "."
   ":"
-  "?"
   "("
   ")"
 ] @punctuation.delimiter
@@ -82,9 +81,10 @@
 
 (string_literal) @string
 
-(date) @variable.readonly
-
-(date_time) @variable.readonly
+[
+  (date)
+  (date_time)
+] @string.special
 
 [
   "TRUE"
@@ -96,7 +96,6 @@
 [
   "ABOVE"
   "ABOVE_OR_BELOW"
-  "ALL_ROWS"
   "ALL"
   "AS"
   "ASC"
@@ -122,7 +121,10 @@
   "TRACKING"
   "TYPEOF"
   "UPDATE"
-  "USING_SCOPE"
+  "USING"
+  "SCOPE"
+  "LOOKUP"
+  "BIND"
   "VIEW"
   "VIEWSTAT"
   "WITH"

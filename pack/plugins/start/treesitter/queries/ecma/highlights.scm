@@ -12,10 +12,12 @@
 
 (private_property_identifier) @variable.member
 
-(variable_declarator
-  name:
-    (object_pattern
-      (shorthand_property_identifier_pattern))) @variable
+(object_pattern
+  (shorthand_property_identifier_pattern) @variable)
+
+(object_pattern
+  (object_assignment_pattern
+    (shorthand_property_identifier_pattern) @variable))
 
 ; Special identifiers
 ;--------------------
@@ -32,7 +34,14 @@
   (#any-of? @variable.builtin "arguments" "module" "console" "window" "document"))
 
 ((identifier) @type.builtin
-  (#any-of? @type.builtin "Object" "Function" "Boolean" "Symbol" "Number" "Math" "Date" "String" "RegExp" "Map" "Set" "WeakMap" "WeakSet" "Promise" "Array" "Int8Array" "Uint8Array" "Uint8ClampedArray" "Int16Array" "Uint16Array" "Int32Array" "Uint32Array" "Float32Array" "Float64Array" "ArrayBuffer" "DataView" "Error" "EvalError" "InternalError" "RangeError" "ReferenceError" "SyntaxError" "TypeError" "URIError"))
+  (#any-of? @type.builtin
+    "Object" "Function" "Boolean" "Symbol" "Number" "Math" "Date" "String" "RegExp" "Map" "Set"
+    "WeakMap" "WeakSet" "Promise" "Array" "Int8Array" "Uint8Array" "Uint8ClampedArray" "Int16Array"
+    "Uint16Array" "Int32Array" "Uint32Array" "Float32Array" "Float64Array" "ArrayBuffer" "DataView"
+    "Error" "EvalError" "InternalError" "RangeError" "ReferenceError" "SyntaxError" "TypeError"
+    "URIError"))
+
+(statement_identifier) @label
 
 ; Function and method definitions
 ;--------------------------------
@@ -49,11 +58,10 @@
   name: (identifier) @function)
 
 (method_definition
-  name:
-    [
-      (property_identifier)
-      (private_property_identifier)
-    ] @function.method)
+  name: [
+    (property_identifier)
+    (private_property_identifier)
+  ] @function.method)
 
 (method_definition
   name: (property_identifier) @constructor
@@ -68,15 +76,13 @@
   value: (arrow_function))
 
 (assignment_expression
-  left:
-    (member_expression
-      property: (property_identifier) @function.method)
+  left: (member_expression
+    property: (property_identifier) @function.method)
   right: (arrow_function))
 
 (assignment_expression
-  left:
-    (member_expression
-      property: (property_identifier) @function.method)
+  left: (member_expression
+    property: (property_identifier) @function.method)
   right: (function_expression))
 
 (variable_declarator
@@ -101,13 +107,23 @@
   function: (identifier) @function.call)
 
 (call_expression
-  function:
+  function: (member_expression
+    property: [
+      (property_identifier)
+      (private_property_identifier)
+    ] @function.method.call))
+
+(call_expression
+  function: (await_expression
+    (identifier) @function.call))
+
+(call_expression
+  function: (await_expression
     (member_expression
-      property:
-        [
-          (property_identifier)
-          (private_property_identifier)
-        ] @function.method.call))
+      property: [
+        (property_identifier)
+        (private_property_identifier)
+      ] @function.method.call)))
 
 ; Builtins
 ;---------
@@ -115,17 +131,14 @@
   (#eq? @module.builtin "Intl"))
 
 ((identifier) @function.builtin
-  (#any-of? @function.builtin "eval" "isFinite" "isNaN" "parseFloat" "parseInt" "decodeURI" "decodeURIComponent" "encodeURI" "encodeURIComponent" "require"))
+  (#any-of? @function.builtin
+    "eval" "isFinite" "isNaN" "parseFloat" "parseInt" "decodeURI" "decodeURIComponent" "encodeURI"
+    "encodeURIComponent" "require"))
 
 ; Constructor
 ;------------
 (new_expression
   constructor: (identifier) @constructor)
-
-; Variables
-;----------
-(namespace_import
-  (identifier) @module)
 
 ; Decorators
 ;----------
@@ -137,6 +150,17 @@
   "@" @attribute
   (call_expression
     (identifier) @attribute))
+
+(decorator
+  "@" @attribute
+  (member_expression
+    (property_identifier) @attribute))
+
+(decorator
+  "@" @attribute
+  (call_expression
+    (member_expression
+      (property_identifier) @attribute)))
 
 ; Literals
 ;---------
@@ -191,23 +215,12 @@
 
 ; Punctuation
 ;------------
-";" @punctuation.delimiter
-
-"." @punctuation.delimiter
-
-"," @punctuation.delimiter
-
-(pair
-  ":" @punctuation.delimiter)
-
-(pair_pattern
-  ":" @punctuation.delimiter)
-
-(switch_case
-  ":" @punctuation.delimiter)
-
-(switch_default
-  ":" @punctuation.delimiter)
+[
+  ";"
+  "."
+  ","
+  ":"
+] @punctuation.delimiter
 
 [
   "--"
@@ -292,6 +305,19 @@
     "}"
   ] @punctuation.special) @none
 
+; Imports
+;----------
+(namespace_import
+  "*" @character.special
+  (identifier) @module)
+
+(namespace_export
+  "*" @character.special
+  (identifier) @module)
+
+(export_statement
+  "*" @character.special)
+
 ; Keywords
 ;----------
 [
@@ -304,19 +330,9 @@
 [
   "import"
   "from"
+  "as"
+  "export"
 ] @keyword.import
-
-(export_specifier
-  "as" @keyword.import)
-
-(import_specifier
-  "as" @keyword.import)
-
-(namespace_export
-  "as" @keyword.import)
-
-(namespace_import
-  "as" @keyword.import)
 
 [
   "for"
@@ -328,10 +344,8 @@
 
 [
   "break"
-  "class"
   "const"
   "debugger"
-  "export"
   "extends"
   "get"
   "let"
@@ -341,6 +355,8 @@
   "var"
   "with"
 ] @keyword
+
+"class" @keyword.type
 
 [
   "async"

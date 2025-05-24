@@ -1,4 +1,5 @@
 ; inherits: soql
+
 ; Apex + SOQL
 [
   "["
@@ -17,7 +18,7 @@
   ";"
 ] @punctuation.delimiter
 
-; Default general color defination
+; Default general color definition
 (identifier) @variable
 
 (type_identifier) @type
@@ -83,11 +84,7 @@
 
 (assignment_operator) @operator
 
-(update_expression
-  [
-    "++"
-    "--"
-  ] @operator)
+(update_operator) @operator
 
 (trigger_declaration
   name: (identifier) @type
@@ -105,39 +102,36 @@
 ] @operator
 
 (binary_expression
-  operator:
-    [
-      ">"
-      "<"
-      "=="
-      "==="
-      "!=="
-      "&&"
-      "||"
-      "+"
-      "-"
-      "*"
-      "/"
-      "&"
-      "|"
-      "^"
-      "%"
-      "<<"
-      ">>"
-      ">>>"
-    ] @operator)
+  operator: [
+    ">"
+    "<"
+    "=="
+    "==="
+    "!=="
+    "&&"
+    "||"
+    "+"
+    "-"
+    "*"
+    "/"
+    "&"
+    "|"
+    "^"
+    "%"
+    "<<"
+    ">>"
+    ">>>"
+  ] @operator)
 
 (unary_expression
-  operator:
-    [
-      "+"
-      "-"
-      "!"
-      "~"
-    ]) @operator
+  operator: [
+    "+"
+    "-"
+    "!"
+    "~"
+  ]) @operator
 
-(map_initializer
-  "=>" @operator)
+"=>" @operator
 
 [
   (boolean_type)
@@ -146,31 +140,30 @@
 
 ; Fields
 (field_declaration
-  declarator:
-    (variable_declarator
-      name: (identifier) @variable.member))
+  declarator: (variable_declarator
+    name: (identifier) @variable.member))
 
 (field_access
   field: (identifier) @variable.member)
 
 ; Variables
+(variable_declarator
+  (identifier) @property)
+
 (field_declaration
   (modifiers
     (modifier
       [
-        "final"
-        "static"
+        (final)
+        (static)
       ])
     (modifier
       [
-        "final"
-        "static"
+        (final)
+        (static)
       ]))
   (variable_declarator
     name: (identifier) @constant))
-
-(variable_declarator
-  (identifier) @property)
 
 ((identifier) @constant
   (#lua-match? @constant "^[A-Z][A-Z0-9_]+$")) ; SCREAM SNAKE CASE
@@ -201,7 +194,7 @@
   "protected"
   "public"
   "static"
-] @type.qualifier
+] @keyword.modifier
 
 [
   "if"
@@ -228,32 +221,37 @@
 "new" @keyword.operator
 
 [
-  "abstract"
-  "class"
+  (abstract)
+  (all_rows_clause)
   "continue"
-  "default"
-  "enum"
   "extends"
-  "final"
+  (final)
   "get"
-  "global"
+  (global)
   "implements"
   "instanceof"
-  "interface"
   "on"
-  "private"
-  "protected"
-  "public"
+  (override)
+  (private)
+  (protected)
+  (public)
   "set"
-  "static"
-  "testMethod"
-  "transient"
+  (static)
+  (testMethod)
+  (webservice)
+  (transient)
   "trigger"
-  "virtual"
+  (virtual)
   "when"
-  "with_sharing"
-  "without_sharing"
-  "inherited_sharing"
+  (with_sharing)
+  (without_sharing)
+  (inherited_sharing)
 ] @keyword
+
+[
+  "interface"
+  "class"
+  "enum"
+] @keyword.type
 
 "System.runAs" @function.builtin

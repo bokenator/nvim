@@ -5,25 +5,23 @@
 ; Documentation
 (unary_operator
   operator: "@"
-  operand:
-    (call
-      target:
-        ((identifier) @_identifier
-          (#any-of? @_identifier "moduledoc" "typedoc" "shortdoc" "doc"))
-      (arguments
-        [
-          (string
-            (quoted_content) @injection.content)
-          (sigil
-            (quoted_content) @injection.content)
-        ])
-      (#set! injection.language "markdown")))
+  operand: (call
+    target: ((identifier) @_identifier
+      (#any-of? @_identifier "moduledoc" "typedoc" "shortdoc" "doc"))
+    (arguments
+      [
+        (string
+          (quoted_content) @injection.content)
+        (sigil
+          (quoted_content) @injection.content)
+      ])
+    (#set! injection.language "markdown")))
 
 ; HEEx
 (sigil
   (sigil_name) @_sigil_name
   (quoted_content) @injection.content
-  (#eq? @_sigil_name "H")
+  (#any-of? @_sigil_name "H" "LVN")
   (#set! injection.language "heex"))
 
 ; Surface

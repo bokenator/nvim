@@ -5,6 +5,7 @@ local ts_utils = require "nvim-treesitter.ts_utils"
 local locals = require "nvim-treesitter.locals"
 local parsers = require "nvim-treesitter.parsers"
 local queries = require "nvim-treesitter.query"
+local utils = require "nvim-treesitter.utils"
 
 local M = {}
 
@@ -13,6 +14,7 @@ local selections = {}
 
 function M.init_selection()
   local buf = api.nvim_get_current_buf()
+  parsers.get_parser():parse { vim.fn.line "w0" - 1, vim.fn.line "w$" }
   local node = ts_utils.get_node_at_cursor()
   selections[buf] = { [1] = node }
   ts_utils.update_selection(buf, node)
@@ -61,8 +63,12 @@ local function select_incremental(get_parent)
     local csrow, cscol, cerow, cecol = visual_selection_range()
     -- Initialize incremental selection with current selection
     if not nodes or #nodes == 0 or not range_matches(nodes[#nodes]) then
-      local root = parsers.get_parser():parse()[1]:root()
-      local node = root:named_descendant_for_range(csrow - 1, cscol - 1, cerow - 1, cecol)
+      local parser = parsers.get_parser()
+      parser:parse { vim.fn.line "w0" - 1, vim.fn.line "w$" }
+      local node = parser:named_node_for_range(
+        { csrow - 1, cscol - 1, cerow - 1, cecol },
+        { ignore_injections = false }
+      )
       ts_utils.update_selection(buf, node)
       if nodes and #nodes > 0 then
         table.insert(selections[buf], node)
@@ -77,14 +83,18 @@ local function select_incremental(get_parent)
     while true do
       local parent = get_parent(node)
       if not parent or parent == node then
-        -- Keep searching in the main tree
-        -- TODO: we should search on the parent tree of the current node.
-        local root = parsers.get_parser():parse()[1]:root()
-        parent = root:named_descendant_for_range(csrow - 1, cscol - 1, cerow - 1, cecol)
-        if not parent or root == node or parent == node then
+        -- Keep searching in the parent tree
+        local root_parser = parsers.get_parser()
+        root_parser:parse { vim.fn.line "w0" - 1, vim.fn.line "w$" }
+        local current_parser = root_parser:language_for_range { csrow - 1, cscol - 1, cerow - 1, cecol }
+        if root_parser == current_parser then
+          node = root_parser:named_node_for_range { csrow - 1, cscol - 1, cerow - 1, cecol }
           ts_utils.update_selection(buf, node)
           return
         end
+        -- NOTE: parent() method is private
+        local parent_parser = current_parser:parent()
+        parent = parent_parser:named_node_for_range { csrow - 1, cscol - 1, cerow - 1, cecol }
       end
       node = parent
       local srow, scol, erow, ecol = ts_utils.get_vim_range { node:range() }
@@ -138,22 +148,14 @@ function M.attach(bufnr)
   local config = configs.get_module "incremental_selection"
   for funcname, mapping in pairs(config.keymaps) do
     if mapping then
-      ---@type string, string|function
-      local mode, rhs
-      if funcname == "init_selection" then
-        mode = "n"
-        ---@type function
-        rhs = M[funcname]
+      local mode = funcname == "init_selection" and "n" or "x"
+      local rhs = M[funcname] ---@type function
+
+      if not rhs then
+        utils.notify("Unknown keybinding: " .. funcname .. debug.traceback(), vim.log.levels.ERROR)
       else
-        mode = "x"
-        rhs = M[funcname] ---@type function
+        vim.keymap.set(mode, mapping, rhs, { buffer = bufnr, silent = true, desc = FUNCTION_DESCRIPTIONS[funcname] })
       end
-      vim.keymap.set(
-        mode,
-        mapping,
-        rhs,
-        { buffer = bufnr, silent = true, noremap = true, desc = FUNCTION_DESCRIPTIONS[funcname] }
-      )
     end
   end
 end
@@ -162,10 +164,10 @@ function M.detach(bufnr)
   local config = configs.get_module "incremental_selection"
   for f, mapping in pairs(config.keymaps) do
     if mapping then
-      if f == "init_selection" then
-        vim.keymap.del("n", mapping, { buffer = bufnr })
-      else
-        vim.keymap.del("x", mapping, { buffer = bufnr })
+      local mode = f == "init_selection" and "n" or "x"
+      local ok, err = pcall(vim.keymap.del, mode, mapping, { buffer = bufnr })
+      if not ok then
+        utils.notify(string.format('%s "%s" for mode %s', err, mapping, mode), vim.log.levels.ERROR)
       end
     end
   end

@@ -24,7 +24,10 @@
 (rule
   (targets
     (word) @function.builtin
-    (#any-of? @function.builtin ".DEFAULT" ".SUFFIXES" ".DELETE_ON_ERROR" ".EXPORT_ALL_VARIABLES" ".IGNORE" ".INTERMEDIATE" ".LOW_RESOLUTION_TIME" ".NOTPARALLEL" ".ONESHELL" ".PHONY" ".POSIX" ".PRECIOUS" ".SECONDARY" ".SECONDEXPANSION" ".SILENT" ".SUFFIXES")))
+    (#any-of? @function.builtin
+      ".DEFAULT" ".SUFFIXES" ".DELETE_ON_ERROR" ".EXPORT_ALL_VARIABLES" ".IGNORE" ".INTERMEDIATE"
+      ".LOW_RESOLUTION_TIME" ".NOTPARALLEL" ".ONESHELL" ".PHONY" ".POSIX" ".PRECIOUS" ".SECONDARY"
+      ".SECONDEXPANSION" ".SILENT" ".SUFFIXES")))
 
 (rule
   [
@@ -34,8 +37,10 @@
     "|"
   ] @operator)
 
-(export_directive
-  "export" @keyword)
+[
+  "export"
+  "unexport"
+] @keyword.import
 
 (override_directive
   "override" @keyword)
@@ -45,9 +50,8 @@
     "include"
     "-include"
   ] @keyword.import
-  filenames:
-    (list
-      (word) @string.special.path))
+  filenames: (list
+    (word) @string.special.path))
 
 (variable_assignment
   name: (word) @string.special.symbol
@@ -79,7 +83,10 @@
 
 (variable_assignment
   (word) @variable.builtin
-  (#any-of? @variable.builtin ".DEFAULT_GOAL" ".EXTRA_PREREQS" ".FEATURES" ".INCLUDE_DIRS" ".RECIPEPREFIX" ".SHELLFLAGS" ".VARIABLES" "MAKEARGS" "MAKEFILE_LIST" "MAKEFLAGS" "MAKE_RESTARTS" "MAKE_TERMERR" "MAKE_TERMOUT" "SHELL"))
+  (#any-of? @variable.builtin
+    ".DEFAULT_GOAL" ".EXTRA_PREREQS" ".FEATURES" ".INCLUDE_DIRS" ".RECIPEPREFIX" ".SHELLFLAGS"
+    ".VARIABLES" "MAKEARGS" "MAKEFILE_LIST" "MAKEFLAGS" "MAKE_RESTARTS" "MAKE_TERMERR"
+    "MAKE_TERMOUT" "SHELL"))
 
 ; Use string to match bash
 (variable_reference
@@ -106,6 +113,22 @@
     "("
     ")"
   ] @operator)
+
+(automatic_variable
+  "$"
+  _ @character.special
+  (#set! priority 105))
+
+(automatic_variable
+  [
+    "$"
+    "("
+    ")"
+  ] @operator
+  (#set! priority 105))
+
+(recipe_line
+  "@" @character.special)
 
 (function_call
   [
