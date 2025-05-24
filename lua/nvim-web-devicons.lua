@@ -1,8 +1,21 @@
 local M = {}
 
--- When adding new icons, remember to add an entry to the `filetypes` table, if applicable.
-local icons, icons_by_filename, icons_by_file_extension, icons_by_operating_system
+---@alias iconName string Name of the icon
 
+---@class Icon
+---@field icon string Nerd-font glyph
+---@field color string Hex color code
+---@field cterm_color string cterm color code
+---@field name iconName
+
+-- NOTE: When adding new icons, remember to add an entry to the `filetypes` table, if applicable.
+local icons, icons_by_filename, icons_by_file_extension, icons_by_operating_system
+local icons_by_desktop_environment, icons_by_window_manager
+local user_icons
+
+local filetypes = require "nvim-web-devicons.filetypes"
+
+---@type Icon
 local default_icon = {
   icon = "",
   color = "#6d8086",
@@ -14,233 +27,91 @@ function M.get_icons()
   return icons
 end
 
+function M.get_icons_by_filename()
+  return icons_by_filename
+end
+
+function M.get_icons_by_extension()
+  return icons_by_file_extension
+end
+
+function M.get_icons_by_operating_system()
+  return icons_by_operating_system
+end
+
+function M.get_icons_by_desktop_environment()
+  return icons_by_desktop_environment
+end
+
+function M.get_icons_by_window_manager()
+  return icons_by_window_manager
+end
+
 local global_opts = {
   override = {},
   strict = false,
   default = false,
   color_icons = true,
+  variant = nil,
 }
 
--- Set the current icons tables, depending on the 'background' option.
+---Change all keys in a table to lowercase
+---Remove entry when lowercase entry already exists
+---@param t table
+local function lowercase_keys(t)
+  if not t then
+    return
+  end
+
+  for k, v in pairs(t) do
+    if type(k) == "string" then
+      local lower_k = k:lower()
+      if lower_k ~= k then
+        if not t[lower_k] then
+          t[lower_k] = v
+        end
+        t[k] = nil
+      end
+    end
+  end
+end
+
+-- Set the current icons tables, depending on variant option, then &background
 local function refresh_icons()
   local theme
-  if vim.o.background == "light" then
+  if global_opts.variant == "light" then
     theme = require "nvim-web-devicons.icons-light"
-  else
+  elseif global_opts.variant == "dark" then
     theme = require "nvim-web-devicons.icons-default"
+  else
+    if vim.o.background == "light" then
+      theme = require "nvim-web-devicons.icons-light"
+    else
+      theme = require "nvim-web-devicons.icons-default"
+    end
   end
 
   icons_by_filename = theme.icons_by_filename
   icons_by_file_extension = theme.icons_by_file_extension
   icons_by_operating_system = theme.icons_by_operating_system
-  icons = vim.tbl_extend("keep", {}, icons_by_filename, icons_by_file_extension, icons_by_operating_system)
+  icons_by_desktop_environment = theme.icons_by_desktop_environment
+  icons_by_window_manager = theme.icons_by_window_manager
+
+  -- filename matches are case insensitive
+  lowercase_keys(icons_by_filename)
+
+  icons = vim.tbl_extend(
+    "keep",
+    {},
+    icons_by_filename,
+    icons_by_file_extension,
+    icons_by_operating_system,
+    icons_by_desktop_environment,
+    icons_by_window_manager
+  )
   icons = vim.tbl_extend("force", icons, global_opts.override)
   icons[1] = default_icon
 end
-
--- Map of filetypes -> icon names
-local filetypes = {
-  ["avif"] = "avif",
-  ["bzl"] = "bzl",
-  ["brewfile"] = "brewfile",
-  ["commit"] = "commit_editmsg",
-  ["copying"] = "copying",
-  ["gemfile"] = "gemfile$",
-  ["lesser"] = "copying.lesser",
-  ["vagrantfile"] = "vagrantfile$",
-  ["aac"] = "aac",
-  ["awk"] = "awk",
-  ["bmp"] = "bmp",
-  ["c"] = "c",
-  ["cfg"] = "cfg",
-  ["clojure"] = "clj",
-  ["cmake"] = "cmake",
-  ["cobol"] = "cobol",
-  ["coffee"] = "coffee",
-  ["conf"] = "conf",
-  ["cp"] = "cp",
-  ["cpp"] = "cpp",
-  ["cr"] = "cr",
-  ["cs"] = "cs",
-  ["csh"] = "csh",
-  ["cson"] = "cson",
-  ["css"] = "css",
-  ["csv"] = "csv",
-  ["cuda"] = "cu",
-  ["d"] = "d",
-  ["dart"] = "dart",
-  ["desktop"] = "desktop",
-  ["diff"] = "diff",
-  ["doc"] = "doc",
-  ["docx"] = "docx",
-  ["dockerfile"] = "dockerfile",
-  ["dosbatch"] = "bat",
-  ["dosini"] = "ini",
-  ["drools"] = "drl",
-  ["dropbox"] = "dropbox",
-  ["dump"] = "dump",
-  ["eex"] = "eex",
-  ["ejs"] = "ejs",
-  ["elixir"] = "ex",
-  ["elm"] = "elm",
-  ["epuppet"] = "epp",
-  ["erlang"] = "erl",
-  ["eruby"] = "erb",
-  ["fennel"] = "fnl",
-  ["fish"] = "fish",
-  ["flac"] = "flac",
-  ["forth"] = "fs",
-  ["fortran"] = "f90",
-  ["fsharp"] = "f#",
-  ["fsi"] = "fsi",
-  ["fsscript"] = "fsscript",
-  ["fsx"] = "fsx",
-  ["gd"] = "gd",
-  ["gif"] = "gif",
-  ["git"] = "git",
-  ["gitconfig"] = ".gitconfig",
-  ["gitcommit"] = "commit_editmsg",
-  ["gitignore"] = ".gitignore",
-  ["gitattributes"] = ".gitattributes",
-  ["glb"] = "glb",
-  ["go"] = "go",
-  ["godot"] = "godot",
-  ["graphql"] = "graphql",
-  ["groovy"] = "groovy",
-  ["gql"] = "gql",
-  ["gruntfile"] = "gruntfile",
-  ["gulpfile"] = "gulpfile",
-  ["haml"] = "haml",
-  ["haxe"] = "hx",
-  ["haskell"] = "hs",
-  ["hbs"] = "hbs",
-  ["heex"] = "heex",
-  ["html"] = "html",
-  ["ico"] = "ico",
-  ["idlang"] = "pro",
-  ["ino"] = "ino",
-  ["import"] = "import",
-  ["java"] = "java",
-  ["javascript"] = "js",
-  ["javascript.jsx"] = "jsx",
-  ["javascriptreact"] = "jsx",
-  ["jpeg"] = "jpeg",
-  ["jpg"] = "jpg",
-  ["json"] = "json",
-  ["jsonc"] = "jsonc",
-  ["json5"] = "json5",
-  ["julia"] = "jl",
-  ["kotlin"] = "kt",
-  ["leex"] = "leex",
-  ["less"] = "less",
-  ["liquid"] = "liquid",
-  ["lhaskell"] = "lhs",
-  ["license"] = "license",
-  ["unlicense"] = "unlicense",
-  ["log"] = "log",
-  ["lock"] = "lock",
-  ["lprolog"] = "sig",
-  ["lua"] = "lua",
-  ["make"] = "makefile",
-  ["markdown"] = "markdown",
-  ["material"] = "material",
-  ["m4a"] = "m4a",
-  ["m4v"] = "m4v",
-  ["mdx"] = "mdx",
-  ["mint"] = "mint",
-  ["mkv"] = "mkv",
-  ["motoko"] = "mo",
-  ["mov"] = "mov",
-  ["mp3"] = "mp3",
-  ["mp4"] = "mp4",
-  ["mustache"] = "mustache",
-  ["nim"] = "nim",
-  ["nix"] = "nix",
-  ["node"] = "node_modules",
-  ["ocaml"] = "ml",
-  ["ogg"] = "ogg",
-  ["opus"] = "opus",
-  ["otf"] = "otf",
-  ["pck"] = "pck",
-  ["pdf"] = "pdf",
-  ["perl"] = "pl",
-  ["php"] = "php",
-  ["plaintex"] = "tex",
-  ["png"] = "png",
-  ["postscr"] = "ai",
-  ["ppt"] = "ppt",
-  ["prisma"] = "prisma",
-  ["procfile"] = "procfile",
-  ["prolog"] = "pro",
-  ["ps1"] = "ps1",
-  ["psd1"] = "psd1",
-  ["psm1"] = "psm1",
-  ["psb"] = "psb",
-  ["psd"] = "psd",
-  ["puppet"] = "pp",
-  ["pyc"] = "pyc",
-  ["pyd"] = "pyd",
-  ["pyo"] = "pyo",
-  ["python"] = "py",
-  ["query"] = "query",
-  ["r"] = "r",
-  ["res"] = "rescript",
-  ["resi"] = "rescript",
-  ["rlib"] = "rlib",
-  ["rmd"] = "rmd",
-  ["rproj"] = "rproj",
-  ["ruby"] = "rb",
-  ["rust"] = "rs",
-  ["sass"] = "sass",
-  ["sbt"] = "sbt",
-  ["scala"] = "scala",
-  ["scheme"] = "scm",
-  ["scss"] = "scss",
-  ["sh"] = "sh",
-  ["slim"] = "slim",
-  ["sln"] = "sln",
-  ["sml"] = "sml",
-  ["solidity"] = "sol",
-  ["sql"] = "sql",
-  ["sqlite"] = "sqlite",
-  ["sqlite3"] = "sqlite3",
-  ["styl"] = "styl",
-  ["sublime"] = "sublime",
-  ["suo"] = "suo",
-  ["svelte"] = "svelte",
-  ["svg"] = "svg",
-  ["swift"] = "swift",
-  ["systemverilog"] = "sv",
-  ["tads"] = "t",
-  ["tcl"] = "tcl",
-  ["templ"] = "templ",
-  ["terminal"] = "terminal",
-  ["tex"] = "tex",
-  ["toml"] = "toml",
-  ["tres"] = "tres",
-  ["tscn"] = "tscn",
-  ["twig"] = "twig",
-  ["txt"] = "txt",
-  ["typescript"] = "ts",
-  ["typescriptreact"] = "tsx",
-  ["vala"] = "vala",
-  ["verilog"] = "v",
-  ["vhdl"] = "vhd",
-  ["vim"] = "vim",
-  ["vue"] = "vue",
-  ["wasm"] = "wasm",
-  ["wav"] = "wav",
-  ["webm"] = "webm",
-  ["webp"] = "webp",
-  ["webpack"] = "webpack",
-  ["xcplayground"] = "xcplayground",
-  ["xls"] = "xls",
-  ["xlsx"] = "xlsx",
-  ["xml"] = "xml",
-  ["yaml"] = "yaml",
-  ["zig"] = "zig",
-  ["zsh"] = "zsh",
-}
 
 local function get_highlight_name(data)
   if not global_opts.color_icons then
@@ -265,14 +136,18 @@ local function set_up_highlight(icon_data)
   end
 end
 
-local nvim_get_hl_by_name = vim.api.nvim_get_hl_by_name
 local function highlight_exists(group)
   if not group then
     return
   end
 
-  local ok, hl = pcall(nvim_get_hl_by_name, group, true)
-  return ok and not (hl or {})[true]
+  if vim.fn.has "nvim-0.9" == 1 then
+    local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
+    return not vim.tbl_isempty(hl)
+  else
+    local ok, hl = pcall(vim.api.nvim_get_hl_by_name, group, true) ---@diagnostic disable-line: deprecated
+    return ok and not (hl or {})[true]
+  end
 end
 
 function M.set_up_highlights(allow_override)
@@ -296,7 +171,16 @@ local function get_highlight_foreground(icon_data)
     icon_data = default_icon
   end
 
-  return string.format("#%06x", nvim_get_hl_by_name(get_highlight_name(icon_data), true).foreground)
+  local higroup = get_highlight_name(icon_data)
+
+  local fg
+  if vim.fn.has "nvim-0.9" == 1 then
+    fg = vim.api.nvim_get_hl(0, { name = higroup, link = false }).fg
+  else
+    fg = vim.api.nvim_get_hl_by_name(higroup, true).foreground ---@diagnostic disable-line: deprecated
+  end
+
+  return string.format("#%06x", fg)
 end
 
 local function get_highlight_ctermfg(icon_data)
@@ -304,7 +188,75 @@ local function get_highlight_ctermfg(icon_data)
     icon_data = default_icon
   end
 
-  return nvim_get_hl_by_name(get_highlight_name(icon_data), false).foreground
+  local higroup = get_highlight_name(icon_data)
+
+  if vim.fn.has "nvim-0.9" == 1 then
+    --- @type string
+    --- @diagnostic disable-next-line: undefined-field  vim.api.keyset.hl_info specifies cterm, not ctermfg
+    return vim.api.nvim_get_hl(0, { name = higroup, link = false }).ctermfg
+  else
+    return vim.api.nvim_get_hl_by_name(higroup, false).foreground ---@diagnostic disable-line: deprecated
+  end
+end
+
+local function apply_user_icons()
+  if type(user_icons) ~= "table" then
+    return
+  end
+
+  if user_icons.override and user_icons.override.default_icon then
+    default_icon = user_icons.override.default_icon
+  end
+
+  local user_filename_icons = user_icons.override_by_filename
+  local user_file_ext_icons = user_icons.override_by_extension
+  local user_operating_system_icons = user_icons.override_by_operating_system
+  local user_desktop_environment_icons = user_icons.override_by_desktop_environment
+  local user_window_manager_icons = user_icons.override_by_window_manager
+
+  -- filename matches are case insensitive
+  lowercase_keys(icons_by_filename)
+  lowercase_keys(user_icons.override)
+  lowercase_keys(user_icons.override_by_filename)
+
+  icons = vim.tbl_extend(
+    "force",
+    icons,
+    user_icons.override or {},
+    user_filename_icons or {},
+    user_file_ext_icons or {},
+    user_operating_system_icons or {},
+    user_desktop_environment_icons or {},
+    user_window_manager_icons or {}
+  )
+  global_opts.override = vim.tbl_extend(
+    "force",
+    global_opts.override,
+    user_icons.override or {},
+    user_filename_icons or {},
+    user_file_ext_icons or {},
+    user_operating_system_icons or {},
+    user_desktop_environment_icons or {},
+    user_window_manager_icons or {}
+  )
+
+  if user_filename_icons then
+    icons_by_filename = vim.tbl_extend("force", icons_by_filename, user_filename_icons)
+  end
+  if user_file_ext_icons then
+    icons_by_file_extension = vim.tbl_extend("force", icons_by_file_extension, user_file_ext_icons)
+  end
+  if user_operating_system_icons then
+    icons_by_operating_system = vim.tbl_extend("force", icons_by_operating_system, user_operating_system_icons)
+  end
+  if user_desktop_environment_icons then
+    icons_by_desktop_environment = vim.tbl_extend("force", icons_by_desktop_environment, user_desktop_environment_icons)
+  end
+  if user_window_manager_icons then
+    icons_by_window_manager = vim.tbl_extend("force", icons_by_window_manager, user_window_manager_icons)
+  end
+
+  icons[1] = default_icon
 end
 
 local loaded = false
@@ -321,7 +273,7 @@ function M.setup(opts)
 
   loaded = true
 
-  local user_icons = opts or {}
+  user_icons = opts or {}
 
   if user_icons.default then
     global_opts.default = true
@@ -333,31 +285,14 @@ function M.setup(opts)
 
   global_opts.color_icons = if_nil(user_icons.color_icons, global_opts.color_icons)
 
-  if user_icons.override and user_icons.override.default_icon then
-    default_icon = user_icons.override.default_icon
+  if user_icons.variant == "light" or user_icons.variant == "dark" then
+    global_opts.variant = user_icons.variant
+
+    -- Reload the icons after setting variant option
+    refresh_icons()
   end
 
-  local user_filename_icons = user_icons.override_by_filename
-  local user_file_ext_icons = user_icons.override_by_extension
-
-  icons =
-    vim.tbl_extend("force", icons, user_icons.override or {}, user_filename_icons or {}, user_file_ext_icons or {})
-  global_opts.override = vim.tbl_extend(
-    "force",
-    global_opts.override,
-    user_icons.override or {},
-    user_filename_icons or {},
-    user_file_ext_icons or {}
-  )
-
-  if user_filename_icons then
-    icons_by_filename = vim.tbl_extend("force", icons_by_filename, user_filename_icons)
-  end
-  if user_file_ext_icons then
-    icons_by_file_extension = vim.tbl_extend("force", icons_by_file_extension, user_file_ext_icons)
-  end
-
-  icons[1] = default_icon
+  apply_user_icons()
 
   M.set_up_highlights()
 
@@ -365,6 +300,21 @@ function M.setup(opts)
     desc = "Re-apply icon colors after changing colorschemes",
     group = vim.api.nvim_create_augroup("NvimWebDevicons", { clear = true }),
     callback = M.set_up_highlights,
+  })
+
+  -- highlight test command
+  vim.api.nvim_create_user_command("NvimWebDeviconsHiTest", function()
+    require "nvim-web-devicons.hi-test"(
+      default_icon,
+      global_opts.override,
+      icons_by_filename,
+      icons_by_file_extension,
+      icons_by_operating_system,
+      icons_by_desktop_environment,
+      icons_by_window_manager
+    )
+  end, {
+    desc = "nvim-web-devicons: highlight test",
   })
 end
 
@@ -398,7 +348,7 @@ local function get_icon_by_extension(name, ext, opts)
   return iterate_multi_dotted_extension(name, icon_table)
 end
 
-function M.get_icon(name, ext, opts)
+local function get_icon_data(name, ext, opts)
   if type(name) == "string" then
     name = name:lower()
   end
@@ -415,6 +365,12 @@ function M.get_icon(name, ext, opts)
   else
     icon_data = icons[name] or get_icon_by_extension(name, ext, opts) or (has_default and default_icon)
   end
+
+  return icon_data
+end
+
+function M.get_icon(name, ext, opts)
+  local icon_data = get_icon_data(name, ext, opts)
 
   if icon_data then
     return icon_data.icon, get_highlight_name(icon_data)
@@ -433,18 +389,7 @@ function M.get_icon_by_filetype(ft, opts)
 end
 
 function M.get_icon_colors(name, ext, opts)
-  if not loaded then
-    M.setup()
-  end
-
-  local has_default = if_nil(opts and opts.default, global_opts.default)
-  local is_strict = if_nil(opts and opts.strict, global_opts.strict)
-  local icon_data
-  if is_strict then
-    icon_data = icons_by_filename[name] or get_icon_by_extension(name, ext, opts) or (has_default and default_icon)
-  else
-    icon_data = icons[name] or get_icon_by_extension(name, ext, opts) or (has_default and default_icon)
-  end
+  local icon_data = get_icon_data(name, ext, opts)
 
   if icon_data then
     local color = icon_data.color
@@ -484,15 +429,20 @@ function M.get_icon_cterm_color_by_filetype(ft, opts)
   return M.get_icon_cterm_color(name or "", nil, opts)
 end
 
-function M.set_icon(user_icons)
-  icons = vim.tbl_extend("force", icons, user_icons or {})
+function M.set_icon(user_icons_opts)
+  icons = vim.tbl_extend("force", icons, user_icons_opts or {})
+  global_opts.override = vim.tbl_extend("force", global_opts.override, user_icons_opts or {})
   if not global_opts.color_icons then
     return
   end
 
-  for _, icon_data in pairs(user_icons) do
+  for _, icon_data in pairs(user_icons_opts) do
     set_up_highlight(icon_data)
   end
+end
+
+function M.set_icon_by_filetype(user_filetypes)
+  filetypes = vim.tbl_extend("force", filetypes, user_filetypes or {})
 end
 
 function M.set_default_icon(icon, color, cterm_color)
@@ -507,6 +457,7 @@ refresh_icons()
 
 function M.refresh()
   refresh_icons()
+  apply_user_icons()
   M.set_up_highlights(true)
 end
 
