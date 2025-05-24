@@ -4,18 +4,10 @@ local stub = require "luassert.stub"
 
 local Pkg = require "mason-core.package"
 local api = require "mason-lspconfig.api.command"
-local filetype_mappings = require "mason-lspconfig.mappings.filetype"
+local mappings = require "mason-lspconfig.mappings"
 local registry = require "mason-registry"
-local server_mappings = require "mason-lspconfig.mappings.server"
 
 describe(":LspInstall", function()
-    before_each(function()
-        server_mappings.lspconfig_to_package["dummylsp"] = "dummy"
-        server_mappings.package_to_lspconfig["dummy"] = "dummylsp"
-        filetype_mappings.dummylang = { "dummylsp" }
-        filetype_mappings["*"] = {}
-    end)
-
     it("should install the provided servers", function()
         local dummy = registry.get_package "dummy"
         spy.on(Pkg, "install")
@@ -23,7 +15,7 @@ describe(":LspInstall", function()
         assert.spy(Pkg.install).was_called(1)
         assert.spy(Pkg.install).was_called_with(match.ref(dummy), {
             version = "1.0.0",
-        })
+        }, match.is_function())
     end)
 
     it(
@@ -32,6 +24,9 @@ describe(":LspInstall", function()
             local dummy = registry.get_package "dummy"
             spy.on(Pkg, "install")
             stub(vim.ui, "select")
+            stub(mappings, "get_filetype_map", {
+                ["dummylang"] = { "dummylsp" },
+            })
             vim.ui.select.invokes(function(items, opts, callback)
                 callback "dummylsp"
             end)
@@ -40,7 +35,7 @@ describe(":LspInstall", function()
             assert.spy(Pkg.install).was_called(1)
             assert.spy(Pkg.install).was_called_with(match.ref(dummy), {
                 version = nil,
-            })
+            }, match.is_function())
             assert.spy(vim.ui.select).was_called(1)
             assert.spy(vim.ui.select).was_called_with({ "dummylsp" }, match.is_table(), match.is_function())
         end)
@@ -57,22 +52,9 @@ describe(":LspInstall", function()
             assert.spy(vim.ui.select).was_called(0)
         end)
     )
-
-    it("should consider servers mapped to all filetypes", function()
-        filetype_mappings["*"] = { "omnilsp" }
-        spy.on(vim.ui, "select")
-        vim.cmd [[new | setf nolsplang]]
-        api.LspInstall {}
-        assert.spy(vim.ui.select).was_called(1)
-        assert.spy(vim.ui.select).was_called_with({ "omnilsp" }, match.is_table(), match.is_function())
-    end)
 end)
 
 describe(":LspUninstall", function()
-    server_mappings.lspconfig_to_package["dummylsp"] = "dummy"
-    server_mappings.package_to_lspconfig["dummy"] = "dummylsp"
-    filetype_mappings.dummylang = { "dummylsp" }
-
     it("should uninstall the provided servers", function()
         local dummy = registry.get_package "dummy"
         spy.on(Pkg, "uninstall")
