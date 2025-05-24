@@ -6,9 +6,9 @@ colors.get_colors = function()
         mycolors = {
             vscNone = 'NONE',
             vscFront = '#D4D4D4',
-            vscBack = '#1E1E1E',
+            vscBack = '#1F1F1F',
 
-            vscTabCurrent = '#1E1E1E',
+            vscTabCurrent = '#1F1F1F',
             vscTabOther = '#2D2D2D',
             vscTabOutside = '#252526',
 
@@ -17,8 +17,8 @@ colors.get_colors = function()
             vscLeftLight = '#636369',
 
             vscPopupFront = '#BBBBBB',
-            vscPopupBack = '#272727',
-            vscPopupHighlightBlue = '#004b72',
+            vscPopupBack = '#202020',
+            vscPopupHighlightBlue = '#04395E',
             vscPopupHighlightGray = '#343B41',
 
             vscSplitLight = '#898989',
@@ -55,13 +55,16 @@ colors.get_colors = function()
 
             vscFoldBackground = '#202d39',
 
+            vscSuggestion = '#6A6A6A',
+
             -- Syntax colors
             vscGray = '#808080',
             vscViolet = '#646695',
             vscBlue = '#569CD6',
-            vscAccentBlue = '#4FC1FE',
+            vscAccentBlue = '#4FC1FF',
             vscDarkBlue = '#223E55',
             vscMediumBlue = '#18a2fe',
+            vscDisabledBlue = '#729DB3',
             vscLightBlue = '#9CDCFE',
             vscGreen = '#6A9955',
             vscBlueGreen = '#4EC9B0',
@@ -87,12 +90,12 @@ colors.get_colors = function()
             vscTabOther = '#CECECE',
             vscTabOutside = '#E8E8E8',
 
-            vscLeftDark = '#F3F3F3',
+            vscLeftDark = '#C4C4C4',
             vscLeftMid = '#E5E5E5',
             vscLeftLight = '#F3F3F3',
 
             vscPopupFront = '#000000',
-            vscPopupBack = '#F3F3F3',
+            vscPopupBack = '#F8F8F8',
             vscPopupHighlightBlue = '#0064c1',
             vscPopupHighlightGray = '#767676',
 
@@ -100,7 +103,7 @@ colors.get_colors = function()
             vscSplitDark = '#DDDDDD',
             vscSplitThumb = '#DFDFDF',
 
-            vscCursorDarkDark = '#E5EBF1',
+            vscCursorDarkDark = '#E5E5E5',
             vscCursorDark = '#6F6F6F',
             vscCursorLight = '#767676',
             vscSelection = '#ADD6FF',
@@ -129,6 +132,8 @@ colors.get_colors = function()
             vscContextCurrent = '#929292',
 
             vscFoldBackground = '#e6f3ff',
+
+            vscSuggestion = '#868686',
 
             -- Syntax colors
             vscGray = '#000000',

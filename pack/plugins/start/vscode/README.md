@@ -14,12 +14,17 @@ vscode.nvim (formerly `codedark.nvim`) is a Lua port of [vim-code-dark](https://
 - [Indent Blankline](https://github.com/lukas-reineke/indent-blankline.nvim)
 - [LSP](https://github.com/neovim/nvim-lspconfig)
 - [Lualine](https://github.com/hoob3rt/lualine.nvim)
+- [Neotest](https://github.com/nvim-neotest/neotest)
+- [Neogit](https://github.com/NeogitOrg/neogit)
 - [NvimTree](https://github.com/kyazdani42/nvim-tree.lua)
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
 - [Treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+- [Trouble](https://github.com/folke/trouble.nvim)
 - [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
 - [nvim-compe](https://github.com/hrsh7th/nvim-compe)
+- [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui)
 - [vim-illuminate](https://github.com/RRethy/vim-illuminate)
+- [rainbow-delimiters](https://gitlab.com/HiPhish/rainbow-delimiters.nvim)
 
 ## ⬇️ Installation
 
@@ -34,6 +39,30 @@ use 'Mofiqul/vscode.nvim'
 " Vim-Plug:
 Plug 'Mofiqul/vscode.nvim'
 ```
+
+## ⚠️ Warnings
+
+The theme is manipulating the treesitter highlight queries as follows:
+
+### JavaScript and TypeScript
+
+```query
+[
+  "export"
+] @keyword.import
+
+[
+  "break"
+] @keyword.repeat
+
+[
+  "break"
+] @keyword.conditional
+```
+
+this mimics the behavior of VSCode's default theme more closely. Be aware that
+this is not a perfect solution but as far as we know, there is no better way to
+achieve this and most popular themes are doing the same thing.
 
 ## 🚀 Usage
 
@@ -55,8 +84,14 @@ require('vscode').setup({
     -- Enable italic comment
     italic_comments = true,
 
+    -- Underline `@markup.link.*` variants
+    underline_links = true,
+
     -- Disable nvim-tree background color
     disable_nvimtree_bg = true,
+
+    -- Apply theme colors to terminal
+    terminal_colors = true,
 
     -- Override colors (see ./lua/vscode/colors.lua)
     color_overrides = {
@@ -70,9 +105,11 @@ require('vscode').setup({
         Cursor = { fg=c.vscDarkBlue, bg=c.vscLightGreen, bold=true },
     }
 })
-require('vscode').load()
-```
+-- require('vscode').load()
 
+-- load the theme without affecting devicon colors.
+vim.cmd.colorscheme "vscode"
+```
 
 If you are using [`lualine`](https://github.com/hoob3rt/lualine.nvim), you can also enable the provided theme:
 
@@ -86,7 +123,7 @@ require('lualine').setup({
 })
 ```
 
-[nvim-bufferline.lua](https://github.com/akinsho/nvim-bufferline.lua)  setup for exact match as screenshots
+[nvim-bufferline.lua](https://github.com/akinsho/nvim-bufferline.lua) setup for exact match as screenshots
 
 ```lua
 require("bufferline").setup({
@@ -153,7 +190,7 @@ require("bufferline").setup({
 
 ## Switching theme
 
-```
+```vim
 :lua require('vscode').load('light')
 :lua require('vscode').load('dark')
 ```
@@ -162,9 +199,12 @@ require("bufferline").setup({
 
 - [Alacritty](https://github.com/alacritty/alacritty) color scheme
 - [Foot](https://codeberg.org/dnkl/foot) color scheme
+- [fzf](https://junegunn.github.io/fzf/) color scheme
 - [galaxyline.nvim](https://github.com/glepnir/galaxyline.nvim) theme
-- [i3](https://i3wm.org/) color scheme
+- [Ghostty](https://ghostty.org/) color scheme
+- [i3](https://i3wm.org/) and [Sway](https://swaywm.org/) color scheme
 - [Kitty](https://sw.kovidgoyal.net/kitty/) color scheme
+- Linux console color scheme
 - [WezTerm](https://wezfurlong.org/wezterm/) color scheme
 - [Windows Terminal](https://github.com/microsoft/terminal) color scheme
 - [Xresources](https://wiki.debian.org/Xresources) color scheme
