@@ -2,7 +2,7 @@ name: Update lockfile
 
 on:
   schedule:
-    - cron: "30 6 * * *"
+    - cron: "30 6 * * 6"
   workflow_dispatch:
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
         with:
           ref: master
 
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v2
         id: app-token
         with:
           app-id: ${{ vars.TOKEN_ID }}
@@ -27,11 +27,11 @@ jobs:
           wget https://github.com/josephburnett/jd/releases/download/v1.7.1/jd-amd64-linux
           mv jd-amd64-linux /tmp/jd
           chmod +x /tmp/jd
-          bash scripts/ci-install-ubuntu-latest.sh
+          bash scripts/ci-install.sh
 
       - name: Update parsers
         env:
-          SKIP_LOCKFILE_UPDATE_FOR_LANGS: ""
+          SKIP_LOCKFILE_UPDATE_FOR_LANGS: "bp,devicetree,dhall,elm,enforce,git_config,nickel,rescript,rust,slint,sql,t32,templ,typespec,verilog,wit"
         run: |
           cp lockfile.json /tmp/old_lockfile.json
           nvim -l scripts/write-lockfile.lua
@@ -42,11 +42,11 @@ jobs:
           echo "UPDATED_PARSERS=$UPDATED_PARSERS" >> $GITHUB_ENV
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ steps.app-token.outputs.token }}
-          author: "nvim-treesitter-bot[bot] <157957100+nvim-treesitter-bot[bot]@users.noreply.github.com>"
-          commit-message: "Update parsers: ${{ env.UPDATED_PARSERS }}"
+          sign-commits: true
+          commit-message: "bot(lockfile): update ${{ env.UPDATED_PARSERS }}"
           title: "Update lockfile.json: ${{ env.UPDATED_PARSERS }}"
           body: "[beep boop](https://github.com/peter-evans/create-pull-request)"
           branch: update-lockfile-pr

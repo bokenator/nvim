@@ -83,7 +83,7 @@ local function compare_indent(before, after, xfail)
 end
 
 local function set_buf_indent_opts(opts)
-  local optnames = { "tabstop", "shiftwidth", "softtabstop", "expandtab", "filetype" }
+  local optnames = { "tabstop", "shiftwidth", "softtabstop", "expandtab", "filetype", "lispoptions" }
   for _, opt in ipairs(optnames) do
     if opts[opt] ~= nil then
       vim.bo[opt] = opts[opt]
@@ -180,7 +180,7 @@ function Runner:whole_file(dirs, opts)
     assert.is.same(1, vim.fn.isdirectory(dir.filename))
     return dir.filename
   end, dirs)
-  local files = vim.tbl_flatten(vim.tbl_map(scan_dir, dirs))
+  local files = require("nvim-treesitter.compat").flatten(vim.tbl_map(scan_dir, dirs))
   for _, file in ipairs(files) do
     local relpath = Path:new(file):make_relative(self.base_dir.filename)
     self.it(relpath, function()

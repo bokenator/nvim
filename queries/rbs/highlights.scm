@@ -5,7 +5,7 @@
     (simple_type_name)
   ] @type)
 
-; Buitin constants and Keywords
+; Builtin constants and Keywords
 [
   "true"
   "false"
@@ -16,10 +16,7 @@
 [
   "use"
   "as"
-  "class"
   "module"
-  "interface"
-  "type"
   "def"
   "attr_reader"
   "attr_writer"
@@ -27,6 +24,18 @@
   "end"
   "alias"
 ] @keyword
+
+[
+  "interface"
+  "type"
+  "class"
+] @keyword.type
+
+(class_decl
+  "end" @keyword.type)
+
+(interface_decl
+  "end" @keyword.type)
 
 "def" @keyword.function
 
@@ -37,7 +46,7 @@
   "prepend"
 ] @function.method
 
-(visibility) @type.qualifier
+(visibility) @keyword.modifier
 
 (comment) @comment @spell
 
@@ -45,9 +54,24 @@
   (method_name
     [
       (identifier)
+      (identifier_suffix)
       (constant)
+      (constant_suffix)
       (operator)
       (setter)
+      (constant_setter)
+    ] @function.method))
+
+(attribute_member
+  (method_name
+    [
+      (identifier)
+      (identifier_suffix)
+      (constant)
+      (constant_suffix)
+      (operator)
+      (setter)
+      (constant_setter)
     ] @function.method))
 
 [
@@ -80,7 +104,7 @@
 (const_name
   (constant) @constant)
 
-(global_name) @variable.global
+(global_name) @variable
 
 ; Standard Arguments
 (parameter
@@ -105,6 +129,10 @@
 
 (type
   (integer_literal) @number)
+
+(type
+  (record_type
+    key: (record_key) @string.special.symbol))
 
 ; Operators
 [

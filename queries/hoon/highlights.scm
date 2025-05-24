@@ -20,7 +20,7 @@
 
 (aura) @constant.builtin
 
-(Gap) @comment
+(lineComment) @comment
 
 (boolean) @constant.builtin
 
@@ -28,7 +28,7 @@
 
 (mold) @string.special.symbol
 
-(specialIndex) @number.builtin
+(specialIndex) @number
 
 (lark) @operator
 

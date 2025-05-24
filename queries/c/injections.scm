@@ -9,16 +9,20 @@
   (#set! injection.language "re2c"))
 
 ((comment) @injection.content
-  (#lua-match? @injection.content "/[*][!<*][^a-zA-Z]")
+  (#lua-match? @injection.content "/[*\/][!*\/]<?[^a-zA-Z]")
   (#set! injection.language "doxygen"))
 
 ((call_expression
   function: (identifier) @_function
-  arguments:
-    (argument_list
-      .
+  arguments: (argument_list
+    .
+    [
       (string_literal
-        (string_content) @injection.content)))
+        (string_content) @injection.content)
+      (concatenated_string
+        (string_literal
+          (string_content) @injection.content))
+    ]))
   ; format-ignore
   (#any-of? @_function 
     "printf" "printf_s"
@@ -36,12 +40,16 @@
 
 ((call_expression
   function: (identifier) @_function
-  arguments:
-    (argument_list
-      (_)
-      .
+  arguments: (argument_list
+    (_)
+    .
+    [
       (string_literal
-        (string_content) @injection.content)))
+        (string_content) @injection.content)
+      (concatenated_string
+        (string_literal
+          (string_content) @injection.content))
+    ]))
   ; format-ignore
   (#any-of? @_function 
     "fprintf" "fprintf_s"
@@ -68,14 +76,18 @@
 
 ((call_expression
   function: (identifier) @_function
-  arguments:
-    (argument_list
-      (_)
-      .
-      (_)
-      .
+  arguments: (argument_list
+    (_)
+    .
+    (_)
+    .
+    [
       (string_literal
-        (string_content) @injection.content)))
+        (string_content) @injection.content)
+      (concatenated_string
+        (string_literal
+          (string_content) @injection.content))
+    ]))
   ; format-ignore
   (#any-of? @_function 
     "sprintf_s"
@@ -92,16 +104,20 @@
 
 ((call_expression
   function: (identifier) @_function
-  arguments:
-    (argument_list
-      (_)
-      .
-      (_)
-      .
-      (_)
-      .
+  arguments: (argument_list
+    (_)
+    .
+    (_)
+    .
+    (_)
+    .
+    [
       (string_literal
-        (string_content) @injection.content)))
+        (string_content) @injection.content)
+      (concatenated_string
+        (string_literal
+          (string_content) @injection.content))
+    ]))
   (#any-of? @_function "mvwprintw" "mvwscanw")
   (#set! injection.language "printf"))
 

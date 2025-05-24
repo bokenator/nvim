@@ -27,11 +27,11 @@
 (class_parameter
   (simple_identifier) @variable.member)
 
-(class_body
-  (property_declaration
-    (variable_declaration
-      (simple_identifier) @variable.member)))
-
+; NOTE: temporary fix for treesitter bug that causes delay in file opening
+;(class_body
+;  (property_declaration
+;    (variable_declaration
+;      (simple_identifier) @variable.member)))
 ; id_1.id_2.id_3: `id_2` and `id_3` are assumed as object properties
 (_
   (navigation_suffix
@@ -58,7 +58,11 @@
   (type_identifier) @type.definition)
 
 ((type_identifier) @type.builtin
-  (#any-of? @type.builtin "Byte" "Short" "Int" "Long" "UByte" "UShort" "UInt" "ULong" "Float" "Double" "Boolean" "Char" "String" "Array" "ByteArray" "ShortArray" "IntArray" "LongArray" "UByteArray" "UShortArray" "UIntArray" "ULongArray" "FloatArray" "DoubleArray" "BooleanArray" "CharArray" "Map" "Set" "List" "EmptyMap" "EmptySet" "EmptyList" "MutableMap" "MutableSet" "MutableList"))
+  (#any-of? @type.builtin
+    "Byte" "Short" "Int" "Long" "UByte" "UShort" "UInt" "ULong" "Float" "Double" "Boolean" "Char"
+    "String" "Array" "ByteArray" "ShortArray" "IntArray" "LongArray" "UByteArray" "UShortArray"
+    "UIntArray" "ULongArray" "FloatArray" "DoubleArray" "BooleanArray" "CharArray" "Map" "Set"
+    "List" "EmptyMap" "EmptySet" "EmptyList" "MutableMap" "MutableSet" "MutableList"))
 
 (package_header
   "package" @keyword
@@ -68,6 +72,8 @@
 
 (import_header
   "import" @keyword.import)
+
+(wildcard_import) @character.special
 
 ; The last `simple_identifier` in a `import_header` will always either be a function
 ; or a type. Classes can appear anywhere in the import path, unlike functions
@@ -141,7 +147,13 @@
 (call_expression
   .
   (simple_identifier) @function.builtin
-  (#any-of? @function.builtin "arrayOf" "arrayOfNulls" "byteArrayOf" "shortArrayOf" "intArrayOf" "longArrayOf" "ubyteArrayOf" "ushortArrayOf" "uintArrayOf" "ulongArrayOf" "floatArrayOf" "doubleArrayOf" "booleanArrayOf" "charArrayOf" "emptyArray" "mapOf" "setOf" "listOf" "emptyMap" "emptySet" "emptyList" "mutableMapOf" "mutableSetOf" "mutableListOf" "print" "println" "error" "TODO" "run" "runCatching" "repeat" "lazy" "lazyOf" "enumValues" "enumValueOf" "assert" "check" "checkNotNull" "require" "requireNotNull" "with" "suspend" "synchronized"))
+  (#any-of? @function.builtin
+    "arrayOf" "arrayOfNulls" "byteArrayOf" "shortArrayOf" "intArrayOf" "longArrayOf" "ubyteArrayOf"
+    "ushortArrayOf" "uintArrayOf" "ulongArrayOf" "floatArrayOf" "doubleArrayOf" "booleanArrayOf"
+    "charArrayOf" "emptyArray" "mapOf" "setOf" "listOf" "emptyMap" "emptySet" "emptyList"
+    "mutableMapOf" "mutableSetOf" "mutableListOf" "print" "println" "error" "TODO" "run"
+    "runCatching" "repeat" "lazy" "lazyOf" "enumValues" "enumValueOf" "assert" "check"
+    "checkNotNull" "require" "requireNotNull" "with" "suspend" "synchronized"))
 
 ; Literals
 [
@@ -165,7 +177,7 @@
 ] @number
 
 [
-  "null"
+  (null_literal)
   ; should be highlighted the same as booleans
   (boolean_literal)
 ] @boolean
@@ -227,17 +239,20 @@
   (visibility_modifier)
   (reification_modifier)
   (inheritance_modifier)
-] @type.qualifier
+] @keyword.modifier
 
 [
   "val"
   "var"
+  ;	"typeof" ; NOTE: It is reserved for future use
+] @keyword
+
+[
   "enum"
   "class"
   "object"
   "interface"
-  ;	"typeof" ; NOTE: It is reserved for future use
-] @keyword
+] @keyword.type
 
 [
   "return"

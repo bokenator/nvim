@@ -29,9 +29,8 @@
   function: (identifier) @function.call)
 
 (call_expression
-  function:
-    (selector_expression
-      field: (field_identifier) @function.method.call))
+  function: (selector_expression
+    field: (field_identifier) @function.method.call))
 
 ; Function definitions
 (function_declaration
@@ -40,7 +39,7 @@
 (method_declaration
   name: (field_identifier) @function.method)
 
-(method_spec
+(method_elem
   name: (field_identifier) @function.method)
 
 ; Constructors
@@ -103,14 +102,17 @@
   "default"
   "defer"
   "goto"
-  "interface"
   "range"
   "select"
-  "struct"
-  "type"
   "var"
   "fallthrough"
 ] @keyword
+
+[
+  "type"
+  "struct"
+  "interface"
+] @keyword.type
 
 "func" @keyword.function
 
@@ -139,11 +141,16 @@
 ] @type.builtin
 
 ((type_identifier) @type.builtin
-  (#any-of? @type.builtin "any" "bool" "byte" "comparable" "complex128" "complex64" "error" "float32" "float64" "int" "int16" "int32" "int64" "int8" "rune" "string" "uint" "uint16" "uint32" "uint64" "uint8" "uintptr"))
+  (#any-of? @type.builtin
+    "any" "bool" "byte" "comparable" "complex128" "complex64" "error" "float32" "float64" "int"
+    "int16" "int32" "int64" "int8" "rune" "string" "uint" "uint16" "uint32" "uint64" "uint8"
+    "uintptr"))
 
 ; Builtin functions
 ((identifier) @function.builtin
-  (#any-of? @function.builtin "append" "cap" "clear" "close" "complex" "copy" "delete" "imag" "len" "make" "max" "min" "new" "panic" "print" "println" "real" "recover"))
+  (#any-of? @function.builtin
+    "append" "cap" "clear" "close" "complex" "copy" "delete" "imag" "len" "make" "max" "min" "new"
+    "panic" "print" "println" "real" "recover"))
 
 ; Delimiters
 "." @punctuation.delimiter
@@ -230,3 +237,18 @@
 ; Spell
 ((interpreted_string_literal) @spell
   (#not-has-parent? @spell import_spec))
+
+; Regex
+(call_expression
+  (selector_expression) @_function
+  (#any-of? @_function
+    "regexp.Match" "regexp.MatchReader" "regexp.MatchString" "regexp.Compile" "regexp.CompilePOSIX"
+    "regexp.MustCompile" "regexp.MustCompilePOSIX")
+  (argument_list
+    .
+    [
+      (raw_string_literal
+        (raw_string_literal_content) @string.regexp)
+      (interpreted_string_literal
+        (interpreted_string_literal_content) @string.regexp)
+    ]))
