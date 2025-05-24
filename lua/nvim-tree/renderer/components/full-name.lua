@@ -1,6 +1,7 @@
 local M = {}
 
-local utils = require "nvim-tree.utils"
+local utils = require("nvim-tree.utils")
+local view = require("nvim-tree.view")
 
 local function hide(win)
   if win then
@@ -32,7 +33,7 @@ local function effective_win_width()
   return win_width - win_info[1].textoff
 end
 
-local function show()
+local function show(opts)
   local line_nr = vim.api.nvim_win_get_cursor(0)[1]
   if vim.wo.wrap then
     return
@@ -42,7 +43,7 @@ local function show()
     return
   end
 
-  local line = vim.fn.getline "."
+  local line = vim.fn.getline(".")
   local leftcol = vim.fn.winsaveview().leftcol
   -- hide full name if left column of node in nvim-tree win is not zero
   if leftcol ~= 0 then
@@ -52,29 +53,52 @@ local function show()
   local text_width = vim.fn.strdisplaywidth(vim.fn.substitute(line, "[^[:print:]]*$", "", "g"))
   local win_width = effective_win_width()
 
+  -- windows width reduced by right aligned icons
+  local icon_ns_id = vim.api.nvim_get_namespaces()["NvimTreeExtmarks"]
+  local icon_extmarks = vim.api.nvim_buf_get_extmarks(0, icon_ns_id, { line_nr - 1, 0 }, { line_nr - 1, -1 }, { details = true })
+  win_width = win_width - utils.extmarks_length(icon_extmarks)
+
   if text_width < win_width then
     return
   end
 
   M.popup_win = vim.api.nvim_open_win(vim.api.nvim_create_buf(false, false), false, {
-    relative = "win",
-    row = 0,
-    bufpos = { vim.api.nvim_win_get_cursor(0)[1] - 1, 0 },
-    width = math.min(text_width, vim.o.columns - 2),
-    height = 1,
+    relative  = "win",
+    row       = 0,
+    bufpos    = { vim.api.nvim_win_get_cursor(0)[1] - 1, 0 },
+    width     = math.min(text_width, vim.o.columns - 2),
+    height    = 1,
     noautocmd = true,
-    style = "minimal",
+    style     = "minimal",
+    border    = "none"
   })
+  vim.wo[M.popup_win].winhl = view.View.winopts.winhl
 
   local ns_id = vim.api.nvim_get_namespaces()["NvimTreeHighlights"]
-  local extmarks = vim.api.nvim_buf_get_extmarks(0, ns_id, { line_nr - 1, 0 }, { line_nr - 1, -1 }, { details = 1 })
+  local extmarks = vim.api.nvim_buf_get_extmarks(0, ns_id, { line_nr - 1, 0 }, { line_nr - 1, -1 }, { details = true })
   vim.api.nvim_win_call(M.popup_win, function()
     vim.api.nvim_buf_set_lines(0, 0, -1, true, { line })
     for _, extmark in ipairs(extmarks) do
-      local hl = extmark[4]
-      vim.api.nvim_buf_add_highlight(0, ns_id, hl.hl_group, 0, extmark[3], hl.end_col)
+      -- nvim 0.10 luadoc is incorrect: vim.api.keyset.get_extmark_item is missing the extmark_id at the start
+
+      ---@cast extmark table
+      ---@type integer
+      local col = extmark[3]
+      ---@type vim.api.keyset.extmark_details
+      local details = extmark[4]
+
+      if type(details) == "table" then
+        if vim.fn.has("nvim-0.11") == 1 and vim.hl and vim.hl.range then
+          vim.hl.range(0, ns_id, details.hl_group, { 0, col }, { 0, details.end_col, }, {})
+        else
+          vim.api.nvim_buf_add_highlight(0, ns_id, details.hl_group, 0, col, details.end_col) ---@diagnostic disable-line: deprecated
+        end
+      end
     end
-    vim.cmd [[ setlocal nowrap cursorline noswapfile nobuflisted buftype=nofile bufhidden=hide ]]
+    vim.cmd([[ setlocal nowrap noswapfile nobuflisted buftype=nofile bufhidden=wipe ]])
+    if opts.view.cursorline then
+      vim.cmd([[ setlocal cursorline cursorlineopt=both ]])
+    end
   end)
 end
 
@@ -100,7 +124,7 @@ M.setup = function(opts)
     pattern = { "NvimTree_*" },
     callback = function()
       if utils.is_nvim_tree_buf(0) then
-        show()
+        show(opts)
       end
     end,
   })

@@ -1,15 +1,14 @@
-local Iterator = require "nvim-tree.iterators.node-iterator"
-local notify = require "nvim-tree.notify"
+local Iterator = require("nvim-tree.iterators.node-iterator")
 
 local M = {
   debouncers = {},
 }
 
-M.is_unix = vim.fn.has "unix" == 1
-M.is_macos = vim.fn.has "mac" == 1 or vim.fn.has "macunix" == 1
-M.is_wsl = vim.fn.has "wsl" == 1
+M.is_unix = vim.fn.has("unix") == 1
+M.is_macos = vim.fn.has("mac") == 1 or vim.fn.has("macunix") == 1
+M.is_wsl = vim.fn.has("wsl") == 1
 -- false for WSL
-M.is_windows = vim.fn.has "win32" == 1 or vim.fn.has "win32unix" == 1
+M.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win32unix") == 1
 
 ---@param haystack string
 ---@param needle string
@@ -59,6 +58,34 @@ function M.path_basename(path)
   return path:sub(i + 1, #path)
 end
 
+--- Check if there are parentheses before brackets, it causes problems for windows.
+--- Refer to issue #2862 and #2961 for more details.
+local function has_parentheses_and_brackets(path)
+  local _, i_parentheses = path:find("(", 1, true)
+  local _, i_brackets = path:find("[", 1, true)
+  if i_parentheses and i_brackets then
+    return true
+  end
+  return false
+end
+
+--- Path normalizations for windows only
+local function win_norm_path(path)
+  if path == nil then
+    return path
+  end
+  local norm_path = path
+  -- Normalize for issue #2862 and #2961
+  if has_parentheses_and_brackets(norm_path) then
+    norm_path = norm_path:gsub("/", "\\")
+  end
+  -- Normalize the drive letter
+  norm_path = norm_path:gsub("^%l:", function(drive)
+    return drive:upper()
+  end)
+  return norm_path
+end
+
 --- Get a path relative to another path.
 ---@param path string
 ---@param relative_to string|nil
@@ -68,13 +95,18 @@ function M.path_relative(path, relative_to)
     return path
   end
 
-  local _, r = path:find(M.path_add_trailing(relative_to), 1, true)
-  local p = path
+  local norm_path = path
+  if M.is_windows then
+    norm_path = win_norm_path(norm_path)
+  end
+
+  local _, r = norm_path:find(M.path_add_trailing(relative_to), 1, true)
+  local p = norm_path
   if r then
     -- take the relative path starting after '/'
     -- if somehow given a completely matching path,
     -- returns ""
-    p = path:sub(r + 1)
+    p = norm_path:sub(r + 1)
   end
   return p
 end
@@ -112,13 +144,15 @@ function M.find_node(nodes, fn)
     end)
     :iterate()
   i = require("nvim-tree.view").is_root_folder_visible() and i or i - 1
-  i = require("nvim-tree.live-filter").filter and i + 1 or i
+  if node and node.explorer.live_filter.filter then
+    i = i + 1
+  end
   return node, i
 end
 
 -- Find the line number of a node.
 -- Return -1 is node is nil or not found.
----@param node Node|nil
+---@param node Node?
 ---@return integer
 function M.find_node_line(node)
   if not node then
@@ -136,6 +170,21 @@ function M.find_node_line(node)
   end
 
   return -1
+end
+
+---@param extmarks vim.api.keyset.get_extmark_item[] as per vim.api.nvim_buf_get_extmarks
+---@return number
+function M.extmarks_length(extmarks)
+  local length = 0
+  for _, extmark in ipairs(extmarks) do
+    local details = extmark[4]
+    if details and details.virt_text then
+      for _, text in ipairs(details.virt_text) do
+        length = length + vim.fn.strchars(text[1])
+      end
+    end
+  end
+  return length
 end
 
 -- get the node in the tree state depending on the absolute path of the node
@@ -171,14 +220,24 @@ function M.get_node_from_path(path)
     :iterate()
 end
 
----Get the highest parent of grouped nodes
----@param node Node
----@return Node node or parent
-function M.get_parent_of_group(node)
-  while node and node.parent and node.parent.group_next do
-    node = node.parent
+M.default_format_hidden_count = function(hidden_count, simple)
+  local parts = {}
+  local total_count = 0
+  for reason, count in pairs(hidden_count) do
+    total_count = total_count + count
+    if count > 0 then
+      table.insert(parts, reason .. ": " .. tostring(count))
+    end
   end
-  return node
+
+  local hidden_count_string = table.concat(parts, ", ") -- if empty then is "" (empty string)
+  if simple then
+    hidden_count_string = ""
+  end
+  if total_count > 0 then
+    return "(" .. tostring(total_count) .. (simple and " hidden" or " total ") .. hidden_count_string .. ")"
+  end
+  return nil
 end
 
 --- Return visible nodes indexed by line
@@ -226,10 +285,17 @@ function M.rename_loaded_buffers(old_path, new_path)
         vim.api.nvim_buf_set_name(buf, new_path .. buf_name:sub(#old_path + 1))
         -- to avoid the 'overwrite existing file' error message on write for
         -- normal files
-        if vim.api.nvim_buf_get_option(buf, "buftype") == "" then
+        local buftype
+        if vim.fn.has("nvim-0.10") == 1 then
+          buftype = vim.api.nvim_get_option_value("buftype", { buf = buf })
+        else
+          buftype = vim.api.nvim_buf_get_option(buf, "buftype") ---@diagnostic disable-line: deprecated
+        end
+
+        if buftype == "" then
           vim.api.nvim_buf_call(buf, function()
-            vim.cmd "silent! write!"
-            vim.cmd "edit"
+            vim.cmd("silent! write!")
+            vim.cmd("edit")
           end)
         end
       end
@@ -237,20 +303,68 @@ function M.rename_loaded_buffers(old_path, new_path)
   end
 end
 
+local is_windows_drive = function(path)
+  return (M.is_windows) and (path:match("^%a:\\$") ~= nil)
+end
+
 ---@param path string path to file or directory
 ---@return boolean
 function M.file_exists(path)
-  local _, error = vim.loop.fs_stat(path)
-  return error == nil
+  if not (M.is_windows or M.is_wsl) then
+    local _, error = vim.loop.fs_stat(path)
+    return error == nil
+  end
+
+  -- Windows is case-insensetive, but case-preserving
+  -- If a file's name is being changed into itself
+  -- with different casing, windows will falsely
+  -- report that file is already existing, so a hand-rolled
+  -- implementation of checking for existance is needed.
+  -- Same holds for WSL, since it can sometimes
+  -- access Windows files directly.
+  -- For more details see (#3117).
+
+  if is_windows_drive(path) then
+    return vim.fn.isdirectory(path) == 1
+  end
+
+  local parent = vim.fn.fnamemodify(path, ":h")
+  local filename = vim.fn.fnamemodify(path, ":t")
+
+  local handle = vim.loop.fs_scandir(parent)
+  if not handle then
+    -- File can not exist if its parent directory does not exist
+    return false
+  end
+
+  while true do
+    local name, _ = vim.loop.fs_scandir_next(handle)
+    if not name then
+      break
+    end
+    if name == filename then
+      return true
+    end
+  end
+
+  return false
 end
 
 ---@param path string
 ---@return string
 function M.canonical_path(path)
-  if M.is_windows and path:match "^%a:" then
+  if M.is_windows and path:match("^%a:") then
     return path:sub(1, 1):upper() .. path:sub(2)
   end
   return path
+end
+
+--- Escapes special characters in string for windows, refer to issue #2862 and #2961 for more details.
+local function escape_special_char_for_windows(path)
+  if has_parentheses_and_brackets(path) then
+    return path:gsub("\\", "/"):gsub("/ ", "\\ ")
+  end
+  return path:gsub("%(", "\\("):gsub("%)", "\\)")
 end
 
 --- Escapes special characters in string if windows else returns unmodified string.
@@ -260,7 +374,7 @@ function M.escape_special_chars(path)
   if path == nil then
     return path
   end
-  return M.is_windows and path:gsub("%(", "\\("):gsub("%)", "\\)") or path
+  return M.is_windows and escape_special_char_for_windows(path) or path
 end
 
 --- Create empty sub-tables if not present
@@ -289,20 +403,6 @@ end
 ---@param dst_pos string value pos
 ---@param remove boolean
 function M.move_missing_val(src, src_path, src_pos, dst, dst_path, dst_pos, remove)
-  local ok, err = pcall(vim.validate, {
-    src = { src, "table" },
-    src_path = { src_path, "string" },
-    src_pos = { src_pos, "string" },
-    dst = { dst, "table" },
-    dst_path = { dst_path, "string" },
-    dst_pos = { dst_pos, "string" },
-    remove = { remove, "boolean" },
-  })
-  if not ok then
-    notify.warn("move_missing_val: " .. (err or "invalid arguments"))
-    return
-  end
-
   for pos in string.gmatch(src_path, "([^%.]+)%.*") do
     if src[pos] and type(src[pos]) == "table" then
       src = src[pos]
@@ -406,6 +506,9 @@ function M.debounce(context, timeout, callback)
   end
 
   local timer = vim.loop.new_timer()
+  if not timer then
+    return
+  end
   debouncer.timer = timer
   timer:start(timeout, 0, function()
     timer_stop_close(timer)
@@ -434,13 +537,13 @@ function M.focus_file(path)
   local _, i = M.find_node(require("nvim-tree.core").get_explorer().nodes, function(node)
     return node.absolute_path == path
   end)
-  require("nvim-tree.view").set_cursor { i + 1, 1 }
+  require("nvim-tree.view").set_cursor({ i + 1, 1 })
 end
 
 ---Focus node passed as parameter if visible, otherwise focus first visible parent.
 ---If none of the parents is visible focus root.
 ---If node is nil do nothing.
----@param node Node|nil node to focus
+---@param node Node? node to focus
 function M.focus_node_or_parent(node)
   local explorer = require("nvim-tree.core").get_explorer()
 
@@ -454,7 +557,7 @@ function M.focus_node_or_parent(node)
     end)
 
     if found_node or node.parent == nil then
-      require("nvim-tree.view").set_cursor { i + 1, 1 }
+      require("nvim-tree.view").set_cursor({ i + 1, 1 })
       break
     end
 
@@ -477,7 +580,7 @@ end
 
 function M.clear_prompt()
   if vim.opt.cmdheight._value ~= 0 then
-    vim.cmd "normal! :"
+    vim.cmd("normal! :")
   end
 end
 
@@ -516,14 +619,6 @@ function M.array_remove_nils(array)
   end, array)
 end
 
----@param f fun(node: Node|nil)
----@return function
-function M.inject_node(f)
-  return function()
-    f(require("nvim-tree.lib").get_node_at_cursor())
-  end
-end
-
 --- Is the buffer named NvimTree_[0-9]+ a tree? filetype is "NvimTree" or not readable file.
 --- This is cheap, as the readable test should only ever be needed when resuming a vim session.
 ---@param bufnr number|nil may be 0 or nil for current
@@ -534,7 +629,7 @@ function M.is_nvim_tree_buf(bufnr)
   end
   if vim.api.nvim_buf_is_valid(bufnr) then
     local bufname = vim.api.nvim_buf_get_name(bufnr)
-    if vim.fn.fnamemodify(bufname, ":t"):match "^NvimTree_[0-9]+$" then
+    if vim.fn.fnamemodify(bufname, ":t"):match("^NvimTree_[0-9]+$") then
       if vim.bo[bufnr].filetype == "NvimTree" then
         return true
       elseif vim.fn.filereadable(bufname) == 0 then
@@ -543,6 +638,46 @@ function M.is_nvim_tree_buf(bufnr)
     end
   end
   return false
+end
+
+--- path is an executable file or directory
+---@param absolute_path string
+---@return boolean
+function M.is_executable(absolute_path)
+  if M.is_windows or M.is_wsl then
+    --- executable detection on windows is buggy and not performant hence it is disabled
+    return false
+  else
+    return vim.loop.fs_access(absolute_path, "X") or false
+  end
+end
+
+---List of all option info/values
+---@param opts vim.api.keyset.option passed directly to vim.api.nvim_get_option_info2 and vim.api.nvim_get_option_value
+---@param was_set boolean filter was_set
+---@return { info: vim.api.keyset.get_option_info, val: any }[]
+function M.enumerate_options(opts, was_set)
+  local res = {}
+
+  local infos = vim.tbl_filter(function(info)
+    if opts.buf and info.scope ~= "buf" then
+      return false
+    elseif opts.win and info.scope ~= "win" then
+      return false
+    else
+      return true
+    end
+  end, vim.api.nvim_get_all_options_info())
+
+  for _, info in vim.spairs(infos) do
+    local _, info2 = pcall(vim.api.nvim_get_option_info2, info.name, opts)
+    if not was_set or info2.was_set then
+      local val = pcall(vim.api.nvim_get_option_value, info.name, opts)
+      table.insert(res, { info = info2, val = val })
+    end
+  end
+
+  return res
 end
 
 return M
