@@ -9,15 +9,124 @@ M.get_whitespace = function(line)
     return string.match(line, "^%s+") or ""
 end
 
+--- Use the faster validate version if available.
+--- NOTE: We disable some Lua diagnostics here since lua_ls isn't smart enough to
+--- realize that we're using an overloaded function.
+---@param spec table<string, {[1]:any, [2]:function|string, [3]:string|true|nil}>
+M.validate = function(spec)
+    if vim.fn.has "nvim-0.11" == 1 then
+        for key, key_spec in pairs(spec) do
+            local message = type(key_spec[3]) == "string" and key_spec[3] or nil --[[@as string?]]
+            local optional = type(key_spec[3]) == "boolean" and key_spec[3] or nil --[[@as boolean?]]
+            ---@diagnostic disable-next-line:param-type-mismatch, redundant-parameter
+            vim.validate(key, key_spec[1], key_spec[2], optional, message)
+        end
+    else
+        ---@diagnostic disable-next-line:param-type-mismatch
+        vim.validate(spec)
+    end
+end
+
 ---@param opt table
 ---@param input table
 ---@param path string
-M.validate = function(opt, input, path)
-    vim.validate(opt)
+M.validate_config = function(opt, input, path)
+    M.validate(opt)
     for key, _ in pairs(input) do
         if not opt[key] then
             error(string.format("'%s' is not a valid key of %s", key, path))
         end
+    end
+end
+
+--- copy of vim.spit without vim.validate
+---
+---@param s string String to split
+---@param sep string Separator or pattern
+---@param opts (table|nil) Keyword arguments |kwargs| accepted by |vim.gsplit()|
+---@return string[] List of split components
+function M.split(s, sep, opts)
+    local t = {}
+    for c in M.gsplit(s, sep, opts) do
+        table.insert(t, c)
+    end
+    return t
+end
+
+--- copy of vim.gsplit without vim.validate
+---
+--- @param s string String to split
+--- @param sep string Separator or pattern
+--- @param opts (table|nil) Keyword arguments |kwargs|:
+---       - plain: (boolean) Use `sep` literally (as in string.find).
+---       - trimempty: (boolean) Discard empty segments at start and end of the sequence.
+---@return fun():string|nil (function) Iterator over the split components
+function M.gsplit(s, sep, opts)
+    local plain
+    local trimempty = false
+    if type(opts) == "boolean" then
+        plain = opts -- For backwards compatibility.
+    else
+        opts = opts or {}
+        plain, trimempty = opts.plain, opts.trimempty
+    end
+
+    local start = 1
+    local done = false
+
+    -- For `trimempty`: queue of collected segments, to be emitted at next pass.
+    local segs = {}
+    local empty_start = true -- Only empty segments seen so far.
+
+    local function _pass(i, j, ...)
+        if i then
+            assert(j + 1 > start, "Infinite loop detected")
+            local seg = s:sub(start, i - 1)
+            start = j + 1
+            return seg, ...
+        else
+            done = true
+            return s:sub(start)
+        end
+    end
+
+    return function()
+        if trimempty and #segs > 0 then
+            -- trimempty: Pop the collected segments.
+            return table.remove(segs)
+        elseif done or (s == "" and sep == "") then
+            return nil
+        elseif sep == "" then
+            if start == #s then
+                done = true
+            end
+            return _pass(start + 1, start)
+        end
+
+        local seg = _pass(s:find(sep, start, plain))
+
+        -- Trim empty segments from start/end.
+        if trimempty and seg ~= "" then
+            empty_start = false
+        elseif trimempty and seg == "" then
+            while not done and seg == "" do
+                table.insert(segs, 1, "")
+                seg = _pass(s:find(sep, start, plain))
+            end
+            if done and seg == "" then
+                return nil
+            elseif empty_start then
+                empty_start = false
+                segs = {}
+                return seg
+            end
+            if seg ~= "" then
+                table.insert(segs, 1, seg)
+            end
+            return table.remove(segs)
+        end
+
+        return seg
     end
 end
 
@@ -31,7 +140,6 @@ end
 M.tbl_contains = function(t, value, opts)
     local pred
     if opts and opts.predicate then
-        vim.validate { value = { value, "c" } }
         pred = value
     else
         pred = function(v)
@@ -157,6 +265,7 @@ end
 ---@return ibl.listchars
 M.get_listchars = function(bufnr)
     local listchars
+    ---@diagnostic disable-next-line
     local list = vim.opt.list:get()
     if list then
         listchars = vim.opt.listchars:get()
@@ -169,8 +278,8 @@ M.get_listchars = function(bufnr)
             if list then
                 local raw_value = vim.api.nvim_get_option_value("listchars", { win = win })
                 listchars = {}
-                for _, key_value_str in ipairs(vim.split(raw_value, ",")) do
-                    local key, value = unpack(vim.split(key_value_str, ":"))
+                for _, key_value_str in ipairs(M.split(raw_value, ",")) do
+                    local key, value = unpack(M.split(key_value_str, ":"))
                     listchars[vim.trim(key)] = value
                 end
             end
@@ -226,7 +335,7 @@ M.get_filetypes = function(bufnr)
     if filetype == "" then
         return { "" }
     end
-    return vim.split(filetype, ".", { plain = true, trimempty = true })
+    return M.split(filetype, ".", { plain = true, trimempty = true })
 end
 
 local has_end_reg = vim.regex "^\\s*\\(}\\|]\\|)\\|end\\)"
@@ -305,6 +414,19 @@ M.get_foldtextresult = function(bufnr, row)
 end
 
 ---@param bufnr number
+---@return boolean
+M.has_empty_foldtext = function(bufnr)
+    if vim.fn.has "nvim-0.10" == 0 then
+        return false
+    end
+    local win = M.get_win(bufnr)
+    if not win then
+        return false
+    end
+    return vim.api.nvim_get_option_value("foldtext", { win = win }) == ""
+end
+
+---@param bufnr number
 ---@param config ibl.config
 M.is_buffer_active = function(bufnr, config)
     for _, filetype in ipairs(M.get_filetypes(bufnr)) do
@@ -334,11 +456,8 @@ end
 ---@vararg T
 ---@return T
 M.tbl_join = function(...)
-    local result = {}
-    for i, v in ipairs(vim.tbl_flatten { ... }) do
-        result[i] = v
-    end
-    return result
+    ---@diagnostic disable-next-line: deprecated
+    return vim.iter and vim.iter({ ... }):flatten():totable() or vim.tbl_flatten { ... }
 end
 
 ---@generic T
@@ -378,8 +497,8 @@ M.has_repeat_indent = function(bufnr, config)
     end
 
     local raw_value = vim.api.nvim_get_option_value("breakindentopt", { win = win })
-    for _, key_value_str in ipairs(vim.split(raw_value, ",")) do
-        local key, value = unpack(vim.split(key_value_str, ":"))
+    for _, key_value_str in ipairs(M.split(raw_value, ",")) do
+        local key, value = unpack(M.split(key_value_str, ":"))
         key = vim.trim(key)
 
         if key == "column" then

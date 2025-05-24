@@ -12,7 +12,6 @@ local namespace = vim.api.nvim_create_namespace "indent_blankline"
 
 local M = {}
 
----@package
 M.initialized = false
 
 ---@type table<number, { scope: TSNode?, left_offset: number, top_offset: number, tick: number }>
@@ -214,6 +213,8 @@ M.refresh = function(bufnr)
         indent_opts.vartabstop = ""
     end
 
+    local has_empty_foldtext = utils.has_empty_foldtext(bufnr)
+
     local indent_state
     local next_whitespace_tbl = {}
     local empty_line_counter = 0
@@ -243,6 +244,7 @@ M.refresh = function(bufnr)
     local scope_row_start, scope_col_start, scope_row_end, scope_col_end = -1, -1, -1, -1
     local scope_index = -1
     if scope then
+        ---@diagnostic disable-next-line: cast-local-type
         scope_row_start, scope_col_start, scope_row_end, scope_col_end = scope:range()
         scope_row_start, scope_col_start, scope_row_end = scope_row_start + 1, scope_col_start + 1, scope_row_end + 1
     end
@@ -268,8 +270,8 @@ M.refresh = function(bufnr)
         -- find whitespace tables for the start and end lines of scope
         local whitespace_start = utils.get_whitespace(scope_start_line)
         local whitespace_end = utils.get_whitespace(scope_end_line)
-        local whitespace_tbl_start = indent.get(whitespace_start, indent_opts, nil)
-        local whitespace_tbl_end = indent.get(whitespace_end, indent_opts, nil)
+        local whitespace_tbl_start = indent.get(whitespace_start, indent_opts, false, nil)
+        local whitespace_tbl_end = indent.get(whitespace_end, indent_opts, false, nil)
         local whitespace, whitespace_tbl, scope_row
         -- use the smallest whitespace table of the two to determine the scope index
         if #whitespace_tbl_end < #whitespace_tbl_start then
@@ -317,7 +319,7 @@ M.refresh = function(bufnr)
 
         local whitespace = utils.get_whitespace(line)
         local foldclosed = utils.get_foldclosed(bufnr, row)
-        if is_current_buffer and foldclosed == row then
+        if is_current_buffer and foldclosed == row and not has_empty_foldtext then
             local foldtext = utils.get_foldtextresult(bufnr, row)
             local foldtext_whitespace = utils.get_whitespace(foldtext)
             if vim.fn.strdisplaywidth(foldtext_whitespace, 0) < vim.fn.strdisplaywidth(whitespace, 0) then
@@ -334,10 +336,11 @@ M.refresh = function(bufnr)
         ---@type ibl.indent.whitespace[]
         local whitespace_tbl
         local blankline = line:len() == 0
+        local whitespace_only = not blankline and line == whitespace
 
         -- #### calculate indent ####
         if not blankline then
-            whitespace_tbl, indent_state = indent.get(whitespace, indent_opts, indent_state)
+            whitespace_tbl, indent_state = indent.get(whitespace, indent_opts, whitespace_only, indent_state)
         elseif empty_line_counter > 0 then
             empty_line_counter = empty_line_counter - 1
             whitespace_tbl = next_whitespace_tbl
@@ -354,7 +357,7 @@ M.refresh = function(bufnr)
                 end
 
                 local j_whitespace = utils.get_whitespace(lines[j])
-                whitespace_tbl, indent_state = indent.get(j_whitespace, indent_opts, indent_state)
+                whitespace_tbl, indent_state = indent.get(j_whitespace, indent_opts, whitespace_only, indent_state)
 
                 if utils.has_end(lines[j]) then
                     local trail = last_whitespace_tbl[indent_state.stack[#indent_state.stack] + 1]
@@ -420,7 +423,6 @@ M.refresh = function(bufnr)
         local scope_start = row == scope_row_start
         local scope_end = row == scope_row_end
 
-        local whitespace_only = not blankline and line == whitespace
         local char_map = vt.get_char_map(config, listchars, whitespace_only, blankline)
         local virt_text, scope_hl = vt.get(
             config,
