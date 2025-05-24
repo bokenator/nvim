@@ -16,7 +16,8 @@ local default = {
     map_c_h = false,
     map_c_w = false,
     map_cr = true,
-    disable_filetype = { 'TelescopePrompt', 'spectre_panel' },
+    enabled = nil,
+    disable_filetype = { 'TelescopePrompt', 'spectre_panel', 'snacks_picker_input' },
     disable_in_macro = true,
     disable_in_visualblock = false,
     disable_in_replace_mode = true,
@@ -56,11 +57,13 @@ M.setup = function(opt)
     M.force_attach()
     local group = api.nvim_create_augroup('autopairs_buf', { clear = true })
     api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
-        group = group, pattern = '*',
+        group = group,
+        pattern = '*',
         callback = function() M.on_attach() end
     })
     api.nvim_create_autocmd('BufDelete', {
-        group = group, pattern = '*',
+        group = group,
+        pattern = '*',
         callback = function(data)
             local cur = api.nvim_get_current_buf()
             local bufnr = tonumber(data.buf) or 0
@@ -70,7 +73,8 @@ M.setup = function(opt)
         end,
     })
     api.nvim_create_autocmd('FileType', {
-        group = group, pattern = '*',
+        group = group,
+        pattern = '*',
         callback = function() M.force_attach() end
     })
 end
@@ -140,6 +144,10 @@ M.enable = function()
     M.state.disabled = false
 end
 
+M.toggle = function()
+    M.state.disabled = not M.state.disabled
+end
+
 --- force remap key to buffer
 M.force_attach = function(bufnr)
     utils.set_attach(bufnr, 0)
@@ -183,7 +191,14 @@ local function is_disable()
         return true
     end
 
-    if utils.check_filetype(M.config.disable_filetype, vim.bo.filetype) then
+    if vim.v.count > 0 then
+        return true
+    end
+
+    if
+        utils.check_filetype(M.config.disable_filetype, vim.bo.filetype)
+        or (M.config.enabled and not M.config.enabled(api.nvim_get_current_buf()))
+    then
         del_keymaps()
         M.set_buf_rule({}, 0)
         return true
@@ -204,6 +219,7 @@ M.set_buf_rule = function(rules, bufnr)
     end
     M.state.rules[bufnr] = rules
 end
+
 
 M.on_attach = function(bufnr)
     -- log.debug('on_attach' .. vim.bo.filetype)
@@ -311,8 +327,8 @@ M.on_attach = function(bufnr)
             bufnr,
             'i',
             '<bs>',
-            'v:lua.MPairs.autopairs_bs()',
-            { expr = true, noremap = true }
+            '',
+            { callback = M.autopairs_bs, expr = true, noremap = true }
         )
     end
 
@@ -321,8 +337,8 @@ M.on_attach = function(bufnr)
             bufnr,
             "i",
             utils.key.c_h,
-            'v:lua.MPairs.autopairs_c_h()',
-            { expr = true, noremap = true }
+            '',
+            { callback = M.autopairs_c_h, expr = true, noremap = true }
         )
     end
 
@@ -331,8 +347,8 @@ M.on_attach = function(bufnr)
             bufnr,
             'i',
             '<c-w>',
-            'v:lua.MPairs.autopairs_c_w()',
-            { expr = true, noremap = true }
+            '',
+            { callback = M.autopairs_c_w, expr = true, noremap = true }
         )
     end
     api.nvim_buf_set_var(bufnr, 'nvim-autopairs', 1)
@@ -624,7 +640,7 @@ M.autopairs_afterquote = function(line, key_char)
                             append = 'la'
                         end
                         return utils.esc(
-                            '<esc><cmd>lua MPairs.autopairs_closequote_expr()<cr>' .. append
+                            "<esc><cmd>lua require'nvim-autopairs'.autopairs_closequote_expr()<cr>" .. append
                         )
                     end
                 end
@@ -643,22 +659,22 @@ M.check_break_line_char = function()
     return M.autopairs_cr()
 end
 
-M.map_cr = function()
-    M.completion_confirm = function()
-        if vim.fn.pumvisible() ~= 0 then
-            return M.esc("<cr>")
-        else
-            return M.autopairs_cr()
-        end
+M.completion_confirm = function()
+    if vim.fn.pumvisible() ~= 0 then
+        return M.esc("<cr>")
+    else
+        return M.autopairs_cr()
     end
+end
+
+M.map_cr = function()
     api.nvim_set_keymap(
         'i',
         '<CR>',
-        'v:lua.MPairs.completion_confirm()',
+        "v:lua.require'nvim-autopairs'.completion_confirm()",
         { expr = true, noremap = true }
     )
 end
 
 M.esc = utils.esc
-_G.MPairs = M
 return M

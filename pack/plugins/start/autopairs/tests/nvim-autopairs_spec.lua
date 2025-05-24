@@ -7,7 +7,10 @@ _G.log = log
 local utils = require('nvim-autopairs.utils')
 _G.npairs = npairs;
 
+--  make test-file FILE=tests/nvim-autopairs_spec.lua
+
 -- use only = true to test 1 case
+-- stylua: ignore
 local data = {
     {
         -- only = true,
@@ -808,11 +811,45 @@ local data = {
         before   = [[('|') ]],
         after    = [[(''|) ]]
     },
+    {
+        setup_func = function()
+            npairs.add_rules({
+                Rule('123456', '789'):with_pair(cond.before_regex('^12345$', 5)),
+            })
+        end,
+        name = '87 test before_regex with a specific string length',
+        key = [[123456]],
+        before = [[    some text before| ]],
+        after = [[    some text before123456|789 ]],
+    },
+    {
+        name     = "88 disable on count mode",
+        filetype = "txt",
+        key      = function()
+            local keys = vim.api.nvim_replace_termcodes('2otest({<esc>', true, true, true)
+            vim.api.nvim_feedkeys(keys, 'x', true)
+        end,
+        before   = [[ | ]],
+        after    = {
+            '',
+            '  test({',
+        }
+    },
+    {
+        name     = "89 <cr> key on markdown",
+        filetype = "markdown",
+        key      = [[<cr>]],
+        before   = [[|```python ]],
+        after    = {
+            "",
+            "|```python"
+        }
+    },
 }
 
 local run_data = _G.Test_filter(data)
 
-describe('autopairs ', function()
+describe("autopairs ", function()
     _G.Test_withfile(run_data, {
         cursor_add = 0,
         before_each = function(value)
