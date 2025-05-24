@@ -1,5 +1,88 @@
 # Changelog
 
+## [4.9.1](https://github.com/akinsho/bufferline.nvim/compare/v4.9.0...v4.9.1) (2025-01-14)
+
+
+### Bug Fixes
+
+* **utils:** correctly check for showing buffer icons ([1363a05](https://github.com/akinsho/bufferline.nvim/commit/1363a05043f1bca8012b979474fd35936f264d7c))
+
+## [4.9.0](https://github.com/akinsho/bufferline.nvim/compare/v4.8.0...v4.9.0) (2024-10-24)
+
+
+### Features
+
+* **pick:** add config option for pick alphabet ([#972](https://github.com/akinsho/bufferline.nvim/issues/972)) ([5cc447c](https://github.com/akinsho/bufferline.nvim/commit/5cc447cb2b463cb499c82eaeabbed4f5fa6a0a44))
+
+## [4.8.0](https://github.com/akinsho/bufferline.nvim/compare/v4.7.0...v4.8.0) (2024-10-22)
+
+
+### Features
+
+* **tabpages:** pass the bufnr to the `name_formatter` ([#941](https://github.com/akinsho/bufferline.nvim/issues/941)) ([28e347d](https://github.com/akinsho/bufferline.nvim/commit/28e347dbc6d0e8367ea56fb045fb9d135579ff79))
+
+## [4.7.0](https://github.com/akinsho/bufferline.nvim/compare/v4.6.1...v4.7.0) (2024-07-10)
+
+
+### Features
+
+* **diag:** add `diagnostics_update_on_event` option ([#932](https://github.com/akinsho/bufferline.nvim/issues/932)) ([aa16daf](https://github.com/akinsho/bufferline.nvim/commit/aa16dafdc642594c7ade7e88d31a6119feb189d6))
+
+
+### Bug Fixes
+
+* **tabs:** use custom separator_style in tabpages ([#852](https://github.com/akinsho/bufferline.nvim/issues/852)) ([81820ca](https://github.com/akinsho/bufferline.nvim/commit/81820cac7c85e51e4cf179f8a66d13dbf7b032d9))
+* UNKNOWN PLUGIN error resulting from unloaded buffers ([#928](https://github.com/akinsho/bufferline.nvim/issues/928)) ([6ac7e4f](https://github.com/akinsho/bufferline.nvim/commit/6ac7e4f1eead72507cfdbc94dcd0c26b98b2f86e))
+* UNKNOWN PLUGIN error resulting from unloaded buffers ([#931](https://github.com/akinsho/bufferline.nvim/issues/931)) ([1662fed](https://github.com/akinsho/bufferline.nvim/commit/1662fed6ecd512d1f381fc2a4e77532c379d25c6))
+
+
+### Reverts
+
+* remove fix for referencing unloaded buffers ([#930](https://github.com/akinsho/bufferline.nvim/issues/930)) ([46192e7](https://github.com/akinsho/bufferline.nvim/commit/46192e794b73f92136326c10ecdbdbf15e35705f))
+
+## [4.6.1](https://github.com/akinsho/bufferline.nvim/compare/v4.6.0...v4.6.1) (2024-05-21)
+
+
+### Bug Fixes
+
+* replace tbl_flatten to flatten():totable() ([#912](https://github.com/akinsho/bufferline.nvim/issues/912)) ([b2dc003](https://github.com/akinsho/bufferline.nvim/commit/b2dc003aca1dc638ccc3e7752ab3969b4184a690))
+
+## [4.6.0](https://github.com/akinsho/bufferline.nvim/compare/v4.5.3...v4.6.0) (2024-05-20)
+
+
+### Features
+
+* add `auto_toggle_bufferline` option ([#876](https://github.com/akinsho/bufferline.nvim/issues/876)) ([f6f00d9](https://github.com/akinsho/bufferline.nvim/commit/f6f00d9ac1a51483ac78418f9e63126119a70709))
+
+
+### Bug Fixes
+
+* maintain backwards compatibility ([#909](https://github.com/akinsho/bufferline.nvim/issues/909)) ([155b257](https://github.com/akinsho/bufferline.nvim/commit/155b257b0c1d7999b0ffc837e1dd3a110cdc33d0))
+* reimplement the deprecated function tbl_add_reverse_lookup ([#904](https://github.com/akinsho/bufferline.nvim/issues/904)) ([9ae49d7](https://github.com/akinsho/bufferline.nvim/commit/9ae49d71c84b42b91795f7b7cead223c6346e774))
+* **utils:** update is_list to handle breaking change ([#892](https://github.com/akinsho/bufferline.nvim/issues/892)) ([a6ad228](https://github.com/akinsho/bufferline.nvim/commit/a6ad228f77c276a4324924a6899cbfad70541547))
+* vim.diagnostic.is_disabled() deprecation warning ([#907](https://github.com/akinsho/bufferline.nvim/issues/907)) ([2cd3984](https://github.com/akinsho/bufferline.nvim/commit/2cd39842c6426fb6c9a79fa57420121cc81c9804))
+
+## [4.5.3](https://github.com/akinsho/bufferline.nvim/compare/v4.5.2...v4.5.3) (2024-04-19)
+
+
+### Bug Fixes
+
+* **utils:** improve path separator detection on Windows ([#888](https://github.com/akinsho/bufferline.nvim/issues/888)) ([d7ebc0d](https://github.com/akinsho/bufferline.nvim/commit/d7ebc0de62a2f752dcd3cadf6f3235a0702f15a3))
+
+## [4.5.2](https://github.com/akinsho/bufferline.nvim/compare/v4.5.1...v4.5.2) (2024-03-07)
+
+
+### Bug Fixes
+
+* **tabpages:** renaming bug on reopened tab ([#877](https://github.com/akinsho/bufferline.nvim/issues/877)) ([1064399](https://github.com/akinsho/bufferline.nvim/commit/10643990c33ca295bfe970d775c6e7697354aa0f))
+
+## [4.5.1](https://github.com/akinsho/bufferline.nvim/compare/v4.5.0...v4.5.1) (2024-03-05)
+
+
+### Bug Fixes
+
+* **tabpages:** typo in rename_tab ([#873](https://github.com/akinsho/bufferline.nvim/issues/873)) ([5bf13d1](https://github.com/akinsho/bufferline.nvim/commit/5bf13d17a8c8abbce8d3ef83c8658b32e08ce913))
+
 ## [4.5.0](https://github.com/akinsho/bufferline.nvim/compare/v4.4.1...v4.5.0) (2024-01-22)
 
 

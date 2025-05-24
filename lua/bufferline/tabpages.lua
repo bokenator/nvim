@@ -16,11 +16,15 @@ local padding = constants.padding
 
 local function tab_click_component(num) return "%" .. num .. "T" end
 
+---@param tabpage { tabnr: number, variables: { name: string }, windows: number[] }
+---@param is_active boolean
+---@param style string | { [1]: string, [2]: string }
+---@param highlights bufferline.Highlights
 local function render(tabpage, is_active, style, highlights)
   local h = highlights
   local hl = is_active and h.tab_selected.hl_group or h.tab.hl_group
   local separator_hl = is_active and h.tab_separator_selected.hl_group or h.tab_separator.hl_group
-  local chars = constants.sep_chars[style] or constants.sep_chars.thin
+  local chars = type(style) == "table" and style or constants.sep_chars[style] or constants.sep_chars.thin
   local name = padding .. (tabpage.variables.name or tabpage.tabnr) .. padding
   local char_order = ({ thick = { 1, 2 }, thin = { 1, 2 } })[style] or { 2, 1 }
   return {
@@ -35,9 +39,8 @@ local function render(tabpage, is_active, style, highlights)
 end
 
 function M.rename_tab(tabnr, name)
-  if tabnr == 0 then tabnr = vim.fn.tabpagenr() end
-  if name == "" then name = string(tabnr) end
-  api.nvim_tabpage_set_var(tabnr, "name", name)
+  if name == "" then name = tostring(tabnr) end
+  api.nvim_tabpage_set_var(0, "name", name)
   ui.refresh()
 end
 

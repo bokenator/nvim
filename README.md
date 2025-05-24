@@ -28,7 +28,6 @@
   - [Unique names](#unique-names)
   - [Close icons](#close-icons)
   - [Re-ordering](#re-ordering)
-  - [LSP indicators](#lsp-indicators)
   - [Custom areas](#custom-areas)
 - [How do I see only buffers per tab?](#how-do-i-see-only-buffers-per-tab)
 - [Caveats](#caveats)
@@ -112,7 +111,7 @@ for more details on how to configure this plugin in details please see `:h buffe
 ![slanted tabs](https://user-images.githubusercontent.com/22454918/111992989-fec39b80-8b0d-11eb-851b-010641196a04.png)
 
 **NOTE**: some terminals require special characters to be padded so set the style to `padded_slant` if the appearance isn't right in your terminal emulator. Please keep in mind
-though that results may vary depending on your terminal emulator of choice and this style might will not work for all terminals
+though that results may vary depending on your terminal emulator of choice and this style might not work for all terminals
 
 ##### Sloped tabs
 
@@ -176,7 +175,7 @@ In order to customise the appearance of the diagnostic count you can pass a cust
 --- this should return a string
 --- Don't get too fancy as this function will be executed a lot
 diagnostics_indicator = function(count, level, diagnostics_dict, context)
-  local icon = level:match("error") and " " or " "
+  local icon = level:match("error") and " " or " "
   return " " .. icon .. count
 end
 
@@ -195,7 +194,7 @@ diagnostics_indicator = function(count, level, diagnostics_dict, context)
   local s = " "
   for e, n in pairs(diagnostics_dict) do
     local sym = e == "error" and " "
-      or (e == "warning" and " " or "" )
+      or (e == "warning" and " " or " ")
     s = s .. n .. sym
   end
   return s
