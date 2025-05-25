@@ -17,3 +17,4 @@ vim.keymap.set('n', '<m-h>', '<C-w>h', options)
 vim.keymap.set('n', '<m-j>', '<C-w>j', options)
 vim.keymap.set('n', '<m-k>', '<C-w>k', options)
 vim.keymap.set('n', '<m-l>', '<C-w>l', options)
+

@@ -83,7 +83,7 @@ require('nvim-treesitter.configs').setup({
 			}
 		},
 		select = {
-			enable = false,
+			enable = true,
 			lookahead = true,		-- Automatically jump forward to textobj, similar to targets.vim
 			keymaps = {
 				-- You can use the capture groups defined in textobjects.scm

@@ -149,7 +149,7 @@ require('lualine').setup({
 				hide_filename_extension = false,
 				show_modified_status = true,
 				mode = 0, -- 0: Shows buffer name
-				max_length = vim.o.columns * 2 / 3,
+				max_length = vim.o.columns,
 				use_mode_colors = false,
 				buffers_color = {
 					active = {
@@ -183,7 +183,7 @@ require('lualine').setup({
 				hide_filename_extension = false,
 				show_modified_status = true,
 				mode = 0, -- 0: Shows buffer name
-				max_length = vim.o.columns * 2 / 3,
+				max_length = vim.o.columns,
 				use_mode_colors = false,
 				buffers_color = {
 					active = {
