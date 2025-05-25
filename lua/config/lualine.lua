@@ -117,7 +117,7 @@ require('lualine').setup({
 		component_separators = { left = '', right = ''},
 		section_separators = { left = '', right = ''},
 		ignore_focus = { 'NvimTree' },
-		globalstatus = false,
+		globalstatus = true,
 		disabled_filetypes = {
 			statusline = { 'NvimTree' },
 			winbar = { 'NvimTree' },
@@ -164,6 +164,41 @@ require('lualine').setup({
 					modified = ' ●',
 					alternate_file = '',
 					directory = '',
+				},
+			}
+		},
+		lualine_x = {},
+		lualine_y = {},
+		lualine_z = {}
+	},
+	inactive_winbar = {
+		lualine_a = {},
+		lualine_b = {},
+		lualine_c = {
+			{
+				CustomBuffers,
+				icons_enabled = true,
+				colored = true,
+				show_filename_only = true,
+				hide_filename_extension = false,
+				show_modified_status = true,
+				mode = 0, -- 0: Shows buffer name
+				max_length = vim.o.columns * 2 / 3,
+				use_mode_colors = false,
+				buffers_color = {
+					active = {
+						gui = 'bold',
+						fg = '#888888',
+					},
+					inactive = {
+						fg = '#888888',
+						gui = 'NONE',
+					},
+				},
+				symbols = {
+					modified = ' ●',
+					alternate_file = '',
+					directory = '',
 				},
 			}
 		},
