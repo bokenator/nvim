@@ -2,7 +2,6 @@
 
 git subtree pull --prefix pack/plugins/start/autopairs https://github.com/windwp/nvim-autopairs.git master --squash
 git subtree pull --prefix pack/plugins/start/bufdelete https://github.com/famiu/bufdelete.nvim.git master --squash
-git subtree pull --prefix pack/plugins/start/bufferline https://github.com/akinsho/bufferline.nvim.git main --squash
 git subtree pull --prefix pack/plugins/start/cmp https://github.com/hrsh7th/nvim-cmp.git main --squash
 git subtree pull --prefix pack/plugins/start/cmp-buffer https://github.com/hrsh7th/cmp-buffer.git main --squash
 git subtree pull --prefix pack/plugins/start/cmp-cmdline https://github.com/hrsh7th/cmp-cmdline.git main --squash
@@ -13,8 +12,6 @@ git subtree pull --prefix pack/plugins/start/comment https://github.com/numToStr
 git subtree pull --prefix pack/plugins/start/devicons https://github.com/nvim-tree/nvim-web-devicons.git master --squash
 git subtree pull --prefix pack/plugins/start/goto-preview https://github.com/rmagatti/goto-preview.git main --squash
 git subtree pull --prefix pack/plugins/start/indentline https://github.com/lukas-reineke/indent-blankline.nvim.git master --squash
-git subtree pull --prefix pack/plugins/start/mason https://github.com/williamboman/mason.nvim.git main --squash
-git subtree pull --prefix pack/plugins/start/mason-lspconfig https://github.com/williamboman/mason-lspconfig.nvim.git main --squash
 git subtree pull --prefix pack/plugins/start/lspconfig https://github.com/neovim/nvim-lspconfig.git master --squash
 git subtree pull --prefix pack/plugins/start/rust https://github.com/rust-lang/rust.vim.git master --squash
 git subtree pull --prefix pack/plugins/start/scrollbar https://github.com/petertriho/nvim-scrollbar.git main --squash
