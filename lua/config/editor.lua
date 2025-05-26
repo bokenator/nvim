@@ -23,3 +23,7 @@ vim.opt.fillchars = {			-- Hide the vertical bar separating tree and editor
 }
 vim.g.rust_recommended_style = true
 
+-- Allow project-specific configuration files
+vim.o.exrc = true				-- Read .nvimrc/.exrc in current directory
+vim.o.secure = true				-- Restrict commands in local config files for security
+
