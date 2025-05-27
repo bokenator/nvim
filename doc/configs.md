@@ -317,6 +317,7 @@ Nvim by running `:help lspconfig-all`.
 - [thriftls](#thriftls)
 - [tilt_ls](#tilt_ls)
 - [tinymist](#tinymist)
+- [tombi](#tombi)
 - [ts_ls](#ts_ls)
 - [ts_query_ls](#ts_query_ls)
 - [tsp_server](#tsp_server)
@@ -841,6 +842,7 @@ Default config:
   ```lua
   { "c", "cpp", "rust", "go", "java", "python", "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx", "html", "css", "kotlin", "dart", "lua" }
   ```
+- `reuse_client`: [../lsp/ast_grep.lua:10](../lsp/ast_grep.lua#L10)
 - `root_markers` :
   ```lua
   { "sgconfig.yaml", "sgconfig.yml" }
@@ -3896,19 +3898,13 @@ Default config:
   ```lua
   { "fish-lsp", "start" }
   ```
-- `cmd_env` :
-  ```lua
-  {
-    fish_lsp_show_client_popups = false
-  }
-  ```
 - `filetypes` :
   ```lua
   { "fish" }
   ```
 - `root_markers` :
   ```lua
-  { ".git" }
+  { "config.fish", ".git" }
   ```
 
 ---
@@ -11803,6 +11799,33 @@ Default config:
 - `root_markers` :
   ```lua
   { ".git" }
+  ```
+
+---
+
+## tombi
+
+https://tombi-toml.github.io/tombi/
+
+Language server for Tombi, a TOML toolkit.
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('tombi')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "tombi", "lsp" }
+  ```
+- `filetypes` :
+  ```lua
+  { "toml" }
+  ```
+- `root_markers` :
+  ```lua
+  { "tombi.toml", "pyproject.toml", ".git" }
   ```
 
 ---
