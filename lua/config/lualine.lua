@@ -248,9 +248,31 @@ local options = {
 	silent = true,
 }
 
+-- Navigate to next/previous buffer in custom order
+local function navigate_buffer(direction)
+	local current = vim.fn.bufnr()
+	ensure_buffer_in_order(current)
+	cleanup_buffer_order()
+	
+	local pos = get_buffer_position(current)
+	if not pos or #buffer_order <= 1 then return end
+	
+	local new_pos = pos + direction
+	
+	-- Wrap around if at ends
+	if new_pos < 1 then
+		new_pos = #buffer_order
+	elseif new_pos > #buffer_order then
+		new_pos = 1
+	end
+	
+	-- Switch to the buffer at new position
+	vim.cmd('buffer ' .. buffer_order[new_pos])
+end
+
 vim.keymap.set('n', '<m-s>', '<c-6>', options)  -- Alternate buffer
-vim.keymap.set('n', '<m-n>', ':bnext<CR>', options)  -- Next buffer
-vim.keymap.set('n', '<m-p>', ':bprevious<CR>', options)  -- Previous buffer
+vim.keymap.set('n', '<m-n>', function() navigate_buffer(1) end, options)  -- Next buffer in custom order
+vim.keymap.set('n', '<m-p>', function() navigate_buffer(-1) end, options)  -- Previous buffer in custom order
 vim.keymap.set('n', '<m-N>', function() move_buffer(1) end, options)  -- Move buffer right
 vim.keymap.set('n', '<m-P>', function() move_buffer(-1) end, options)  -- Move buffer left
 -- For numbered buffer jumping (1-9)
