@@ -21,8 +21,6 @@ vim.opt.fillchars = {			-- Hide the vertical bar separating tree and editor
 	vert = ' ',
 	eob = ' ',
 }
-vim.opt.switchbuf:remove("useopen")
-vim.opt.switchbuf:append("newtab")
 vim.g.rust_recommended_style = true
 
 -- Allow project-specific configuration files

@@ -188,7 +188,7 @@ require('lualine').setup({
 				buffers_color = {
 					active = {
 						gui = 'bold',
-						fg = '#888888',
+						fg = '#ffffff',
 					},
 					inactive = {
 						fg = '#888888',
@@ -205,38 +205,6 @@ require('lualine').setup({
 		lualine_x = {},
 		lualine_y = {},
 		lualine_z = {}
-	},
-	tabline = {
-		lualine_a = {
-			{
-				'tabs',
-				tab_max_length = 40,  -- Maximum width of each tab. The content will be shorten dynamically (example: apple/orange -> a/orange)
-				max_length = vim.o.columns / 3, -- Maximum width of tabs component.
-				mode = 2,  -- 0: Shows tab nr, 1: Shows tab name, 2: Shows tab nr + tab name
-				tabs_color = {
-					active = { 
-						-- bg = '#1e1e1e',  -- Dark background for active tab
-						-- fg = '#ffffff',  -- White text
-						gui = 'bold' 
-					},
-					inactive = { 
-						bg = '#3c3c3c',  -- Lighter gray background for inactive tabs
-						fg = '#888888',  -- Gray text
-						gui = 'NONE' 
-					},
-				},
-				show_modified_status = true,
-				use_mode_colors = true,
-				symbols = {
-					modified = ' ●',
-				},
-			}
-		},
-		lualine_b = {},
-		lualine_c = {},
-		lualine_x = {},
-		lualine_y = {},
-		lualine_z = {},
 	},
 	extensions = {
 		'nvim-tree',
@@ -284,7 +252,7 @@ end
 vim.api.nvim_create_autocmd({ 'FileType' }, {
 	pattern = 'NvimTree',
 	callback = function()
-		vim.opt_local.statusline = ' '
+		vim.opt_local.statusline = ''
 		vim.opt_local.winbar = ''
 	end,
 })
