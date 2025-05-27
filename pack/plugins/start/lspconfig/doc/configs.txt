@@ -380,6 +380,7 @@ Default config:
   { "ast-grep", "lsp" }
 - filetypes: >lua
   { "c", "cpp", "rust", "go", "java", "python", "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx", "html", "css", "kotlin", "dart", "lua" }
+- reuse_client (use "gF" to view): ../lsp/ast_grep.lua:10
 - root_markers: >lua
   { "sgconfig.yaml", "sgconfig.yml" }
 - `workspace_required` : `true`
@@ -2702,14 +2703,10 @@ Snippet to enable the language server: >lua
 Default config:
 - cmd: >lua
   { "fish-lsp", "start" }
-- cmd_env: >lua
-  {
-    fish_lsp_show_client_popups = false
-  }
 - filetypes: >lua
   { "fish" }
 - root_markers: >lua
-  { ".git" }
+  { "config.fish", ".git" }
 <
 
 ------------------------------------------------------------------------------
@@ -8730,6 +8727,26 @@ Default config:
 - on_attach (use "gF" to view): ../lsp/tinymist.lua:52
 - root_markers: >lua
   { ".git" }
+<
+
+------------------------------------------------------------------------------
+tombi
+
+https://tombi-toml.github.io/tombi/
+
+Language server for Tombi, a TOML toolkit.
+
+Snippet to enable the language server: >lua
+  vim.lsp.enable('tombi')
+
+
+Default config:
+- cmd: >lua
+  { "tombi", "lsp" }
+- filetypes: >lua
+  { "toml" }
+- root_markers: >lua
+  { "tombi.toml", "pyproject.toml", ".git" }
 <
 
 ------------------------------------------------------------------------------
