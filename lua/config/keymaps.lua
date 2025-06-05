@@ -18,3 +18,6 @@ vim.keymap.set('n', '<m-j>', '<C-w>j', options)
 vim.keymap.set('n', '<m-k>', '<C-w>k', options)
 vim.keymap.set('n', '<m-l>', '<C-w>l', options)
 
+-- Buffer management
+vim.keymap.set('n', '<m-w>', ':Bwipeout<CR>', options)
+
