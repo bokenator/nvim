@@ -868,7 +868,7 @@ Snippet to enable the language server: >lua
 
 Default config:
 - filetypes: >lua
-  { "bicep" }
+  { "bicep", "bicep-params" }
 - init_options: >lua
   {}
 - root_markers: >lua
@@ -1155,7 +1155,7 @@ Snippet to enable the language server: >lua
 
 Default config:
 - cmd: >lua
-  { "scarb-cairo-language-server", "/C", "--node-ipc" }
+  { "scarb", "cairo-language-server", "/C", "--node-ipc" }
 - filetypes: >lua
   { "cairo" }
 - init_options: >lua
@@ -1286,7 +1286,8 @@ Default config:
   { "clangd" }
 - filetypes: >lua
   { "c", "cpp", "objc", "objcpp", "cuda", "proto" }
-- on_attach (use "gF" to view): ../lsp/clangd.lua:60
+- on_attach (use "gF" to view): ../lsp/clangd.lua:63
+- on_init (use "gF" to view): ../lsp/clangd.lua:63
 - root_markers: >lua
   { ".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", "configure.ac", ".git" }
 <
@@ -1482,6 +1483,22 @@ Default config:
     AutomaticWorkspaceInit = true
   }
 - root_dir (use "gF" to view): ../lsp/csharp_ls.lua:13
+<
+
+------------------------------------------------------------------------------
+cspell_ls
+
+[cspell language server](https://github.com/vlabo/cspell-lsp)
+
+Snippet to enable the language server: >lua
+  vim.lsp.enable('cspell_ls')
+
+
+Default config:
+- cmd: >lua
+  { "cspell-lsp", "--stdio" }
+- root_markers: >lua
+  { ".git", "cspell.json", ".cspell.json", "cspell.json", ".cSpell.json", "cSpell.json", "cspell.config.js", "cspell.config.cjs", "cspell.config.json", "cspell.config.yaml", "cspell.config.yml", "cspell.yaml", "cspell.yml" }
 <
 
 ------------------------------------------------------------------------------
@@ -2371,7 +2388,7 @@ Default config:
 - cmd: >lua
   { "emmet-language-server", "--stdio" }
 - filetypes: >lua
-  { "css", "eruby", "html", "htmldjango", "javascriptreact", "less", "pug", "sass", "scss", "typescriptreact", "htmlangular" }
+  { "astro", "css", "eruby", "html", "htmlangular", "htmldjango", "javascriptreact", "less", "pug", "sass", "scss", "svelte", "templ", "typescriptreact", "vue" }
 - root_markers: >lua
   { ".git" }
 <
@@ -2392,7 +2409,7 @@ Default config:
 - cmd: >lua
   { "emmet-ls", "--stdio" }
 - filetypes: >lua
-  { "astro", "css", "eruby", "html", "htmldjango", "javascriptreact", "less", "pug", "sass", "scss", "svelte", "typescriptreact", "vue", "htmlangular" }
+  { "astro", "css", "eruby", "html", "htmlangular", "htmldjango", "javascriptreact", "less", "pug", "sass", "scss", "svelte", "templ", "typescriptreact", "vue" }
 - root_markers: >lua
   { ".git" }
 <
@@ -3521,7 +3538,7 @@ Default config:
 - cmd: >lua
   { "helm_ls", "serve" }
 - filetypes: >lua
-  { "helm" }
+  { "helm", "yaml.helm-values" }
 - root_markers: >lua
   { "Chart.yaml" }
 <
@@ -8730,6 +8747,24 @@ Default config:
 <
 
 ------------------------------------------------------------------------------
+tofu_ls
+
+[OpenTofu Language Server](https://github.com/opentofu/tofu-ls)
+
+Snippet to enable the language server: >lua
+  vim.lsp.enable('tofu_ls')
+
+
+Default config:
+- cmd: >lua
+  { "tofu-ls", "serve" }
+- filetypes: >lua
+  { "opentofu", "opentofu-vars" }
+- root_markers: >lua
+  { ".terraform", ".git" }
+<
+
+------------------------------------------------------------------------------
 tombi
 
 https://tombi-toml.github.io/tombi/
@@ -9859,7 +9894,7 @@ Default config:
 - cmd: >lua
   { "yaml-language-server", "--stdio" }
 - filetypes: >lua
-  { "yaml", "yaml.docker-compose", "yaml.gitlab" }
+  { "yaml", "yaml.docker-compose", "yaml.gitlab", "yaml.helm-values" }
 - root_markers: >lua
   { ".git" }
 - settings: >lua

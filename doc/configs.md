@@ -56,6 +56,7 @@ Nvim by running `:help lspconfig-all`.
 - [coq_lsp](#coq_lsp)
 - [crystalline](#crystalline)
 - [csharp_ls](#csharp_ls)
+- [cspell_ls](#cspell_ls)
 - [css_variables](#css_variables)
 - [cssls](#cssls)
 - [cssmodules_ls](#cssmodules_ls)
@@ -317,6 +318,7 @@ Nvim by running `:help lspconfig-all`.
 - [thriftls](#thriftls)
 - [tilt_ls](#tilt_ls)
 - [tinymist](#tinymist)
+- [tofu_ls](#tofu_ls)
 - [tombi](#tombi)
 - [ts_ls](#ts_ls)
 - [ts_query_ls](#ts_query_ls)
@@ -1467,7 +1469,7 @@ vim.lsp.enable('bicep')
 Default config:
 - `filetypes` :
   ```lua
-  { "bicep" }
+  { "bicep", "bicep-params" }
   ```
 - `init_options` :
   ```lua
@@ -1857,7 +1859,7 @@ vim.lsp.enable('cairo_ls')
 Default config:
 - `cmd` :
   ```lua
-  { "scarb-cairo-language-server", "/C", "--node-ipc" }
+  { "scarb", "cairo-language-server", "/C", "--node-ipc" }
   ```
 - `filetypes` :
   ```lua
@@ -2031,7 +2033,8 @@ Default config:
   ```lua
   { "c", "cpp", "objc", "objcpp", "cuda", "proto" }
   ```
-- `on_attach`: [../lsp/clangd.lua:60](../lsp/clangd.lua#L60)
+- `on_attach`: [../lsp/clangd.lua:63](../lsp/clangd.lua#L63)
+- `on_init`: [../lsp/clangd.lua:63](../lsp/clangd.lua#L63)
 - `root_markers` :
   ```lua
   { ".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", "configure.ac", ".git" }
@@ -2294,6 +2297,27 @@ Default config:
   }
   ```
 - `root_dir`: [../lsp/csharp_ls.lua:13](../lsp/csharp_ls.lua#L13)
+
+---
+
+## cspell_ls
+
+[cspell language server](https://github.com/vlabo/cspell-lsp)
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('cspell_ls')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "cspell-lsp", "--stdio" }
+  ```
+- `root_markers` :
+  ```lua
+  { ".git", "cspell.json", ".cspell.json", "cspell.json", ".cSpell.json", "cSpell.json", "cspell.config.js", "cspell.config.cjs", "cspell.config.json", "cspell.config.yaml", "cspell.config.yml", "cspell.yaml", "cspell.yml" }
+  ```
 
 ---
 
@@ -3475,7 +3499,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "css", "eruby", "html", "htmldjango", "javascriptreact", "less", "pug", "sass", "scss", "typescriptreact", "htmlangular" }
+  { "astro", "css", "eruby", "html", "htmlangular", "htmldjango", "javascriptreact", "less", "pug", "sass", "scss", "svelte", "templ", "typescriptreact", "vue" }
   ```
 - `root_markers` :
   ```lua
@@ -3505,7 +3529,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "astro", "css", "eruby", "html", "htmldjango", "javascriptreact", "less", "pug", "sass", "scss", "svelte", "typescriptreact", "vue", "htmlangular" }
+  { "astro", "css", "eruby", "html", "htmlangular", "htmldjango", "javascriptreact", "less", "pug", "sass", "scss", "svelte", "templ", "typescriptreact", "vue" }
   ```
 - `root_markers` :
   ```lua
@@ -4973,7 +4997,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "helm" }
+  { "helm", "yaml.helm-values" }
   ```
 - `root_markers` :
   ```lua
@@ -11803,6 +11827,31 @@ Default config:
 
 ---
 
+## tofu_ls
+
+[OpenTofu Language Server](https://github.com/opentofu/tofu-ls)
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('tofu_ls')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "tofu-ls", "serve" }
+  ```
+- `filetypes` :
+  ```lua
+  { "opentofu", "opentofu-vars" }
+  ```
+- `root_markers` :
+  ```lua
+  { ".terraform", ".git" }
+  ```
+
+---
+
 ## tombi
 
 https://tombi-toml.github.io/tombi/
@@ -13263,7 +13312,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "yaml", "yaml.docker-compose", "yaml.gitlab" }
+  { "yaml", "yaml.docker-compose", "yaml.gitlab", "yaml.helm-values" }
   ```
 - `root_markers` :
   ```lua
