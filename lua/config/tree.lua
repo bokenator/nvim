@@ -25,10 +25,9 @@ local options = {
 	noremap = true,
 	silent = true,
 }
--- Toggle
-vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', options)
 vim.keymap.set('n', '<leader>r', ':NvimTreeRefresh<CR>', options)
 vim.keymap.set('n', '<leader>n', ':NvimTreeFindFile<CR>', options)
+vim.keymap.set('n', '<leader>t', ':NvimTreeToggle<CR>', options)
 
 local icons = require('config.icons')
 
@@ -37,6 +36,14 @@ require('nvim-web-devicons').setup({})
 require('nvim-tree').setup {
 	on_attach = on_attach,
 	sync_root_with_cwd = false,
+	hijack_unnamed_buffer_when_opening = false,
+	hijack_directories = {
+		enable = false,
+	},
+	view = {
+		width = 30,
+		side = "left",
+	},
 	renderer = {
     	add_trailing = false,
     	group_empty = false,
@@ -121,9 +128,34 @@ require('nvim-tree').setup {
 	},
 	actions = {
 		open_file = {
+			resize_window = false,
 			window_picker = {
 				enable = false,
 			},
 		},
 	},
 }
+
+-- Open NvimTree and an empty buffer when starting nvim with a directory
+vim.api.nvim_create_autocmd('VimEnter', {
+	pattern = '*',
+	callback = function(data)
+		-- Check if nvim was started with a directory
+		local directory = vim.fn.isdirectory(data.file) == 1
+		
+		if directory then
+			-- Change to the directory
+			vim.cmd.cd(data.file)
+			-- Schedule the tree opening to happen after initialization
+			vim.schedule(function()
+				-- Open NvimTree
+				require('nvim-tree.api').tree.open()
+				-- Resize windows
+				vim.cmd('vertical resize 35')  -- Make NvimTree narrower
+				-- Focus on the new buffer
+				vim.cmd('wincmd l')
+				vim.api.nvim_command('Bwipeout')
+			end)
+		end
+	end
+})
