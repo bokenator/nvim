@@ -6728,8 +6728,8 @@ To use with nvim:
 
 1. Install a Rust toolchain: https://rustup.rs
 2. Clone the repo
-3. Run `cargo build --release --bin lang-srv`
-4. Move `target/release/lang-srv` to somewhere on your $PATH as `millet`
+3. Run `cargo build --release --bin millet-ls`
+4. Move `target/release/millet-ls` to somewhere on your $PATH as `millet`
 
 Snippet to enable the language server:
 ```lua
@@ -11058,10 +11058,7 @@ Default config:
   { "svelte" }
   ```
 - `on_attach`: [../lsp/svelte.lua:12](../lsp/svelte.lua#L12)
-- `root_markers` :
-  ```lua
-  { "package.json", ".git" }
-  ```
+- `root_dir`: [../lsp/svelte.lua:12](../lsp/svelte.lua#L12)
 
 ---
 
