@@ -21,3 +21,7 @@ vim.keymap.set('n', '<m-l>', '<C-w>l', options)
 -- Buffer management
 vim.keymap.set('n', '<m-w>', ':Bwipeout<CR>', options)
 
+-- Clipboard operations
+vim.keymap.set('v', '<m-c>', '"+y', options)
+vim.keymap.set('n', '<leader>c', ':%y+<CR>', options)
+
