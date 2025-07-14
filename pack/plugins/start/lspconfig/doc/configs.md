@@ -51,6 +51,7 @@ Nvim by running `:help lspconfig-all`.
 - [clojure_lsp](#clojure_lsp)
 - [cmake](#cmake)
 - [cobol_ls](#cobol_ls)
+- [codebook](#codebook)
 - [coffeesense](#coffeesense)
 - [contextive](#contextive)
 - [coq_lsp](#coq_lsp)
@@ -117,6 +118,7 @@ Nvim by running `:help lspconfig-all`.
 - [gitlab_ci_ls](#gitlab_ci_ls)
 - [glasgow](#glasgow)
 - [gleam](#gleam)
+- [glint](#glint)
 - [glsl_analyzer](#glsl_analyzer)
 - [glslls](#glslls)
 - [gnls](#gnls)
@@ -130,6 +132,7 @@ Nvim by running `:help lspconfig-all`.
 - [harper_ls](#harper_ls)
 - [hdl_checker](#hdl_checker)
 - [helm_ls](#helm_ls)
+- [herb_ls](#herb_ls)
 - [hhvm](#hhvm)
 - [hie](#hie)
 - [hlasm](#hlasm)
@@ -218,7 +221,6 @@ Nvim by running `:help lspconfig-all`.
 - [phan](#phan)
 - [phpactor](#phpactor)
 - [pico8_ls](#pico8_ls)
-- [pkgbuild_language_server](#pkgbuild_language_server)
 - [please](#please)
 - [pli](#pli)
 - [poryscript_pls](#poryscript_pls)
@@ -309,6 +311,7 @@ Nvim by running `:help lspconfig-all`.
 - [tblgen_lsp_server](#tblgen_lsp_server)
 - [teal_ls](#teal_ls)
 - [templ](#templ)
+- [termux_language_server](#termux_language_server)
 - [terraform_lsp](#terraform_lsp)
 - [terraformls](#terraformls)
 - [texlab](#texlab)
@@ -1504,7 +1507,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "astro", "css", "graphql", "javascript", "javascriptreact", "json", "jsonc", "svelte", "typescript", "typescript.tsx", "typescriptreact", "vue" }
+  { "astro", "css", "graphql", "html", "javascript", "javascriptreact", "json", "jsonc", "svelte", "typescript", "typescript.tsx", "typescriptreact", "vue" }
   ```
 - `root_dir`: [../lsp/biome.lua:12](../lsp/biome.lua#L12)
 - `workspace_required` : `true`
@@ -2154,6 +2157,37 @@ Default config:
 
 ---
 
+## codebook
+
+https://github.com/blopker/codebook
+
+ An unholy spell checker for code.
+
+`codebook-lsp` can be installed by following the instructions [here](https://github.com/blopker/codebook/blob/main/README.md#installation).
+
+The default `cmd` assumes that the `codebook-lsp` binary can be found in `$PATH`.
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('codebook')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "codebook-lsp", "serve" }
+  ```
+- `filetypes` :
+  ```lua
+  { "c", "css", "go", "haskell", "html", "javascript", "javascriptreact", "markdown", "python", "php", "ruby", "rust", "toml", "text", "typescript", "typescriptreact" }
+  ```
+- `root_markers` :
+  ```lua
+  { ".git", "codebook.toml", ".codebook.toml" }
+  ```
+
+---
+
 ## coffeesense
 
 https://github.com/phil294/coffeesense
@@ -2780,7 +2814,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "debcontrol", "debcopyright", "debchangelog", "make", "yaml" }
+  { "debcontrol", "debcopyright", "debchangelog", "autopkgtest", "make", "yaml" }
   ```
 - `root_markers` :
   ```lua
@@ -3754,7 +3788,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx", "vue", "svelte", "astro" }
+  { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx", "vue", "svelte", "astro", "htmlangular" }
   ```
 - `handlers` :
   ```lua
@@ -4534,6 +4568,57 @@ Default config:
 
 ---
 
+## glint
+
+https://github.com/typed-ember/glint
+https://typed-ember.gitbook.io/glint/
+`glint-language-server` is installed when adding `@glint/core` to your project's devDependencies:
+
+```sh
+npm install @glint/core --save-dev
+yarn add -D @glint/core
+
+This configuration uses the local installation of `glint-language-server`
+(found in the `node_modules` directory of your project).
+
+To use a global installation of `glint-language-server`,
+set the `init_options.glint.useGlobal` to `true`.
+
+vim.lsp.config('glint', {
+  init_options = {
+    glint = {
+      useGlobal = true,
+    },
+  },
+})
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('glint')
+```
+
+Default config:
+- `cmd`: [../lsp/glint.lua:37](../lsp/glint.lua#L37)
+- `filetypes` :
+  ```lua
+  { "html.handlebars", "handlebars", "typescript", "typescript.glimmer", "javascript", "javascript.glimmer" }
+  ```
+- `init_options` :
+  ```lua
+  {
+    glint = {
+      useGlobal = false
+    }
+  }
+  ```
+- `root_markers` :
+  ```lua
+  { ".glintrc.yml", ".glintrc", ".glintrc.json", ".glintrc.js", "glint.config.js", "package.json" }
+  ```
+- `workspace_required` : `true`
+
+---
+
 ## glsl_analyzer
 
 https://github.com/nolanderc/glsl_analyzer
@@ -4705,7 +4790,7 @@ Default config:
   ```lua
   { "go", "gomod", "gowork", "gotmpl" }
   ```
-- `root_dir`: [../lsp/gopls.lua:21](../lsp/gopls.lua#L21)
+- `root_dir`: [../lsp/gopls.lua:88](../lsp/gopls.lua#L88)
 
 ---
 
@@ -5002,6 +5087,50 @@ Default config:
 - `root_markers` :
   ```lua
   { "Chart.yaml" }
+  ```
+
+---
+
+## herb_ls
+
+https://www.npmjs.com/package/@herb-tools/language-server
+https://github.com/marcoroth/herb
+
+HTML+ERB (HTML + Embedded Ruby)
+Powerful and seamless HTML-aware ERB parsing and tooling.
+
+Herb is designed from the ground up to deeply understand `.html.erb` files,
+preserving both HTML and embedded Ruby structure without losing any details.
+
+`herb-language-server` can be installed via `npm`:
+
+```sh
+npm install -g @herb-tools/language-server
+```
+
+or via `yarn`:
+
+```sh
+yarn global add @herb-tools/language-server
+```
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('herb_ls')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "herb-language-server", "--stdio" }
+  ```
+- `filetypes` :
+  ```lua
+  { "html", "ruby", "eruby" }
+  ```
+- `root_markers` :
+  ```lua
+  { "Gemfile", ".git" }
   ```
 
 ---
@@ -5414,7 +5543,10 @@ Default config:
   ```lua
   { "php" }
   ```
-- `root_dir`: [../lsp/intelephense.lua:28](../lsp/intelephense.lua#L28)
+- `root_markers` :
+  ```lua
+  { ".git", "composer.json" }
+  ```
 
 ---
 
@@ -7683,10 +7815,7 @@ Default config:
   ```lua
   {}
   ```
-- `root_markers` :
-  ```lua
-  { ".sln", ".csproj", "omnisharp.json", "function.json" }
-  ```
+- `root_dir`: [../lsp/omnisharp.lua:19](../lsp/omnisharp.lua#L19)
 - `settings` :
   ```lua
   {
@@ -8130,7 +8259,11 @@ Default config:
   ```lua
   { "php" }
   ```
-- `root_dir`: [../lsp/phpactor.lua:7](../lsp/phpactor.lua#L7)
+- `root_markers` :
+  ```lua
+  { ".git", "composer.json", ".phpactor.json", ".phpactor.yml" }
+  ```
+- `workspace_required` : `true`
 
 ---
 
@@ -8158,33 +8291,6 @@ Default config:
 - `settings` :
   ```lua
   {}
-  ```
-
----
-
-## pkgbuild_language_server
-
-https://github.com/Freed-Wu/pkgbuild-language-server
-
-Language server for ArchLinux/Windows Msys2's PKGBUILD.
-
-Snippet to enable the language server:
-```lua
-vim.lsp.enable('pkgbuild_language_server')
-```
-
-Default config:
-- `cmd` :
-  ```lua
-  { "pkgbuild-language-server" }
-  ```
-- `filetypes` :
-  ```lua
-  { "PKGBUILD" }
-  ```
-- `root_markers` :
-  ```lua
-  { ".git" }
   ```
 
 ---
@@ -8517,7 +8623,7 @@ https://github.com/opa-oz/pug-lsp
 
 An implementation of the Language Protocol Server for [Pug.js](http://pugjs.org)
 
-PugLSP can be installed via `go get github.com/opa-oz/pug-lsp`, or manually downloaded from [releases page](https://github.com/opa-oz/pug-lsp/releases)
+PugLSP can be installed via `go install github.com/opa-oz/pug-lsp@latest`, or manually downloaded from [releases page](https://github.com/opa-oz/pug-lsp/releases)
 
 Snippet to enable the language server:
 ```lua
@@ -11441,6 +11547,33 @@ Default config:
 
 ---
 
+## termux_language_server
+
+https://github.com/termux/termux-language-server
+
+Language server for various bash scripts such as Arch PKGBUILD, Gentoo ebuild, Termux build.sh, etc.
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('termux_language_server')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "termux-language-server" }
+  ```
+- `filetypes` :
+  ```lua
+  { "PKGBUILD" }
+  ```
+- `root_markers` :
+  ```lua
+  { ".git" }
+  ```
+
+---
+
 ## terraform_lsp
 
 https://github.com/juliosueiras/terraform-lsp
@@ -11911,52 +12044,24 @@ Use the `:LspTypescriptSourceAction` command to see "whole file" ("source") code
 - organize imports
 - remove unused code
 
-### Vue support
-
-As of 2.0.0, the Vue language server no longer supports TypeScript itself. Instead, a plugin
-adds Vue support to this language server.
-
-*IMPORTANT*: It is crucial to ensure that `@vue/typescript-plugin` and `@vue/language-server `are of identical versions.
-
-```lua
-vim.lsp.config('ts_ls', {
-  init_options = {
-    plugins = {
-      {
-        name = "@vue/typescript-plugin",
-        location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
-        languages = {"javascript", "typescript", "vue"},
-      },
-    },
-  },
-  filetypes = {
-    "javascript",
-    "typescript",
-    "vue",
-  },
-})
-
--- You must make sure the Vue language server is setup
--- e.g. vim.lsp.config('vue_ls')
--- See vue_ls's section for more information
-```
-
-`location` MUST be defined. If the plugin is installed in `node_modules`,
-`location` can have any value.
-
-`languages` must include `vue` even if it is listed in `filetypes`.
-
-`filetypes` is extended here to include Vue SFC.
-
 Snippet to enable the language server:
 ```lua
 vim.lsp.enable('ts_ls')
 ```
 
+Commands:
+- editor.action.showReferences
+
 Default config:
 - `cmd` :
   ```lua
   { "typescript-language-server", "--stdio" }
+  ```
+- `commands` :
+  ```lua
+  {
+    ["editor.action.showReferences"] = <function 1>
+  }
   ```
 - `filetypes` :
   ```lua
@@ -11974,7 +12079,7 @@ Default config:
     hostInfo = "neovim"
   }
   ```
-- `on_attach`: [../lsp/ts_ls.lua:73](../lsp/ts_ls.lua#L73)
+- `on_attach`: [../lsp/ts_ls.lua:36](../lsp/ts_ls.lua#L36)
 - `root_markers` :
   ```lua
   { "tsconfig.json", "jsconfig.json", "package.json", ".git" }
@@ -12987,7 +13092,6 @@ vim.lsp.enable('volar')
 ```
 
 Default config:
-- `before_init`: [../lsp/volar.lua:8](../lsp/volar.lua#L8)
 - `cmd` :
   ```lua
   { "vue-language-server", "--stdio" }
@@ -12996,18 +13100,11 @@ Default config:
   ```lua
   { "vue" }
   ```
-- `init_options` :
-  ```lua
-  {
-    typescript = {
-      tsdk = ""
-    }
-  }
-  ```
 - `name` :
   ```lua
   "vue_ls"
   ```
+- `on_init`: [../lsp/volar.lua:8](../lsp/volar.lua#L8)
 - `root_markers` :
   ```lua
   { "package.json" }
@@ -13054,6 +13151,52 @@ To configure a TypeScript project, add a
 or [`jsconfig.json`](https://code.visualstudio.com/docs/languages/jsconfig) to
 the root of your project.
 
+### Vue support
+
+Since v3.0.0, the Vue language server requires `vtsls` to support TypeScript.
+
+```
+-- If you are using mason.nvim, you can get the ts_plugin_path like this
+-- For Mason v1,
+-- local mason_registry = require('mason-registry')
+-- local vue_language_server_path = mason_registry.get_package('vue-language-server'):get_install_path() .. '/node_modules/@vue/language-server'
+-- For Mason v2,
+-- local vue_language_server_path = vim.fn.expand '$MASON/packages' .. '/vue-language-server' .. '/node_modules/@vue/language-server'
+-- or even
+-- local vue_language_server_path = vim.fn.stdpath('data') .. "/mason/packages/vue-language-server/node_modules/@vue/language-server"
+local vue_language_server_path = '/path/to/@vue/language-server'
+local vue_plugin = {
+  name = '@vue/typescript-plugin',
+  location = vue_language_server_path,
+  languages = { 'vue' },
+  configNamespace = 'typescript',
+}
+vim.lsp.config('vtsls', {
+  settings = {
+    vtsls = {
+      tsserver = {
+        globalPlugins = {
+          vue_plugin,
+        },
+      },
+    },
+  },
+  filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+})
+```
+
+- `location` MUST be defined. If the plugin is installed in `node_modules`, `location` can have any value.
+- `languages` must include vue even if it is listed in filetypes.
+- `filetypes` is extended here to include Vue SFC.
+
+You must make sure the Vue language server is setup. For example,
+
+```
+vim.lsp.enable('vue_ls')
+```
+
+See `vue_ls` section and https://github.com/vuejs/language-tools/wiki/Neovim for more information.
+
 Snippet to enable the language server:
 ```lua
 vim.lsp.enable('vtsls')
@@ -13089,64 +13232,11 @@ npm install -g @vue/language-server
 The language server only supports Vue 3 projects by default.
 For Vue 2 projects, [additional configuration](https://github.com/vuejs/language-tools/blob/master/extensions/vscode/README.md?plain=1#L19) are required.
 
-**Hybrid Mode (by default)**
+The Vue language server works in "hybrid mode" that exclusively manages the CSS/HTML sections.
+You need the `vtsls` server with the `@vue/typescript-plugin` plugin to support TypeScript in `.vue` files.
+See `vtsls` section and https://github.com/vuejs/language-tools/wiki/Neovim for more information.
 
-In this mode, the Vue Language Server exclusively manages the CSS/HTML sections.
-You need the `ts_ls` server with the `@vue/typescript-plugin` plugin to support TypeScript in `.vue` files.
-See `ts_ls` section for more information
-
-**No Hybrid Mode**
-
-The Vue language server will run embedded `ts_ls` therefore there is no need to run it separately.
-```lua
-vim.lsp.config('vue_ls', {
-  -- add filetypes for typescript, javascript and vue
-  filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
-  init_options = {
-    vue = {
-      -- disable hybrid mode
-      hybridMode = false,
-    },
-  },
-})
--- you must remove "ts_ls" config
--- vim.lsp.config['ts_ls'] = {}
-```
-
-**Overriding the default TypeScript Server used by the Vue language server**
-
-The default config looks for TypeScript in the local `node_modules`. This can lead to issues
-e.g. when working on a [monorepo](https://monorepo.tools/). The alternatives are:
-
-- use a global TypeScript Server installation
-```lua
-vim.lsp.config('vue_ls', {
-  init_options = {
-    typescript = {
-      -- replace with your global TypeScript library path
-      tsdk = '/path/to/node_modules/typescript/lib'
-    }
-  }
-})
-```
-
-- use a local server and fall back to a global TypeScript Server installation
-```lua
-vim.lsp.config('vue_ls', {
-  init_options = {
-    typescript = {
-      -- replace with your global TypeScript library path
-      tsdk = '/path/to/node_modules/typescript/lib'
-    }
-  },
-  before_init = function(params, config)
-    local lib_path = vim.fs.find('node_modules/typescript/lib', { path = new_root_dir, upward = true })[1]
-    if lib_path then
-      config.init_options.typescript.tsdk = lib_path
-    end
-  end
-})
-```
+NOTE: Since v3.0.0, the Vue Language Server [no longer supports takeover mode](https://github.com/vuejs/language-tools/pull/5248).
 
 Snippet to enable the language server:
 ```lua
@@ -13154,7 +13244,6 @@ vim.lsp.enable('vue_ls')
 ```
 
 Default config:
-- `before_init`: [../lsp/vue_ls.lua:76](../lsp/vue_ls.lua#L76)
 - `cmd` :
   ```lua
   { "vue-language-server", "--stdio" }
@@ -13163,14 +13252,7 @@ Default config:
   ```lua
   { "vue" }
   ```
-- `init_options` :
-  ```lua
-  {
-    typescript = {
-      tsdk = ""
-    }
-  }
-  ```
+- `on_init`: [../lsp/vue_ls.lua:21](../lsp/vue_ls.lua#L21)
 - `root_markers` :
   ```lua
   { "package.json" }
