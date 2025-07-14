@@ -133,8 +133,38 @@ require('nvim-tree').setup {
 				enable = false,
 			},
 		},
+		remove_file = {
+			close_window = false,
+		},
 	},
 }
+
+-- Subscribe to NvimTree events after setup
+local events = require('nvim-tree.events')
+events.subscribe(events.Event.WillRemoveFile, function(data)
+	-- Get the buffer for the file being deleted
+	local bufnr = vim.fn.bufnr(data.fname)
+	
+	if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
+		-- Find all windows showing this buffer
+		local wins = vim.fn.win_findbuf(bufnr)
+		
+		-- Switch each window to a different buffer before deletion
+		for _, win in ipairs(wins) do
+			vim.api.nvim_win_call(win, function()
+				-- Try to use Bwipeout to maintain tab layout
+				local ok = pcall(vim.cmd, 'Bwipeout')
+				if not ok then
+					-- Fallback to regular buffer switch
+					vim.cmd('bprevious')
+					if vim.api.nvim_get_current_buf() == bufnr then
+						vim.cmd('enew')
+					end
+				end
+			end)
+		end
+	end
+end)
 
 -- Open NvimTree and an empty buffer when starting nvim with a directory
 vim.api.nvim_create_autocmd('VimEnter', {
