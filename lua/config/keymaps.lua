@@ -25,3 +25,7 @@ vim.keymap.set('n', '<m-w>', ':Bwipeout<CR>', options)
 vim.keymap.set('v', '<m-c>', '"+y', options)
 vim.keymap.set('n', '<leader>c', ':%y+<CR>', options)
 
+-- Map :q to use Bwipeout (same as Alt-W)
+vim.cmd([[
+  cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'Bwipeout' : 'q'
+]])
