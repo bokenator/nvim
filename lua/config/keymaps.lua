@@ -18,14 +18,21 @@ vim.keymap.set('n', '<m-j>', '<C-w>j', options)
 vim.keymap.set('n', '<m-k>', '<C-w>k', options)
 vim.keymap.set('n', '<m-l>', '<C-w>l', options)
 
--- Buffer management
-vim.keymap.set('n', '<m-w>', ':Bwipeout<CR>', options)
-
 -- Clipboard operations
 vim.keymap.set('v', '<m-c>', '"+y', options)
 vim.keymap.set('n', '<leader>c', ':%y+<CR>', options)
 
--- Map :q to use Bwipeout (same as Alt-W)
+-- Map :q to use Bwipeout (same as Alt-W), but do nothing in NvimTree
 vim.cmd([[
-  cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'Bwipeout' : 'q'
+  function! SmartQuit()
+    if &filetype == 'NvimTree'
+      " Do nothing in NvimTree
+      return
+    else
+      " Use Bwipeout for other buffers
+      Bwipeout
+    endif
+  endfunction
+  
+  cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'call SmartQuit()' : 'q'
 ]])
