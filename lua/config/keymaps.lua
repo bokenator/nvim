@@ -22,17 +22,23 @@ vim.keymap.set('n', '<m-l>', '<C-w>l', options)
 vim.keymap.set('v', '<m-c>', '"+y', options)
 vim.keymap.set('n', '<leader>c', ':%y+<CR>', options)
 
--- Map :q to use Bwipeout (same as Alt-W), but do nothing in NvimTree
-vim.cmd([[
-  function! SmartQuit()
-    if &filetype == 'NvimTree'
-      " Do nothing in NvimTree
-      return
-    else
-      " Use Bwipeout for other buffers
-      Bwipeout
-    endif
-  endfunction
-  
-  cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'call SmartQuit()' : 'q'
-]])
+-- Map :q to use Bwipeout, but do nothing in NvimTree
+vim.api.nvim_create_autocmd('VimEnter', {
+  callback = function()
+    vim.cmd([[
+      function! SmartQuit()
+        if &filetype == 'NvimTree'
+          " Do nothing in NvimTree
+          return
+        else
+          " Use Bwipeout for other buffers
+          execute 'Bwipeout'
+        endif
+      endfunction
+      
+      cnoreabbrev <expr> q getcmdtype() == ":" && getcmdline() == "q" ? "call SmartQuit()" : "q"
+      cnoreabbrev <expr> wq getcmdtype() == ":" && getcmdline() == "wq" ? "write <bar> call SmartQuit()" : "wq"
+    ]])
+  end,
+  desc = 'Setup smart quit commands after plugins are loaded'
+})
