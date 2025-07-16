@@ -25,20 +25,23 @@ vim.keymap.set('n', '<leader>c', ':%y+<CR>', options)
 -- Map :q to use Bwipeout, but do nothing in NvimTree
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
-    vim.cmd([[
-      function! SmartQuit()
-        if &filetype == 'NvimTree'
-          " Do nothing in NvimTree
-          return
-        else
-          " Use Bwipeout for other buffers
-          execute 'Bwipeout'
-        endif
-      endfunction
-      
-      cnoreabbrev <expr> q getcmdtype() == ":" && getcmdline() == "q" ? "call SmartQuit()" : "q"
-      cnoreabbrev <expr> wq getcmdtype() == ":" && getcmdline() == "wq" ? "write <bar> call SmartQuit()" : "wq"
-    ]])
+    -- Create a Lua function for SmartQuit
+    local function smart_quit()
+      if vim.bo.filetype == 'NvimTree' then
+        -- Do nothing in NvimTree
+        return
+      else
+        -- Use Bwipeout for other buffers
+        vim.cmd('Bwipeout')
+      end
+    end
+    
+    -- Store the function globally so it can be called from command abbreviations
+    _G.SmartQuit = smart_quit
+    
+    -- Create command abbreviations using Lua
+    vim.cmd('cnoreabbrev <expr> q getcmdtype() == ":" && getcmdline() == "q" ? "lua SmartQuit()" : "q"')
+    vim.cmd('cnoreabbrev <expr> wq getcmdtype() == ":" && getcmdline() == "wq" ? "write <bar> lua SmartQuit()" : "wq"')
   end,
   desc = 'Setup smart quit commands after plugins are loaded'
 })
