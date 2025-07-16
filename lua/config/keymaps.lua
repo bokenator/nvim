@@ -8,6 +8,23 @@ vim.keymap.set('n', '<Space>', '', options)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- Enable mouse support
+vim.o.mouse = 'a'
+
+-- Configure smooth horizontal scrolling
+vim.o.sidescroll = 1
+vim.o.sidescrolloff = 5
+
+-- Horizontal panning with arrow keys
+vim.keymap.set('n', '<Left>',  '5zh', options)
+vim.keymap.set('n', '<Right>', '5zl', options)
+
+-- Shift + ScrollWheel for horizontal scrolling
+vim.keymap.set({'n', 'v'}, '<C-ScrollWheelUp>',   '5zh', options)
+vim.keymap.set({'n', 'v'}, '<C-ScrollWheelDown>', '5zl', options)
+vim.keymap.set('i', '<C-ScrollWheelUp>',   '<C-o>5zh', options)
+vim.keymap.set('i', '<C-ScrollWheelDown>', '<C-o>5zl', options)
+
 -- Indentation
 vim.keymap.set('v', '<', '<gv', options)
 vim.keymap.set('v', '>', '>gv', options)

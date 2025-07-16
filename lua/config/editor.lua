@@ -21,6 +21,9 @@ vim.opt.fillchars = {			-- Hide the vertical bar separating tree and editor
 	vert = ' ',
 	eob = ' ',
 }
+vim.opt.wrap = false
+vim.opt.sidescroll = 1
+vim.opt.sidescrolloff = 5
 vim.g.rust_recommended_style = true
 
 -- Allow project-specific configuration files
