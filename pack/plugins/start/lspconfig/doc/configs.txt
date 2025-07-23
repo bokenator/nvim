@@ -889,8 +889,7 @@ Snippet to enable the language server: >lua
 
 
 Default config:
-- cmd: >lua
-  { "biome", "lsp-proxy" }
+- cmd (use "gF" to view): ../lsp/biome.lua:12
 - filetypes: >lua
   { "astro", "css", "graphql", "html", "javascript", "javascriptreact", "json", "jsonc", "svelte", "typescript", "typescript.tsx", "typescriptreact", "vue" }
 - root_dir (use "gF" to view): ../lsp/biome.lua:12
@@ -1285,7 +1284,7 @@ Default config:
 - cmd: >lua
   { "clangd" }
 - filetypes: >lua
-  { "c", "cpp", "objc", "objcpp", "cuda", "proto" }
+  { "c", "cpp", "objc", "objcpp", "cuda" }
 - on_attach (use "gF" to view): ../lsp/clangd.lua:63
 - on_init (use "gF" to view): ../lsp/clangd.lua:63
 - root_markers: >lua
@@ -1309,7 +1308,7 @@ Default config:
 - filetypes: >lua
   { "clar", "clarity" }
 - root_markers: >lua
-  { ".git" }
+  { "Clarinet.toml" }
 <
 
 ------------------------------------------------------------------------------
@@ -3240,7 +3239,7 @@ Snippet to enable the language server: >lua
 
 
 Default config:
-- cmd (use "gF" to view): ../lsp/glint.lua:37
+- cmd (use "gF" to view): ../lsp/glint.lua:25
 - filetypes: >lua
   { "html.handlebars", "handlebars", "typescript", "typescript.glimmer", "javascript", "javascript.glimmer" }
 - init_options: >lua
@@ -3552,7 +3551,7 @@ Default config:
 - cmd: >lua
   { "harper-ls", "--stdio" }
 - filetypes: >lua
-  { "c", "cpp", "cs", "gitcommit", "go", "html", "java", "javascript", "lua", "markdown", "nix", "python", "ruby", "rust", "swift", "toml", "typescript", "typescriptreact", "haskell", "cmake", "typst", "php", "dart" }
+  { "c", "cpp", "cs", "gitcommit", "go", "html", "java", "javascript", "lua", "markdown", "nix", "python", "ruby", "rust", "swift", "toml", "typescript", "typescriptreact", "haskell", "cmake", "typst", "php", "dart", "clojure" }
 - root_markers: >lua
   { ".git" }
 <
@@ -6780,6 +6779,15 @@ For example, in order to disable the `inlayHints` option >lua
     })
   }
 
+Detect file changes: While using @rescript/language-server >= 1.63.0 you have to detect file changes by registering the didChangeWatchedFiles hook >lua
+  capabilities = {
+      workspace = {
+          didChangeWatchedFiles = {
+              dynamicRegistration = true,
+          },
+      },
+  }
+
 Snippet to enable the language server: >lua
   vim.lsp.enable('rescriptls')
 
@@ -7019,7 +7027,7 @@ Default config:
   "utf-8"
 - on_init: >lua
   { <function 1> }
-- root_dir (use "gF" to view): ../lsp/roslyn_ls.lua:92
+- root_dir (use "gF" to view): ../lsp/roslyn_ls.lua:95
 - settings: >lua
   {
     ["csharp|background_analysis"] = {
@@ -7527,7 +7535,22 @@ smithy_ls
 
 https://github.com/awslabs/smithy-language-server
 
-`Smithy Language Server`, A Language Server Protocol implementation for the Smithy IDL
+"Smithy Language Server", a Language server for the Smithy IDL.
+
+smithy-language-server has no docs that say how to actually install it(?), so look at:
+https://github.com/smithy-lang/smithy-vscode/blob/600cfcf0db65edce85f02e6d50f5fa2b0862bc8d/src/extension.ts#L78
+
+Maven package: https://central.sonatype.com/artifact/software.amazon.smithy/smithy-language-server
+
+Installation:
+1. Install coursier, or any tool that can install maven packages.
+   ```
+   brew install coursier
+   ```
+2. The LS is auto-installed and launched by:
+   ```
+   coursier launch software.amazon.smithy:smithy-language-server:0.7.0
+   ```
 
 Snippet to enable the language server: >lua
   vim.lsp.enable('smithy_ls')
@@ -7535,9 +7558,19 @@ Snippet to enable the language server: >lua
 
 Default config:
 - cmd: >lua
-  { "smithy-language-server", "0" }
+  { "coursier", "launch", "software.amazon.smithy:smithy-language-server:0.7.0", "-M", "software.amazon.smithy.lsp.Main", "--", "0" }
 - filetypes: >lua
   { "smithy" }
+- init_options: >lua
+  {
+    compilerOptions = {
+      snippetAutoIndent = false
+    },
+    isHttpEnabled = true,
+    statusBarProvider = "show-message"
+  }
+- message_level: >lua
+  4
 - root_markers: >lua
   { "smithy-build.json", "build.gradle", "build.gradle.kts", ".git" }
 <
