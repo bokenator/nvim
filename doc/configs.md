@@ -1501,10 +1501,7 @@ vim.lsp.enable('biome')
 ```
 
 Default config:
-- `cmd` :
-  ```lua
-  { "biome", "lsp-proxy" }
-  ```
+- `cmd`: [../lsp/biome.lua:12](../lsp/biome.lua#L12)
 - `filetypes` :
   ```lua
   { "astro", "css", "graphql", "html", "javascript", "javascriptreact", "json", "jsonc", "svelte", "typescript", "typescript.tsx", "typescriptreact", "vue" }
@@ -2034,7 +2031,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "c", "cpp", "objc", "objcpp", "cuda", "proto" }
+  { "c", "cpp", "objc", "objcpp", "cuda" }
   ```
 - `on_attach`: [../lsp/clangd.lua:63](../lsp/clangd.lua#L63)
 - `on_init`: [../lsp/clangd.lua:63](../lsp/clangd.lua#L63)
@@ -2067,7 +2064,7 @@ Default config:
   ```
 - `root_markers` :
   ```lua
-  { ".git" }
+  { "Clarinet.toml" }
   ```
 
 ---
@@ -4598,7 +4595,7 @@ vim.lsp.enable('glint')
 ```
 
 Default config:
-- `cmd`: [../lsp/glint.lua:37](../lsp/glint.lua#L37)
+- `cmd`: [../lsp/glint.lua:25](../lsp/glint.lua#L25)
 - `filetypes` :
   ```lua
   { "html.handlebars", "handlebars", "typescript", "typescript.glimmer", "javascript", "javascript.glimmer" }
@@ -5012,7 +5009,7 @@ Default config:
   ```
 - `filetypes` :
   ```lua
-  { "c", "cpp", "cs", "gitcommit", "go", "html", "java", "javascript", "lua", "markdown", "nix", "python", "ruby", "rust", "swift", "toml", "typescript", "typescriptreact", "haskell", "cmake", "typst", "php", "dart" }
+  { "c", "cpp", "cs", "gitcommit", "go", "html", "java", "javascript", "lua", "markdown", "nix", "python", "ruby", "rust", "swift", "toml", "typescript", "typescriptreact", "haskell", "cmake", "typst", "php", "dart", "clojure" }
   ```
 - `root_markers` :
   ```lua
@@ -9239,6 +9236,17 @@ vim.lsp.config('rescriptls', {
 }
 ```
 
+Detect file changes: While using @rescript/language-server >= 1.63.0 you have to detect file changes by registering the didChangeWatchedFiles hook.
+```lua
+capabilities = {
+    workspace = {
+        didChangeWatchedFiles = {
+            dynamicRegistration = true,
+        },
+    },
+}
+```
+
 Snippet to enable the language server:
 ```lua
 vim.lsp.enable('rescriptls')
@@ -9554,7 +9562,7 @@ Default config:
   ```lua
   { <function 1> }
   ```
-- `root_dir`: [../lsp/roslyn_ls.lua:92](../lsp/roslyn_ls.lua#L92)
+- `root_dir`: [../lsp/roslyn_ls.lua:95](../lsp/roslyn_ls.lua#L95)
 - `settings` :
   ```lua
   {
@@ -10221,7 +10229,22 @@ Default config:
 
 https://github.com/awslabs/smithy-language-server
 
-`Smithy Language Server`, A Language Server Protocol implementation for the Smithy IDL
+"Smithy Language Server", a Language server for the Smithy IDL.
+
+smithy-language-server has no docs that say how to actually install it(?), so look at:
+https://github.com/smithy-lang/smithy-vscode/blob/600cfcf0db65edce85f02e6d50f5fa2b0862bc8d/src/extension.ts#L78
+
+Maven package: https://central.sonatype.com/artifact/software.amazon.smithy/smithy-language-server
+
+Installation:
+1. Install coursier, or any tool that can install maven packages.
+   ```
+   brew install coursier
+   ```
+2. The LS is auto-installed and launched by:
+   ```
+   coursier launch software.amazon.smithy:smithy-language-server:0.7.0
+   ```
 
 Snippet to enable the language server:
 ```lua
@@ -10231,11 +10254,25 @@ vim.lsp.enable('smithy_ls')
 Default config:
 - `cmd` :
   ```lua
-  { "smithy-language-server", "0" }
+  { "coursier", "launch", "software.amazon.smithy:smithy-language-server:0.7.0", "-M", "software.amazon.smithy.lsp.Main", "--", "0" }
   ```
 - `filetypes` :
   ```lua
   { "smithy" }
+  ```
+- `init_options` :
+  ```lua
+  {
+    compilerOptions = {
+      snippetAutoIndent = false
+    },
+    isHttpEnabled = true,
+    statusBarProvider = "show-message"
+  }
+  ```
+- `message_level` :
+  ```lua
+  4
   ```
 - `root_markers` :
   ```lua
