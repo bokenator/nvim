@@ -54,11 +54,14 @@ vim.api.nvim_create_autocmd('VimEnter', {
     end
     
     -- Store the function globally so it can be called from command abbreviations
-    _G.SmartQuit = smart_quit
+    _G.smart_quit = smart_quit
     
     -- Create command abbreviations using Lua
-    vim.cmd('cnoreabbrev <expr> q getcmdtype() == ":" && getcmdline() == "q" ? "lua SmartQuit()" : "q"')
-    vim.cmd('cnoreabbrev <expr> wq getcmdtype() == ":" && getcmdline() == "wq" ? "write <bar> lua SmartQuit()" : "wq"')
+    vim.cmd('cnoreabbrev <expr> q getcmdtype() == ":" && getcmdline() == "q" ? "lua smart_quit()" : "q"')
+    vim.cmd('cnoreabbrev <expr> wq getcmdtype() == ":" && getcmdline() == "wq" ? "write <bar> lua smart_quit()" : "wq"')
+    
+    -- Map Alt-W to smart_quit
+    vim.keymap.set('n', '<m-q>', function() smart_quit() end, { noremap = true, silent = true })
   end,
   desc = 'Setup smart quit commands after plugins are loaded'
 })
