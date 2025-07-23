@@ -120,3 +120,30 @@ lspconfig.pyright.setup({
 	},
 })
 
+-- TOML (for Rust projects)
+lspconfig.taplo.setup({
+	on_attach = on_attach,
+	capabilities = capabilities,
+	settings = {
+		taplo = {
+			formatter = {
+				alignEntries = true,
+				alignComments = true,
+				arrayTrailingComma = true,
+				arrayAutoExpand = true,
+				arrayAutoCollapse = true,
+				compactArrays = true,
+				compactInlineTables = false,
+				compactEntries = false,
+				columnWidth = 80,
+				indentTables = false,
+				indentEntries = false,
+				indentString = '  ',
+				trailingNewline = true,
+				reorderKeys = true,
+				allowedBlankLines = 2,
+			},
+		},
+	},
+})
+

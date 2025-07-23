@@ -69,6 +69,21 @@ install_pyright() {
     fi
 }
 
+# Function to install Taplo (TOML language server)
+install_taplo() {
+    echo "Installing Taplo (TOML language server)..."
+    if command -v cargo &> /dev/null; then
+        cargo install --locked taplo-cli
+        echo "✓ Taplo installed via cargo"
+    else
+        # Fallback: download from GitHub releases
+        echo "Downloading Taplo from GitHub releases..."
+        curl -L https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz | gunzip -c - > "$LSP_DIR/taplo"
+        chmod +x "$LSP_DIR/taplo"
+        echo "✓ Taplo installed to $LSP_DIR"
+    fi
+}
+
 # Function to install Lua language server (optional)
 install_lua_ls() {
     echo "Installing Lua language server..."
@@ -85,6 +100,7 @@ check_installed() {
     command -v vscode-json-language-server &> /dev/null && echo "✓ JSON LS: installed (vscode-json-language-server)"
     command -v typescript-language-server &> /dev/null && echo "✓ TypeScript LS: $(typescript-language-server --version 2>&1 | head -n1)"
     command -v pyright &> /dev/null && echo "✓ Pyright: $(pyright --version)"
+    command -v taplo &> /dev/null && echo "✓ Taplo (TOML): $(taplo --version)"
     # command -v lua-language-server &> /dev/null && echo "✓ Lua LS: $(lua-language-server --version)"
 }
 
@@ -101,6 +117,8 @@ install_typescript_ls
 echo ""
 install_pyright
 echo ""
+install_taplo
+echo ""
 
 # Uncomment to install Lua language server
 # install_lua_ls
@@ -114,4 +132,4 @@ echo "Installation complete!"
 echo ""
 echo "Note: If any installations failed, make sure you have the required dependencies:"
 echo "  - Node.js and npm (for TypeScript, JSON, and Python language servers)"
-echo "  - Rust toolchain (for rust-analyzer via rustup)"
+echo "  - Rust toolchain (for rust-analyzer via rustup and taplo via cargo)"
