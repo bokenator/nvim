@@ -56,11 +56,52 @@ vim.api.nvim_create_autocmd('VimEnter', {
     -- Store the function globally so it can be called from command abbreviations
     _G.smart_quit = smart_quit
     
-    -- Create command abbreviations using Lua
-    vim.cmd('cnoreabbrev <expr> q getcmdtype() == ":" && getcmdline() == "q" ? "lua smart_quit()" : "q"')
-    vim.cmd('cnoreabbrev <expr> wq getcmdtype() == ":" && getcmdline() == "wq" ? "write <bar> lua smart_quit()" : "wq"')
+    -- Create custom commands instead of abbreviations to handle all cases
+    vim.api.nvim_create_user_command('Q', function(opts)
+      if opts.bang then
+        -- Force quit without saving
+        if vim.bo.filetype == 'NvimTree' then
+          return
+        else
+          vim.cmd('Bwipeout!')
+        end
+      else
+        smart_quit()
+      end
+    end, { bang = true })
     
-    -- Map Alt-W to smart_quit
+    vim.api.nvim_create_user_command('Wq', function(opts)
+      vim.cmd('write')
+      if opts.bang then
+        if vim.bo.filetype == 'NvimTree' then
+          return
+        else
+          vim.cmd('Bwipeout!')
+        end
+      else
+        smart_quit()
+      end
+    end, { bang = true })
+    
+    vim.api.nvim_create_user_command('Qa', function(opts)
+      if opts.bang then
+        -- Force quit all without saving
+        vim.cmd('qa!')
+      else
+        -- Regular quit all
+        vim.cmd('qa')
+      end
+    end, { bang = true })
+    
+    -- Create command abbreviations for lowercase versions
+    vim.cmd('cnoreabbrev <expr> q getcmdtype() == ":" && getcmdline() == "q" ? "Q" : "q"')
+    vim.cmd('cnoreabbrev <expr> q! getcmdtype() == ":" && getcmdline() == "q!" ? "Q!" : "q!"')
+    vim.cmd('cnoreabbrev <expr> wq getcmdtype() == ":" && getcmdline() == "wq" ? "Wq" : "wq"')
+    vim.cmd('cnoreabbrev <expr> wq! getcmdtype() == ":" && getcmdline() == "wq!" ? "Wq!" : "wq!"')
+    vim.cmd('cnoreabbrev <expr> qa getcmdtype() == ":" && getcmdline() == "qa" ? "Qa" : "qa"')
+    vim.cmd('cnoreabbrev <expr> qa! getcmdtype() == ":" && getcmdline() == "qa!" ? "Qa!" : "qa!"')
+    
+    -- Map Alt-Q to smart_quit
     vim.keymap.set('n', '<m-q>', function() smart_quit() end, { noremap = true, silent = true })
   end,
   desc = 'Setup smart quit commands after plugins are loaded'
