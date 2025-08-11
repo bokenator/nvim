@@ -256,3 +256,19 @@ vim.api.nvim_create_autocmd({ 'FileType' }, {
 		vim.opt_local.winbar = ''
 	end,
 })
+
+-- Override the LualineSwitchBuffer function to add error handling
+vim.cmd([[
+  function! LualineSwitchBuffer(bufnr, mouseclicks, mousebutton, modifiers)
+    " Check if window is wide enough before switching
+    if winwidth(0) < 10
+      " Just ignore the click if window is too narrow
+      return
+    endif
+    try
+      execute ":buffer " . a:bufnr
+    catch /E36/
+      " Silently ignore "Not enough room" errors
+    endtry
+  endfunction
+]])
