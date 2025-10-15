@@ -23,8 +23,6 @@ local Filters = Class:extend()
 ---@protected
 ---@param args FiltersArgs
 function Filters:new(args)
-  args.explorer:log_new("Filters")
-
   self.explorer        = args.explorer
   self.ignore_list     = {}
   self.exclude_list    = self.explorer.opts.filters.exclude
@@ -50,10 +48,6 @@ function Filters:new(args)
       end
     end
   end
-end
-
-function Filters:destroy()
-  self.explorer:log_destroy("Filters")
 end
 
 ---@private
@@ -286,7 +280,7 @@ function Filters:toggle(type)
   local node = self.explorer:get_node_at_cursor()
   self.explorer:reload_explorer()
   if node then
-    utils.focus_node_or_parent(node)
+    self.explorer:focus_node_or_parent(node)
   end
 end
 

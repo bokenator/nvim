@@ -4,6 +4,7 @@ local core = require("nvim-tree.core")
 local git = require("nvim-tree.git")
 local log = require("nvim-tree.log")
 local utils = require("nvim-tree.utils")
+local view = require("nvim-tree.view")
 local node_factory = require("nvim-tree.node.factory")
 
 local DirectoryNode = require("nvim-tree.node.directory")
@@ -19,7 +20,6 @@ local LiveFilter = require("nvim-tree.explorer.live-filter")
 local Sorter = require("nvim-tree.explorer.sorter")
 local Clipboard = require("nvim-tree.actions.fs.clipboard")
 local Renderer = require("nvim-tree.renderer")
-local View = require("nvim-tree.explorer.view")
 
 local FILTER_REASON = require("nvim-tree.enum").FILTER_REASON
 
@@ -35,7 +35,6 @@ local config
 ---@field sorters Sorter
 ---@field marks Marks
 ---@field clipboard Clipboard
----@field view View
 local Explorer = RootNode:extend()
 
 ---@class Explorer
@@ -56,18 +55,15 @@ function Explorer:new(args)
   self.uid_explorer = vim.loop.hrtime()
   self.augroup_id   = vim.api.nvim_create_augroup("NvimTree_Explorer_" .. self.uid_explorer, {})
 
-  self:log_new("Explorer")
+  self.open         = true
+  self.opts         = config
 
-  self.open        = true
-  self.opts        = config
-
-  self.sorters     = Sorter({ explorer = self })
-  self.renderer    = Renderer({ explorer = self })
-  self.filters     = Filters({ explorer = self })
-  self.live_filter = LiveFilter({ explorer = self })
-  self.marks       = Marks({ explorer = self })
-  self.clipboard   = Clipboard({ explorer = self })
-  self.view        = View({ explorer = self })
+  self.sorters      = Sorter({ explorer = self })
+  self.renderer     = Renderer({ explorer = self })
+  self.filters      = Filters({ explorer = self })
+  self.live_filter  = LiveFilter({ explorer = self })
+  self.marks        = Marks({ explorer = self })
+  self.clipboard    = Clipboard({ explorer = self })
 
   self:create_autocmds()
 
@@ -75,15 +71,7 @@ function Explorer:new(args)
 end
 
 function Explorer:destroy()
-  self.explorer:log_destroy("Explorer")
-
-  self.clipboard:destroy()
-  self.filters:destroy()
-  self.live_filter:destroy()
-  self.marks:destroy()
-  self.renderer:destroy()
-  self.sorters:destroy()
-  self.view:destroy()
+  log.line("dev", "Explorer:destroy")
 
   vim.api.nvim_del_augroup_by_id(self.augroup_id)
 
@@ -96,25 +84,10 @@ function Explorer:create_autocmds()
     group = self.augroup_id,
     callback = function()
       appearance.setup()
-      self.view:reset_winhl()
+      view.reset_winhl()
       self.renderer:draw()
     end,
   })
-
-  if self.opts.view.float.enable and self.opts.view.float.quit_on_focus_loss then
-    vim.api.nvim_create_autocmd("WinLeave", {
-      group = self.augroup_id,
-      pattern = "NvimTree_*",
-      callback = function(data)
-        if self.opts.experimental.multi_instance then
-          log.line("dev", "WinLeave %s", vim.inspect(data, { newline = "" }))
-        end
-        if utils.is_nvim_tree_buf(0) then
-          self.view:close(nil, "WinLeave")
-        end
-      end,
-    })
-  end
 
   vim.api.nvim_create_autocmd("BufWritePost", {
     group = self.augroup_id,
@@ -164,25 +137,6 @@ function Explorer:create_autocmds()
         vim.schedule(function()
           self.renderer:draw()
         end)
-      end
-    end,
-  })
-
-  -- prevent new opened file from opening in the same window as nvim-tree
-  vim.api.nvim_create_autocmd("BufWipeout", {
-    group = self.augroup_id,
-    pattern = "NvimTree_*",
-    callback = function(data)
-      if self.opts.experimental.multi_instance then
-        log.line("dev", "BufWipeout %s", vim.inspect(data, { newline = "" }))
-      end
-      if not utils.is_nvim_tree_buf(0) then
-        return
-      end
-      if self.opts.actions.open_file.eject then
-        self.view:prevent_buffer_override()
-      else
-        self.view:abandon_current_window()
       end
     end,
   })
@@ -532,7 +486,7 @@ function Explorer:reload_explorer()
 
   local projects = git.reload_all_projects()
   self:refresh_nodes(projects)
-  if self.view:is_visible() then
+  if view.is_visible() then
     self.renderer:draw()
   end
   event_running = false
@@ -554,7 +508,7 @@ end
 ---nil on no explorer or invalid view win
 ---@return integer[]|nil
 function Explorer:get_cursor_position()
-  local winnr = self.view:get_winnr(nil, "Explorer:get_cursor_position")
+  local winnr = view.get_winnr()
   if not winnr or not vim.api.nvim_win_is_valid(winnr) then
     return
   end
@@ -569,11 +523,11 @@ function Explorer:get_node_at_cursor()
     return
   end
 
-  if cursor[1] == 1 and self.view:is_root_folder_visible(core.get_cwd()) then
+  if cursor[1] == 1 and view.is_root_folder_visible(core.get_cwd()) then
     return self
   end
 
-  return utils.get_nodes_by_line(self.nodes, core.get_nodes_starting_line())[cursor[1]]
+  return self:get_nodes_by_line(core.get_nodes_starting_line())[cursor[1]]
 end
 
 function Explorer:place_cursor_on_node()
@@ -597,22 +551,118 @@ function Explorer:place_cursor_on_node()
   end
 end
 
+-- Find the line number of a node.
+---@param node Node?
+---@return integer -1 not found
+function Explorer:find_node_line(node)
+  if not node then
+    return -1
+  end
+
+  local first_node_line = core.get_nodes_starting_line()
+  local nodes_by_line = self:get_nodes_by_line(first_node_line)
+  local iter_start, iter_end = first_node_line, #nodes_by_line
+
+  for line = iter_start, iter_end, 1 do
+    if nodes_by_line[line] == node then
+      return line
+    end
+  end
+
+  return -1
+end
+
+-- get the node in the tree state depending on the absolute path of the node
+-- (grouped or hidden too)
+---@param path string
+---@return Node|nil
+---@return number|nil
+function Explorer:get_node_from_path(path)
+  if self.absolute_path == path then
+    return self
+  end
+
+  return Iterator.builder(self.nodes)
+    :hidden()
+    :matcher(function(node)
+      return node.absolute_path == path or node.link_to == path
+    end)
+    :recursor(function(node)
+      if node.group_next then
+        return { node.group_next }
+      end
+      if node.nodes then
+        return node.nodes
+      end
+    end)
+    :iterate()
+end
+
+---Focus node passed as parameter if visible, otherwise focus first visible parent.
+---If none of the parents is visible focus root.
+---If node is nil do nothing.
+---@param node Node? node to focus
+function Explorer:focus_node_or_parent(node)
+  while node do
+    local found_node, i = self:find_node(function(node_)
+      return node_.absolute_path == node.absolute_path
+    end)
+
+    if found_node or node.parent == nil then
+      view.set_cursor({ i + 1, 1 })
+      break
+    end
+
+    node = node.parent
+  end
+end
+
+--- Get the node and index of the node from the tree that matches the predicate.
+--- The explored nodes are those displayed on the view.
+---@param fn fun(node: Node): boolean
+---@return table|nil
+---@return number
+function Explorer:find_node(fn)
+  local node, i = Iterator.builder(self.nodes)
+    :matcher(fn)
+    :recursor(function(node)
+      return node.group_next and { node.group_next } or (node.open and #node.nodes > 0 and node.nodes)
+    end)
+    :iterate()
+  i = view.is_root_folder_visible() and i or i - 1
+  if node and node.explorer.live_filter.filter then
+    i = i + 1
+  end
+  return node, i
+end
+
+--- Return visible nodes indexed by line
+---@param line_start number
+---@return table
+function Explorer:get_nodes_by_line(line_start)
+  local nodes_by_line = {}
+  local line = line_start
+
+  Iterator.builder(self.nodes)
+    :applier(function(node)
+      if node.group_next then
+        return
+      end
+      nodes_by_line[line] = node
+      line = line + 1
+    end)
+    :recursor(function(node)
+      return node.group_next and { node.group_next } or (node.open and #node.nodes > 0 and node.nodes)
+    end)
+    :iterate()
+
+  return nodes_by_line
+end
+
 ---Api.tree.get_nodes
 ---@return nvim_tree.api.Node
 function Explorer:get_nodes()
   return self:clone()
-end
-
----Log a lifecycle message with uid_explorer and absolute_path
----@param msg string?
-function Explorer:log_new(msg)
-  log.line("dev", "+ %-15s %d %s", msg, self.uid_explorer, self.absolute_path)
-end
-
----Log a lifecycle message with uid_explorer and absolute_path
----@param msg string?
-function Explorer:log_destroy(msg)
-  log.line("dev", "- %-15s %d %s", msg, self.uid_explorer, self.absolute_path)
 end
 
 function Explorer:setup(opts)

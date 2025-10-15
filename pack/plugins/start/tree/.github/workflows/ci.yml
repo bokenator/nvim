@@ -24,15 +24,15 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: install lua ${{ matrix.lua_version }}
-        uses: leafo/gh-actions-lua@v11
+        uses: leafo/gh-actions-lua@v12
         with:
           luaVersion: ${{ matrix.lua_version }}
 
       - name: install luarocks
-        uses: leafo/gh-actions-luarocks@v5
+        uses: leafo/gh-actions-luarocks@v6
 
       - name: install luacheck ${{ matrix.luacheck_version }}
         run: luarocks install luacheck ${{ matrix.luacheck_version }}
@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: install nvim ${{ matrix.nvim_version }}
         uses: rhysd/action-setup-vim@v1
