@@ -3,6 +3,10 @@ if vim.g.lspconfig ~= nil then
 end
 vim.g.lspconfig = 1
 
+if vim.fn.has('nvim-0.11') == 0 then
+  vim.deprecate('nvim-lspconfig support for Nvim 0.10 or older', 'Nvim 0.11+', 'v3.0.0', 'nvim-lspconfig', false)
+end
+
 local api, lsp = vim.api, vim.lsp
 local util = require('lspconfig.util')
 
@@ -68,12 +72,12 @@ end
 api.nvim_create_user_command('LspInfo', ':checkhealth vim.lsp', { desc = 'Alias to `:checkhealth vim.lsp`' })
 
 api.nvim_create_user_command('LspLog', function()
-  vim.cmd(string.format('tabnew %s', lsp.get_log_path()))
+  vim.cmd(string.format('tabnew %s', lsp.log.get_filename()))
 end, {
   desc = 'Opens the Nvim LSP client log.',
 })
 
-if vim.version.ge(vim.version(), { 0, 11, 2 }) then
+if vim.fn.has('nvim-0.11.2') == 1 then
   local complete_client = function(arg)
     return vim
       .iter(vim.lsp.get_clients())
