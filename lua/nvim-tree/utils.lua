@@ -1,5 +1,3 @@
-local Iterator = require("nvim-tree.iterators.node-iterator")
-
 local M = {
   debouncers = {},
 }
@@ -15,22 +13,6 @@ M.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win32unix") == 1
 ---@return boolean
 function M.str_find(haystack, needle)
   return vim.fn.stridx(haystack, needle) ~= -1
-end
-
----@param path string
----@return string|uv.uv_fs_t
-function M.read_file(path)
-  local fd = vim.loop.fs_open(path, "r", 438)
-  if not fd then
-    return ""
-  end
-  local stat = vim.loop.fs_fstat(fd)
-  if not stat then
-    return ""
-  end
-  local data = vim.loop.fs_read(fd, stat.size, 0)
-  vim.loop.fs_close(fd)
-  return data or ""
 end
 
 local path_separator = package.config:sub(1, 1)
@@ -130,54 +112,6 @@ end
 
 M.path_separator = path_separator
 
---- Get the node and index of the node from the tree that matches the predicate.
---- The explored nodes are those displayed on the view.
----@param nodes Node[]
----@param fn fun(node: Node): boolean
----@return table|nil
----@return number
-function M.find_node(nodes, fn)
-  local node, i = Iterator.builder(nodes)
-    :matcher(fn)
-    :recursor(function(node)
-      return node.group_next and { node.group_next } or (node.open and #node.nodes > 0 and node.nodes)
-    end)
-    :iterate()
-
-  if node then
-    if not node.explorer.view:is_root_folder_visible() then
-      i = i - 1
-    end
-    if node.explorer.live_filter.filter then
-      i = i + 1
-    end
-  end
-
-  return node, i
-end
-
--- Find the line number of a node.
--- Return -1 is node is nil or not found.
----@param node Node?
----@return integer
-function M.find_node_line(node)
-  if not node then
-    return -1
-  end
-
-  local first_node_line = require("nvim-tree.core").get_nodes_starting_line()
-  local nodes_by_line = M.get_nodes_by_line(require("nvim-tree.core").get_explorer().nodes, first_node_line)
-  local iter_start, iter_end = first_node_line, #nodes_by_line
-
-  for line = iter_start, iter_end, 1 do
-    if nodes_by_line[line] == node then
-      return line
-    end
-  end
-
-  return -1
-end
-
 ---@param extmarks vim.api.keyset.get_extmark_item[] as per vim.api.nvim_buf_get_extmarks
 ---@return number
 function M.extmarks_length(extmarks)
@@ -191,39 +125,6 @@ function M.extmarks_length(extmarks)
     end
   end
   return length
-end
-
--- get the node in the tree state depending on the absolute path of the node
--- (grouped or hidden too)
----@param path string
----@return Node|nil
----@return number|nil
-function M.get_node_from_path(path)
-  local explorer = require("nvim-tree.core").get_explorer()
-
-  -- tree may not yet be loaded
-  if not explorer then
-    return
-  end
-
-  if explorer.absolute_path == path then
-    return explorer
-  end
-
-  return Iterator.builder(explorer.nodes)
-    :hidden()
-    :matcher(function(node)
-      return node.absolute_path == path or node.link_to == path
-    end)
-    :recursor(function(node)
-      if node.group_next then
-        return { node.group_next }
-      end
-      if node.nodes then
-        return node.nodes
-      end
-    end)
-    :iterate()
 end
 
 M.default_format_hidden_count = function(hidden_count, simple)
@@ -244,30 +145,6 @@ M.default_format_hidden_count = function(hidden_count, simple)
     return "(" .. tostring(total_count) .. (simple and " hidden" or " total ") .. hidden_count_string .. ")"
   end
   return nil
-end
-
---- Return visible nodes indexed by line
----@param nodes_all Node[]
----@param line_start number
----@return table
-function M.get_nodes_by_line(nodes_all, line_start)
-  local nodes_by_line = {}
-  local line = line_start
-
-  Iterator.builder(nodes_all)
-    :applier(function(node)
-      if node.group_next then
-        return
-      end
-      nodes_by_line[line] = node
-      line = line + 1
-    end)
-    :recursor(function(node)
-      return node.group_next and { node.group_next } or (node.open and #node.nodes > 0 and node.nodes)
-    end)
-    :iterate()
-
-  return nodes_by_line
 end
 
 function M.rename_loaded_buffers(old_path, new_path)
@@ -383,54 +260,6 @@ function M.escape_special_chars(path)
   return M.is_windows and escape_special_char_for_windows(path) or path
 end
 
---- Create empty sub-tables if not present
----@param tbl table to create empty inside of
----@param path string dot separated string of sub-tables
----@return table deepest sub-table
-function M.table_create_missing(tbl, path)
-  local t = tbl
-  for s in string.gmatch(path, "([^%.]+)%.*") do
-    if t[s] == nil then
-      t[s] = {}
-    end
-    t = t[s]
-  end
-
-  return t
-end
-
---- Move a value from src to dst if value is nil on dst.
---- Remove value from src
----@param src table to copy from
----@param src_path string dot separated string of sub-tables
----@param src_pos string value pos
----@param dst table to copy to
----@param dst_path string dot separated string of sub-tables, created when missing
----@param dst_pos string value pos
----@param remove boolean
-function M.move_missing_val(src, src_path, src_pos, dst, dst_path, dst_pos, remove)
-  for pos in string.gmatch(src_path, "([^%.]+)%.*") do
-    if src[pos] and type(src[pos]) == "table" then
-      src = src[pos]
-    else
-      return
-    end
-  end
-  local src_val = src[src_pos]
-  if src_val == nil then
-    return
-  end
-
-  dst = M.table_create_missing(dst, dst_path)
-  if dst[dst_pos] == nil then
-    dst[dst_pos] = src_val
-  end
-
-  if remove then
-    src[src_pos] = nil
-  end
-end
-
 local function round(value)
   -- Amount of digits to round to after floating point.
   local digits = 2
@@ -539,41 +368,6 @@ function M.debounce(context, timeout, callback)
   end)
 end
 
-function M.focus_file(path)
-  local _, i = M.find_node(require("nvim-tree.core").get_explorer().nodes, function(node)
-    return node.absolute_path == path
-  end)
-  local explorer = require("nvim-tree.core").get_explorer()
-  if explorer then
-    explorer.view:set_cursor({ i + 1, 1 })
-  end
-end
-
----Focus node passed as parameter if visible, otherwise focus first visible parent.
----If none of the parents is visible focus root.
----If node is nil do nothing.
----@param node Node? node to focus
-function M.focus_node_or_parent(node)
-  local explorer = require("nvim-tree.core").get_explorer()
-
-  if explorer == nil then
-    return
-  end
-
-  while node do
-    local found_node, i = M.find_node(explorer.nodes, function(node_)
-      return node_.absolute_path == node.absolute_path
-    end)
-
-    if found_node or node.parent == nil then
-      explorer.view:set_cursor({ i + 1, 1 })
-      break
-    end
-
-    node = node.parent
-  end
-end
-
 ---@param path string
 ---@return integer|nil
 ---@return integer|nil
@@ -661,29 +455,32 @@ function M.is_executable(absolute_path)
   end
 end
 
----@class UtilEnumerateOptionsOpts
----@field keyset_opts vim.api.keyset.option
----@field was_set boolean? as per vim.api.keyset.get_option_info
+---List of all option info/values
+---@param opts vim.api.keyset.option passed directly to vim.api.nvim_get_option_info2 and vim.api.nvim_get_option_value
+---@param was_set boolean filter was_set
+---@return { info: vim.api.keyset.get_option_info, val: any }[]
+function M.enumerate_options(opts, was_set)
+  local res = {}
 
----Option name/values
----@param opts UtilEnumerateOptionsOpts
----@return table<string, any>
-function M.enumerate_options(opts)
-  -- enumerate all options, limiting buf and win scopes
-  return vim.tbl_map(function(info)
-    if opts.keyset_opts.buf and info.scope ~= "buf" then
-      return nil
-    elseif opts.keyset_opts.win and info.scope ~= "win" then
-      return nil
+  local infos = vim.tbl_filter(function(info)
+    if opts.buf and info.scope ~= "buf" then
+      return false
+    elseif opts.win and info.scope ~= "win" then
+      return false
     else
-      -- optional, lazy was_set check
-      if not opts.was_set or vim.api.nvim_get_option_info2(info.name, opts.keyset_opts).was_set then
-        return vim.api.nvim_get_option_value(info.name, opts.keyset_opts)
-      else
-        return nil
-      end
+      return true
     end
   end, vim.api.nvim_get_all_options_info())
+
+  for _, info in vim.spairs(infos) do
+    local _, info2 = pcall(vim.api.nvim_get_option_info2, info.name, opts)
+    if not was_set or info2.was_set then
+      local val = pcall(vim.api.nvim_get_option_value, info.name, opts)
+      table.insert(res, { info = info2, val = val })
+    end
+  end
+
+  return res
 end
 
 return M
