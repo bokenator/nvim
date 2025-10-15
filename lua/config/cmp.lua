@@ -1,6 +1,9 @@
 local cmp = require('cmp')
 
 cmp.setup({
+    completion = {
+        autocomplete = false,  -- Disable automatic popup, but keep manual trigger working
+    },
     snippet = {
 		-- REQUIRED - you must specify a snippet engine
 		expand = function(args)
