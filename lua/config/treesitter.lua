@@ -36,7 +36,6 @@ require('nvim-treesitter.configs').setup({
 			floating_preview_opts = {},
 			peek_definition_code = {
 				['<leader>df'] = '@function.outer',
-				['<leader>dF'] = '@class.outer',
 			},
 		},
 		move = {
@@ -130,7 +129,8 @@ vim.keymap.set({ 'n', 'x', 'o' }, ';', repeatable_move.repeat_last_move_next)
 vim.keymap.set({ 'n', 'x', 'o' }, ',', repeatable_move.repeat_last_move_previous)
 
 -- Make f, F, t, T also repeatable
-vim.keymap.set({ 'n', 'x', 'o' }, 'f', repeatable_move.builtin_f)
-vim.keymap.set({ 'n', 'x', 'o' }, 'F', repeatable_move.builtin_F)
-vim.keymap.set({ 'n', 'x', 'o' }, 't', repeatable_move.builtin_t)
-vim.keymap.set({ 'n', 'x', 'o' }, 'T', repeatable_move.builtin_T)
+local expr_opts = { expr = true, silent = true }
+vim.keymap.set({ 'n', 'x', 'o' }, 'f', repeatable_move.builtin_f_expr, expr_opts)
+vim.keymap.set({ 'n', 'x', 'o' }, 'F', repeatable_move.builtin_F_expr, expr_opts)
+vim.keymap.set({ 'n', 'x', 'o' }, 't', repeatable_move.builtin_t_expr, expr_opts)
+vim.keymap.set({ 'n', 'x', 'o' }, 'T', repeatable_move.builtin_T_expr, expr_opts)
