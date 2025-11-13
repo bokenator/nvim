@@ -1,4 +1,3 @@
-local lspconfig = require('lspconfig')
 local icons = require('config.icons')
 
 local on_attach = function(client, buffer_number)
@@ -56,94 +55,107 @@ require('lspconfig.ui.windows').default_options.border = 'rounded'
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
--- Rust
-lspconfig.rust_analyzer.setup({
-	on_attach = on_attach,
-	capabilities = capabilities,
-	-- Specify the path to rust-analyzer binary
-	cmd = { "rust-analyzer" },
-	settings = {
-		['rust-analyzer'] = {
-			checkOnSave = true,
-			diagnostics = {
-				enable = true,
-				experimental = {
+local servers = {
+	rust_analyzer = {
+		cmd = { 'rust-analyzer' },
+		settings = {
+			['rust-analyzer'] = {
+				checkOnSave = true,
+				diagnostics = {
+					enable = true,
+					experimental = {
+						enable = true,
+					},
+				},
+				imports = {
+					preferNoStd = false,
+					granularity = {
+						enforce = true,
+					},
+				},
+				inlayHints = {},
+			},
+		},
+	},
+	jsonls = {
+		settings = {
+			json = {
+				format = {
 					enable = true,
 				},
 			},
-			imports = {
-				preferNoStd = false,
-				granularity = {
-					enforce = true,
-				},
-			},
-			inlayHints = {
-			},
-		},
-	},
-})
-
--- JSON
-lspconfig.jsonls.setup({
-	on_attach = on_attach,
-	capabilities = capabilities,
-	settings = {
-		json = {
-			format = {
+			validate = {
 				enable = true,
 			},
 		},
-		validate = {
-			enable = true,
-		},
 	},
-})
-
--- Typescript/javascript
-lspconfig.ts_ls.setup({
-	on_attach = on_attach,
-	capabilities = capabilities,
-})
-
--- Python
-lspconfig.pyright.setup({
-	on_attach = on_attach,
-	capabilities = capabilities,
-	settings = {
-		python = {
-			analysis = {
-				autoSearchPaths = true,
-				diagnosticMode = 'workspace',
-				useLibraryCodeForTypes = true,
+	ts_ls = {},
+	pyright = {
+		settings = {
+			python = {
+				analysis = {
+					autoSearchPaths = true,
+					diagnosticMode = 'workspace',
+					useLibraryCodeForTypes = true,
+				},
 			},
 		},
 	},
-})
-
--- TOML (for Rust projects)
-lspconfig.taplo.setup({
-	on_attach = on_attach,
-	capabilities = capabilities,
-	settings = {
-		taplo = {
-			formatter = {
-				alignEntries = true,
-				alignComments = true,
-				arrayTrailingComma = true,
-				arrayAutoExpand = true,
-				arrayAutoCollapse = true,
-				compactArrays = true,
-				compactInlineTables = false,
-				compactEntries = false,
-				columnWidth = 80,
-				indentTables = false,
-				indentEntries = false,
-				indentString = '  ',
-				trailingNewline = true,
-				reorderKeys = true,
-				allowedBlankLines = 2,
+	taplo = {
+		settings = {
+			taplo = {
+				formatter = {
+					alignEntries = true,
+					alignComments = true,
+					arrayTrailingComma = true,
+					arrayAutoExpand = true,
+					arrayAutoCollapse = true,
+					compactArrays = true,
+					compactInlineTables = false,
+					compactEntries = false,
+					columnWidth = 80,
+					indentTables = false,
+					indentEntries = false,
+					indentString = '  ',
+					trailingNewline = true,
+					reorderKeys = true,
+					allowedBlankLines = 2,
+				},
 			},
 		},
 	},
+}
+
+if not (vim.lsp and vim.lsp.config) then
+	local ok, lspconfig = pcall(require, 'lspconfig')
+	if not ok then
+		vim.notify('nvim-lspconfig is not available; update Neovim to 0.11+ or install nvim-lspconfig.', vim.log.levels.ERROR)
+		return
+	end
+
+	for name, config in pairs(servers) do
+		local server_config = vim.tbl_deep_extend('force', {}, config, {
+			on_attach = on_attach,
+			capabilities = capabilities,
+		})
+
+		if lspconfig[name] and lspconfig[name].setup then
+			lspconfig[name].setup(server_config)
+		else
+			vim.notify(string.format('LSP server "%s" is not available in nvim-lspconfig.', name), vim.log.levels.WARN)
+		end
+	end
+
+	return
+end
+
+vim.lsp.config('*', {
+	on_attach = on_attach,
+	capabilities = capabilities,
 })
 
+for name, config in pairs(servers) do
+	vim.lsp.config(name, config)
+end
+
+vim.lsp.enable(vim.tbl_keys(servers))
