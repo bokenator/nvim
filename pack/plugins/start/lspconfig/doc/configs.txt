@@ -185,8 +185,7 @@ Snippet to enable the language server: >lua
 
 
 Default config:
-- cmd: >lua
-  { "ngserver", "--stdio", "--tsProbeLocations", "../..,?/node_modules", "--ngProbeLocations", "../../@angular/language-server/node_modules,?/node_modules/@angular/language-server/node_modules", "--angularCoreVersion", "" }
+- cmd (use "gF" to view): ../lsp/angularls.lua:67
 - filetypes: >lua
   { "typescript", "html", "typescriptreact", "typescript.tsx", "htmlangular" }
 - root_markers: >lua
@@ -777,7 +776,7 @@ Default config:
   { "python" }
 - on_attach (use "gF" to view): ../lsp/basedpyright.lua:24
 - root_markers: >lua
-  { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", "pyrightconfig.json", ".git" }
+  { "pyrightconfig.json", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" }
 - settings: >lua
   {
     basedpyright = {
@@ -1141,34 +1140,12 @@ Snippet to enable the language server: >lua
 
 Default config:
 - cmd: >lua
-  { "buf", "beta", "lsp", "--timeout=0", "--log-format=text" }
+  { "buf", "lsp", "serve", "--timeout=0", "--log-format=text" }
 - filetypes: >lua
   { "proto" }
+- reuse_client (use "gF" to view): ../lsp/buf_ls.lua:9
 - root_markers: >lua
   { "buf.yaml", ".git" }
-<
-
-------------------------------------------------------------------------------
-bufls
-
-https://github.com/bufbuild/buf-language-server
-
-`buf-language-server` can be installed via `go install` >sh
-  go install github.com/bufbuild/buf-language-server/cmd/bufls@latest
-
-bufls is a Protobuf language server compatible with Buf modules and workspaces
-
-Snippet to enable the language server: >lua
-  vim.lsp.enable('bufls')
-
-
-Default config:
-- cmd: >lua
-  { "bufls", "serve" }
-- filetypes: >lua
-  { "proto" }
-- root_markers: >lua
-  { "buf.work.yaml", ".git" }
 <
 
 ------------------------------------------------------------------------------
@@ -1595,11 +1572,11 @@ Default config:
   {
     editorInfo = {
       name = "Neovim",
-      version = "0.12.0-dev+gf40672be99"
+      version = "0.12.0-dev+g653871da1b"
     },
     editorPluginInfo = {
       name = "Neovim",
-      version = "0.12.0-dev+gf40672be99"
+      version = "0.12.0-dev+g653871da1b"
     }
   }
 - on_attach (use "gF" to view): ../lsp/copilot.lua:106
@@ -1667,8 +1644,7 @@ Snippet to enable the language server: >lua
 
 
 Default config:
-- cmd: >lua
-  { "csharp-ls" }
+- cmd (use "gF" to view): ../lsp/csharp_ls.lua:14
 - filetypes: >lua
   { "cs" }
 - init_options: >lua
@@ -1714,8 +1690,7 @@ Default config:
   { "css-variables-language-server", "--stdio" }
 - filetypes: >lua
   { "css", "scss", "less" }
-- root_markers: >lua
-  { "package.json", ".git" }
+- root_dir (use "gF" to view): ../lsp/css_variables.lua:14
 - settings: >lua
   {
     cssVariables = {
@@ -2533,6 +2508,8 @@ Snippet to enable the language server: >lua
 
 
 Default config:
+- cmd: >lua
+  { "elixir-ls" }
 - filetypes: >lua
   { "elixir", "eelixir", "heex", "surface" }
 - root_dir (use "gF" to view): ../lsp/elixirls.lua:34
@@ -2897,7 +2874,7 @@ Snippet to enable the language server: >lua
 
 Default config:
 - cmd: >lua
-  { "expert" }
+  { "expert", "--stdio" }
 - filetypes: >lua
   { "elixir", "eelixir", "heex", "surface" }
 - root_dir (use "gF" to view): ../lsp/expert.lua:13
@@ -3804,7 +3781,7 @@ Default config:
 - cmd: >lua
   { "harper-ls", "--stdio" }
 - filetypes: >lua
-  { "c", "cpp", "cs", "gitcommit", "go", "html", "java", "javascript", "lua", "markdown", "nix", "python", "ruby", "rust", "swift", "toml", "typescript", "typescriptreact", "haskell", "cmake", "typst", "php", "dart", "clojure", "sh" }
+  { "asciidoc", "c", "cpp", "cs", "gitcommit", "go", "html", "java", "javascript", "lua", "markdown", "nix", "python", "ruby", "rust", "swift", "toml", "typescript", "typescriptreact", "haskell", "cmake", "typst", "php", "dart", "clojure", "sh" }
 - root_markers: >lua
   { ".git" }
 <
@@ -4300,7 +4277,7 @@ Default config:
 - init_options: >lua
   {}
 - root_markers: >lua
-  { { "mvnw", "gradlew", "build.gradle", "build.gradle.kts", ".git" }, { "build.xml", "pom.xml", "settings.gradle", "settings.gradle.kts" } }
+  { { "mvnw", "gradlew", "settings.gradle", "settings.gradle.kts", ".git" }, { "build.xml", "pom.xml", "build.gradle", "build.gradle.kts" } }
 <
 
 ------------------------------------------------------------------------------
@@ -4446,10 +4423,10 @@ julials
 
 https://github.com/julia-vscode/julia-vscode
 
-LanguageServer.jl can be installed with `julia` and `Pkg` >sh
-  julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.add("LanguageServer")'
+LanguageServer.jl, SymbolServer.jl and StaticLint.jl can be installed with `julia` and `Pkg` >sh
+  julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.add("LanguageServer"); Pkg.add("SymbolServer"); Pkg.add("StaticLint")'
 where `~/.julia/environments/nvim-lspconfig` is the location where
-the default configuration expects LanguageServer.jl to be installed.
+the default configuration expects LanguageServer.jl, SymbolServer.jl and StaticLint.jl to be installed.
 
 To update an existing install, use the following command >sh
   julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.update()'
@@ -4467,7 +4444,7 @@ Snippet to enable the language server: >lua
 
 Default config:
 - cmd: >lua
-  { "julia", "--startup-file=no", "--history-file=no", "-e", '    # Load LanguageServer.jl: attempt to load from ~/.julia/environments/nvim-lspconfig\n    # with the regular load path as a fallback\n    ls_install_path = joinpath(\n        get(DEPOT_PATH, 1, joinpath(homedir(), ".julia")),\n        "environments", "nvim-lspconfig"\n    )\n    pushfirst!(LOAD_PATH, ls_install_path)\n    using LanguageServer\n    popfirst!(LOAD_PATH)\n    depot_path = get(ENV, "JULIA_DEPOT_PATH", "")\n    project_path = let\n        dirname(something(\n            ## 1. Finds an explicitly set project (JULIA_PROJECT)\n            Base.load_path_expand((\n                p = get(ENV, "JULIA_PROJECT", nothing);\n                p === nothing ? nothing : isempty(p) ? nothing : p\n            )),\n            ## 2. Look for a Project.toml file in the current working directory,\n            ##    or parent directories, with $HOME as an upper boundary\n            Base.current_project(),\n            ## 3. First entry in the load path\n            get(Base.load_path(), 1, nothing),\n            ## 4. Fallback to default global environment,\n            ##    this is more or less unreachable\n            Base.load_path_expand("@v#.#"),\n        ))\n    end\n    @info "Running language server" VERSION pwd() project_path depot_path\n    server = LanguageServer.LanguageServerInstance(stdin, stdout, project_path, depot_path)\n    server.runlinter = true\n    run(server)\n  ' }
+  { "julia", "--startup-file=no", "--history-file=no", "-e", '    # Load LanguageServer.jl: attempt to load from ~/.julia/environments/nvim-lspconfig\n    # with the regular load path as a fallback\n    ls_install_path = joinpath(\n        get(DEPOT_PATH, 1, joinpath(homedir(), ".julia")),\n        "environments", "nvim-lspconfig"\n    )\n    pushfirst!(LOAD_PATH, ls_install_path)\n    using LanguageServer, SymbolServer, StaticLint\n    popfirst!(LOAD_PATH)\n    depot_path = get(ENV, "JULIA_DEPOT_PATH", "")\n    project_path = let\n        dirname(something(\n            ## 1. Finds an explicitly set project (JULIA_PROJECT)\n            Base.load_path_expand((\n                p = get(ENV, "JULIA_PROJECT", nothing);\n                p === nothing ? nothing : isempty(p) ? nothing : p\n            )),\n            ## 2. Look for a Project.toml file in the current working directory,\n            ##    or parent directories, with $HOME as an upper boundary\n            Base.current_project(),\n            ## 3. First entry in the load path\n            get(Base.load_path(), 1, nothing),\n            ## 4. Fallback to default global environment,\n            ##    this is more or less unreachable\n            Base.load_path_expand("@v#.#"),\n        ))\n    end\n    @info "Running language server" VERSION pwd() project_path depot_path\n    server = LanguageServer.LanguageServerInstance(stdin, stdout, project_path, depot_path)\n    server.runlinter = true\n    run(server)\n  ' }
 - filetypes: >lua
   { "julia" }
 - on_attach (use "gF" to view): ../lsp/julials.lua:120
@@ -6414,7 +6391,7 @@ Default config:
 ------------------------------------------------------------------------------
 postgres_lsp
 
-https://pgtools.dev
+https://pg-language-server.com
 
 A collection of language tools and a Language Server Protocol (LSP) implementation for Postgres, focusing on developer experience and reliable SQL tooling.
 
@@ -6424,11 +6401,11 @@ Snippet to enable the language server: >lua
 
 Default config:
 - cmd: >lua
-  { "postgrestools", "lsp-proxy" }
+  { "postgres-language-server", "lsp-proxy" }
 - filetypes: >lua
   { "sql" }
 - root_markers: >lua
-  { "postgrestools.jsonc" }
+  { "postgres-language-server.jsonc" }
 <
 
 ------------------------------------------------------------------------------
@@ -6810,7 +6787,7 @@ Default config:
   { "python" }
 - on_attach (use "gF" to view): ../lsp/pyright.lua:24
 - root_markers: >lua
-  { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", "pyrightconfig.json", ".git" }
+  { "pyrightconfig.json", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" }
 - settings: >lua
   {
     python = {
@@ -7563,6 +7540,9 @@ Default config:
 - capabilities: >lua
   {
     experimental = {
+      commands = {
+        commands = { "rust-analyzer.showReferences", "rust-analyzer.runSingle", "rust-analyzer.debugSingle" }
+      },
       serverStatusNotification = true
     }
   }
@@ -8885,10 +8865,7 @@ Snippet to enable the language server: >lua
 Default config:
 - cmd: >lua
   { "termux-language-server" }
-- filetypes: >lua
-  { "PKGBUILD" }
-- root_markers: >lua
-  { ".git" }
+- root_dir (use "gF" to view): ../lsp/termux_language_server.lua:10
 <
 
 ------------------------------------------------------------------------------
@@ -9187,11 +9164,11 @@ https://github.com/Myriad-Dreamin/tinymist
 An integrated language service for Typst [taɪpst]. You can also call it "微霭" [wēi ǎi] in Chinese.
 
 Currently some of Tinymist's workspace commands are supported, namely:
-`LspTinymistExportSvg`, `LspTinymistExportPng`, `LspTinymistExportPdf
+`LspTinymistExportSvg`, `LspTinymistExportPng`, `LspTinymistExportPdf`,
 `LspTinymistExportMarkdown`, `LspTinymistExportText`, `LspTinymistExportQuery`,
 `LspTinymistExportAnsiHighlight`, `LspTinymistGetServerInfo`,
-`LspTinymistGetDocumentTrace`, `LspTinymistGetWorkspaceLabels`, and
-`LspTinymistGetDocumentMetrics`.
+`LspTinymistGetDocumentTrace`, `LspTinymistGetWorkspaceLabels`,
+`LspTinymistGetDocumentMetrics`, and `LspTinymistPinMain`.
 
 Snippet to enable the language server: >lua
   vim.lsp.enable('tinymist')
@@ -9202,7 +9179,7 @@ Default config:
   { "tinymist" }
 - filetypes: >lua
   { "typst" }
-- on_attach (use "gF" to view): ../lsp/tinymist.lua:49
+- on_attach (use "gF" to view): ../lsp/tinymist.lua:45
 - root_markers: >lua
   { ".git" }
 <
@@ -9220,7 +9197,7 @@ Default config:
 - cmd: >lua
   { "tofu-ls", "serve" }
 - filetypes: >lua
-  { "opentofu", "opentofu-vars" }
+  { "opentofu", "opentofu-vars", "terraform" }
 - root_markers: >lua
   { ".terraform", ".git" }
 <
@@ -9809,7 +9786,7 @@ Default config:
 - cmd: >lua
   { "vale-ls" }
 - filetypes: >lua
-  { "markdown", "text", "tex", "rst" }
+  { "asciidoc", "markdown", "text", "tex", "rst", "html", "xml" }
 - root_markers: >lua
   { ".vale.ini" }
 <
