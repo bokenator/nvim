@@ -16,6 +16,7 @@ vim.opt.cursorline = true		-- Highlight the current line
 vim.opt.number = true			-- Set numbered lines
 vim.opt.relativenumber = true	-- Set relative numbered lines
 vim.opt.signcolumn = 'yes'		-- Always show the sign column, otherwise it would shift whenever diagnostic is shown
+vim.opt.buflisted = true		-- Keep new buffers listed so placeholders can be replaced
 vim.opt.title = false
 vim.opt.fillchars = {			-- Hide the vertical bar separating tree and editor
 	vert = ' ',
@@ -29,4 +30,3 @@ vim.g.rust_recommended_style = true
 -- Allow project-specific configuration files
 vim.o.exrc = true				-- Read .nvimrc/.exrc in current directory
 vim.o.secure = true				-- Restrict commands in local config files for security
-

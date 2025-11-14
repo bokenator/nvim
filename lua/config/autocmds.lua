@@ -13,6 +13,13 @@ vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
 	end,
 })
 
+local function get_buf_option(buf, option)
+	if vim.fn.has('nvim-0.10') == 1 then
+		return vim.api.nvim_get_option_value(option, { buf = buf })
+	end
+	return vim.api.nvim_buf_get_option(buf, option) ---@diagnostic disable-line: deprecated
+end
+
 -- Bind q to closing windows
 vim.api.nvim_create_autocmd({ 'FileType' }, {
 	pattern = {
@@ -29,11 +36,13 @@ vim.api.nvim_create_autocmd({ 'FileType' }, {
 		'tsplayground',
 		'',
 	},
-	callback = function()
-		vim.cmd [[
-			nnoremap <silent> <buffer> q :close<CR>
-			set nobuflisted
-		]]
+	callback = function(event)
+		vim.keymap.set('n', 'q', '<cmd>close<CR>', {
+			buffer = event.buf,
+			silent = true,
+		})
+		-- Only hide the helper buffer itself; avoid toggling the global default.
+		vim.opt_local.buflisted = false
 	end,
 })
 
@@ -86,5 +95,34 @@ vim.api.nvim_create_autocmd({ 'VimResized' }, {
 vim.api.nvim_create_autocmd({ 'TextYankPost' }, {
 	callback = function()
 		vim.highlight.on_yank { higroup = 'Visual', timeout = 40 }
+	end,
+})
+
+-- Remove leftover unnamed placeholder buffers once a real file is opened.
+local function wipe_placeholder_buffers(current)
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if buf ~= current and vim.fn.buflisted(buf) == 1 then
+			local name = vim.api.nvim_buf_get_name(buf)
+			if name == '' then
+				local buftype = get_buf_option(buf, 'buftype')
+				local modified = get_buf_option(buf, 'modified')
+				if buftype == '' and not modified then
+					pcall(vim.api.nvim_buf_delete, buf, {})
+				end
+			end
+		end
+	end
+end
+
+vim.api.nvim_create_autocmd('BufEnter', {
+	callback = function(event)
+		local name = vim.api.nvim_buf_get_name(event.buf)
+		if name == '' then
+			return
+		end
+		local buftype = get_buf_option(event.buf, 'buftype')
+		if buftype == '' then
+			wipe_placeholder_buffers(event.buf)
+		end
 	end,
 })
