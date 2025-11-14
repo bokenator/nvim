@@ -10,6 +10,15 @@ local warmup_methods = {
 	'textDocument/declaration',
 }
 
+do
+	local original_open_float = vim.lsp.util.open_floating_preview
+	vim.lsp.util.open_floating_preview = function(contents, syntax, opts, ...)
+		opts = opts or {}
+		opts.border = opts.border or 'rounded'
+		return original_open_float(contents, syntax, opts, ...)
+	end
+end
+
 local function normalize_path(path)
 	return vim.loop.fs_realpath(path) or path
 end
@@ -341,4 +350,3 @@ vim.api.nvim_create_autocmd('DirChanged', {
 		prewarm_projects(args.file)
 	end,
 })
-

@@ -42,6 +42,14 @@ vim.keymap.set('n', '<leader>c', ':%y+<CR>', options)
 -- Map :q to use Bwipeout, but do nothing in NvimTree
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
+    local function try_bwipeout(force)
+      local cmd = 'Bwipeout' .. (force and '!' or '')
+      local ok = pcall(vim.cmd, cmd)
+      if not ok then
+        vim.cmd(force and 'bdelete!' or 'bdelete')
+      end
+    end
+
     -- Create a Lua function for SmartQuit
     local function smart_quit()
       if vim.bo.filetype == 'NvimTree' then
@@ -49,7 +57,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
         return
       else
         -- Use Bwipeout for other buffers
-        vim.cmd('Bwipeout')
+        try_bwipeout(false)
       end
     end
     
@@ -63,7 +71,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
         if vim.bo.filetype == 'NvimTree' then
           return
         else
-          vim.cmd('Bwipeout!')
+          try_bwipeout(true)
         end
       else
         smart_quit()
@@ -76,7 +84,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
         if vim.bo.filetype == 'NvimTree' then
           return
         else
-          vim.cmd('Bwipeout!')
+          try_bwipeout(true)
         end
       else
         smart_quit()

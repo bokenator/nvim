@@ -3,7 +3,6 @@ require('nvim-autopairs').setup({
 		all = '(',
 		tex = '{',
 	},
-	enable_check_bracket_line = false,
 	check_ts = true,
 	disable_filetype = {
 		'TelescopePrompt',

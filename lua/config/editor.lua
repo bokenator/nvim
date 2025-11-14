@@ -3,7 +3,6 @@ vim.opt.hlsearch = true			-- Highlight all matches on previous search pattern
 vim.opt.mouse = 'a'				-- Allow the mouse to be used in neovim
 vim.opt.pumheight = 10			-- Popup menu height
 vim.opt.pumblend = 10
-vim.showtabline = 1				-- Always show tabs
 vim.opt.smartcase = true		-- Smart case
 vim.opt.smartindent = true		-- Make indenting starter again
 vim.opt.swapfile = false		-- Creates a swapfile
