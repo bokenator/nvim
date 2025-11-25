@@ -122,6 +122,7 @@ Nvim by running `:help lspconfig-all`.
 - [ghdl_ls](#ghdl_ls)
 - [ginko_ls](#ginko_ls)
 - [gitlab_ci_ls](#gitlab_ci_ls)
+- [gitlab_duo](#gitlab_duo)
 - [glasgow](#glasgow)
 - [gleam](#gleam)
 - [glint](#glint)
@@ -167,7 +168,6 @@ Nvim by running `:help lspconfig-all`.
 - [kulala_ls](#kulala_ls)
 - [laravel_ls](#laravel_ls)
 - [lean3ls](#lean3ls)
-- [leanls](#leanls)
 - [lelwel_ls](#lelwel_ls)
 - [lemminx](#lemminx)
 - [lexical](#lexical)
@@ -317,6 +317,7 @@ Nvim by running `:help lspconfig-all`.
 - [tailwindcss](#tailwindcss)
 - [taplo](#taplo)
 - [tblgen_lsp_server](#tblgen_lsp_server)
+- [tclsp](#tclsp)
 - [teal_ls](#teal_ls)
 - [templ](#templ)
 - [termux_language_server](#termux_language_server)
@@ -364,6 +365,7 @@ Nvim by running `:help lspconfig-all`.
 - [vls](#vls)
 - [volar](#volar)
 - [vscoqtop](#vscoqtop)
+- [vsrocq](#vsrocq)
 - [vtsls](#vtsls)
 - [vue_ls](#vue_ls)
 - [wasm_language_tools](#wasm_language_tools)
@@ -603,7 +605,7 @@ vim.lsp.enable('angularls')
 ```
 
 Default config:
-- `cmd`: [../lsp/angularls.lua:67](../lsp/angularls.lua#L67)
+- `cmd`: [../lsp/angularls.lua:93](../lsp/angularls.lua#L93)
 - `filetypes` :
   ```lua
   { "typescript", "html", "typescriptreact", "typescript.tsx", "htmlangular" }
@@ -1352,7 +1354,7 @@ Default config:
   ```lua
   { "python" }
   ```
-- `on_attach`: [../lsp/basedpyright.lua:24](../lsp/basedpyright.lua#L24)
+- `on_attach`: [../lsp/basedpyright.lua:25](../lsp/basedpyright.lua#L25)
 - `root_markers` :
   ```lua
   { "pyrightconfig.json", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" }
@@ -2401,11 +2403,11 @@ Default config:
   {
     editorInfo = {
       name = "Neovim",
-      version = "0.12.0-dev+g653871da1b"
+      version = "0.12.0-dev+g4bbdffe829"
     },
     editorPluginInfo = {
       name = "Neovim",
-      version = "0.12.0-dev+g653871da1b"
+      version = "0.12.0-dev+g4bbdffe829"
     }
   }
   ```
@@ -3456,7 +3458,7 @@ Default config:
     show_symbols_only_follow_by_hanzi = false
   }
   ```
-- `on_attach`: [../lsp/ds_pinyin_lsp.lua:46](../lsp/ds_pinyin_lsp.lua#L46)
+- `on_attach`: [../lsp/ds_pinyin_lsp.lua:48](../lsp/ds_pinyin_lsp.lua#L48)
 - `root_markers` :
   ```lua
   { ".git" }
@@ -4771,6 +4773,118 @@ Default config:
   }
   ```
 - `root_dir`: [../lsp/gitlab_ci_ls.lua:15](../lsp/gitlab_ci_ls.lua#L15)
+
+---
+
+## gitlab_duo
+
+GitLab Duo Language Server Configuration for Neovim
+
+https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp
+
+The GitLab LSP enables any editor or IDE to integrate with GitLab Duo
+for AI-powered code suggestions via the Language Server Protocol.
+
+Prerequisites:
+- Node.js and npm installed
+- GitLab account with Duo Pro license
+- Internet connection for OAuth device flow
+
+Setup:
+1. Run :LspGitLabDuoSignIn to start OAuth authentication
+2. Follow the browser prompts to authorize
+3. Enable inline completion in LspAttach event (see example below)
+
+Inline Completion Example:
+```lua
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(args)
+    local bufnr = args.buf
+    local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+
+    if vim.lsp.inline_completion and
+       client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion, bufnr) then
+      vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
+
+      -- Tab to accept suggestion
+      vim.keymap.set('i', '<Tab>', function()
+        if vim.lsp.inline_completion.is_visible() then
+          return vim.lsp.inline_completion.accept()
+        else
+          return '<Tab>'
+        end
+      end, { expr = true, buffer = bufnr, desc = 'GitLab Duo: Accept suggestion' })
+
+      -- Alt/Option+[ for previous suggestion
+      vim.keymap.set('i', '<M-[>', vim.lsp.inline_completion.select_prev,
+        { buffer = bufnr, desc = 'GitLab Duo: Previous suggestion' })
+
+      -- Alt/Option+] for next suggestion
+      vim.keymap.set('i', '<M-]>', vim.lsp.inline_completion.select_next,
+        { buffer = bufnr, desc = 'GitLab Duo: Next suggestion' })
+    end
+  end
+})
+```
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('gitlab_duo')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "npx", "--registry=https://gitlab.com/api/v4/packages/npm/", "@gitlab-org/gitlab-lsp", "--stdio" }
+  ```
+- `filetypes` :
+  ```lua
+  { "ruby", "go", "javascript", "typescript", "typescriptreact", "javascriptreact", "rust", "lua", "python", "java", "cpp", "c", "php", "cs", "kotlin", "swift", "scala", "vue", "svelte", "html", "css", "scss", "json", "yaml" }
+  ```
+- `init_options` :
+  ```lua
+  {
+    editorInfo = {
+      name = "Neovim",
+      version = "0.12.0-dev+g4bbdffe829"
+    },
+    editorPluginInfo = {
+      name = "Neovim LSP",
+      version = "0.12.0-dev+g4bbdffe829"
+    },
+    extension = {
+      name = "Neovim LSP Client",
+      version = "0.12.0-dev+g4bbdffe829"
+    },
+    ide = {
+      name = "Neovim",
+      vendor = "Neovim",
+      version = "0.12.0-dev+g4bbdffe829"
+    }
+  }
+  ```
+- `on_attach`: [../lsp/gitlab_duo.lua:317](../lsp/gitlab_duo.lua#L317)
+- `on_init`: [../lsp/gitlab_duo.lua:317](../lsp/gitlab_duo.lua#L317)
+- `root_markers` :
+  ```lua
+  { ".git" }
+  ```
+- `settings` :
+  ```lua
+  {
+    baseUrl = "https://gitlab.com",
+    codeCompletion = {
+      enableSecretRedaction = true
+    },
+    featureFlags = {
+      streamCodeGenerations = false
+    },
+    logLevel = "info",
+    telemetry = {
+      enabled = false
+    }
+  }
+  ```
 
 ---
 
@@ -6173,7 +6287,7 @@ Default config:
   ```lua
   { "julia" }
   ```
-- `on_attach`: [../lsp/julials.lua:120](../lsp/julials.lua#L120)
+- `on_attach`: [../lsp/julials.lua:121](../lsp/julials.lua#L121)
 - `root_markers` :
   ```lua
   { "Project.toml", "JuliaProject.toml" }
@@ -6422,35 +6536,6 @@ Default config:
   "utf-32"
   ```
 - `root_dir`: [../lsp/lean3ls.lua:18](../lsp/lean3ls.lua#L18)
-
----
-
-## leanls
-
-https://github.com/leanprover/lean4
-
-Lean installation instructions can be found
-[here](https://leanprover-community.github.io/get_started.html#regular-install).
-
-The Lean language server is included in any Lean installation and
-does not require any additional packages.
-
-Note: that if you're using [lean.nvim](https://github.com/Julian/lean.nvim),
-that plugin fully handles the setup of the Lean language server,
-and you shouldn't set up `leanls` both with it and `lspconfig`.
-
-Snippet to enable the language server:
-```lua
-vim.lsp.enable('leanls')
-```
-
-Default config:
-- `cmd`: [../lsp/leanls.lua:15](../lsp/leanls.lua#L15)
-- `filetypes` :
-  ```lua
-  { "lean" }
-  ```
-- `root_dir`: [../lsp/leanls.lua:15](../lsp/leanls.lua#L15)
 
 ---
 
@@ -6774,7 +6859,21 @@ Default config:
   ```
 - `root_markers` :
   ```lua
-  { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml", "selene.yml", ".git" }
+  { ".emmyrc.json", ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml", "selene.yml", ".git" }
+  ```
+- `settings` :
+  ```lua
+  {
+    Lua = {
+      codeLens = {
+        enable = true
+      },
+      hint = {
+        enable = true,
+        semicolon = "Disable"
+      }
+    }
+  }
   ```
 
 ---
@@ -7587,7 +7686,7 @@ vim.lsp.enable('neocmake')
 Default config:
 - `cmd` :
   ```lua
-  { "neocmakelsp", "--stdio" }
+  { "neocmakelsp", "stdio" }
   ```
 - `filetypes` :
   ```lua
@@ -9224,7 +9323,7 @@ Default config:
   ```lua
   { "python" }
   ```
-- `on_attach`: [../lsp/pyright.lua:24](../lsp/pyright.lua#L24)
+- `on_attach`: [../lsp/pyright.lua:25](../lsp/pyright.lua#L25)
 - `root_markers` :
   ```lua
   { "pyrightconfig.json", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" }
@@ -9898,12 +9997,12 @@ Default config:
   ```lua
   "utf-8"
   ```
-- `on_attach`: [../lsp/roslyn_ls.lua:101](../lsp/roslyn_ls.lua#L101)
+- `on_attach`: [../lsp/roslyn_ls.lua:100](../lsp/roslyn_ls.lua#L100)
 - `on_init` :
   ```lua
   { <function 1> }
   ```
-- `root_dir`: [../lsp/roslyn_ls.lua:101](../lsp/roslyn_ls.lua#L101)
+- `root_dir`: [../lsp/roslyn_ls.lua:100](../lsp/roslyn_ls.lua#L100)
 - `settings` :
   ```lua
   {
@@ -10225,6 +10324,42 @@ Default config:
   ```
 - `on_attach`: [../lsp/rust_analyzer.lua:56](../lsp/rust_analyzer.lua#L56)
 - `root_dir`: [../lsp/rust_analyzer.lua:56](../lsp/rust_analyzer.lua#L56)
+- `settings` :
+  ```lua
+  {
+    ["rust-analyzer"] = {
+      lens = {
+        debug = {
+          enable = true
+        },
+        enable = true,
+        implementations = {
+          enable = true
+        },
+        references = {
+          adt = {
+            enable = true
+          },
+          enumVariant = {
+            enable = true
+          },
+          method = {
+            enable = true
+          },
+          trait = {
+            enable = true
+          }
+        },
+        run = {
+          enable = true
+        },
+        updateTest = {
+          enable = true
+        }
+      }
+    }
+  }
+  ```
 
 ---
 
@@ -10553,7 +10688,9 @@ Default config:
   ```
 - `init_options` :
   ```lua
-  {}
+  {
+    storageDir = vim.NIL
+  }
   ```
 - `root_dir`: [../lsp/smarty_ls.lua:14](../lsp/smarty_ls.lua#L14)
 - `settings` :
@@ -11794,6 +11931,16 @@ vim.lsp.enable('tailwindcss')
 
 Default config:
 - `before_init`: [../lsp/tailwindcss.lua:10](../lsp/tailwindcss.lua#L10)
+- `capabilities` :
+  ```lua
+  {
+    workspace = {
+      didChangeWatchedFiles = {
+        dynamicRegistration = true
+      }
+    }
+  }
+  ```
 - `cmd` :
   ```lua
   { "tailwindcss-language-server", "--stdio" }
@@ -11890,6 +12037,43 @@ Default config:
 - `root_markers` :
   ```lua
   { "tablegen_compile_commands.yml", ".git" }
+  ```
+
+---
+
+## tclsp
+
+https://github.com/nmoroze/tclint
+
+`tclsp`, a language server for Tcl
+
+`tclsp` can be installed via `pipx`:
+```sh
+pipx install tclint
+```
+
+Or via `pip`:
+```sh
+pip install tclint
+```
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('tclsp')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "tclsp" }
+  ```
+- `filetypes` :
+  ```lua
+  { "tcl", "sdc", "xdc", "upf" }
+  ```
+- `root_markers` :
+  ```lua
+  { "tclint.toml", ".tclint", "pyproject.toml", ".git" }
   ```
 
 ---
@@ -13553,7 +13737,7 @@ Default config:
 
 ## vscoqtop
 
-https://github.com/coq-community/vscoq
+Renamed to [vsrocq](#vsrocq)
 
 Snippet to enable the language server:
 ```lua
@@ -13563,7 +13747,36 @@ vim.lsp.enable('vscoqtop')
 Default config:
 - `cmd` :
   ```lua
-  { "vscoqtop" }
+  { "vsrocqtop" }
+  ```
+- `filetypes` :
+  ```lua
+  { "coq" }
+  ```
+- `name` :
+  ```lua
+  "vsrocq"
+  ```
+- `root_markers` :
+  ```lua
+  { "_RocqProject", "_CoqProject", ".git" }
+  ```
+
+---
+
+## vsrocq
+
+https://github.com/rocq-prover/vsrocq
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('vsrocq')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "vsrocqtop" }
   ```
 - `filetypes` :
   ```lua
@@ -13571,7 +13784,7 @@ Default config:
   ```
 - `root_markers` :
   ```lua
-  { "_CoqProject", ".git" }
+  { "_RocqProject", "_CoqProject", ".git" }
   ```
 
 ---
