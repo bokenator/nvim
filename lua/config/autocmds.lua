@@ -126,3 +126,28 @@ vim.api.nvim_create_autocmd('BufEnter', {
 		end
 	end,
 })
+
+-- Always wrap lines in Markdown buffers (wrap is window-local).
+vim.api.nvim_create_augroup('MarkdownWrap', { clear = true })
+vim.api.nvim_create_autocmd({ 'FileType' }, {
+	group = 'MarkdownWrap',
+	pattern = { 'markdown' },
+	callback = function()
+		vim.opt_local.wrap = true
+		vim.opt_local.linebreak = true
+		vim.opt_local.breakindent = true
+		vim.opt_local.breakindentopt = 'shift:2'
+	end,
+})
+vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
+	group = 'MarkdownWrap',
+	pattern = { '*' },
+	callback = function()
+		if vim.bo.filetype == 'markdown' then
+			vim.opt_local.wrap = true
+			vim.opt_local.linebreak = true
+			vim.opt_local.breakindent = true
+			vim.opt_local.breakindentopt = 'shift:2'
+		end
+	end,
+})
