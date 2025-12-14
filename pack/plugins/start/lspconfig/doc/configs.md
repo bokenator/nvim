@@ -268,6 +268,7 @@ Nvim by running `:help lspconfig-all`.
 - [ruby_lsp](#ruby_lsp)
 - [ruff](#ruff)
 - [ruff_lsp](#ruff_lsp)
+- [rumdl](#rumdl)
 - [rune_languageserver](#rune_languageserver)
 - [rust_analyzer](#rust_analyzer)
 - [salt_ls](#salt_ls)
@@ -369,6 +370,7 @@ Nvim by running `:help lspconfig-all`.
 - [vtsls](#vtsls)
 - [vue_ls](#vue_ls)
 - [wasm_language_tools](#wasm_language_tools)
+- [wc_language_server](#wc_language_server)
 - [wgsl_analyzer](#wgsl_analyzer)
 - [yamlls](#yamlls)
 - [yang_lsp](#yang_lsp)
@@ -2403,11 +2405,11 @@ Default config:
   {
     editorInfo = {
       name = "Neovim",
-      version = "0.12.0-dev+g4bbdffe829"
+      version = "0.12.0-dev+g2b02dfa020"
     },
     editorPluginInfo = {
       name = "Neovim",
-      version = "0.12.0-dev+g4bbdffe829"
+      version = "0.12.0-dev+g2b02dfa020"
     }
   }
   ```
@@ -3043,10 +3045,7 @@ Default config:
   }
   ```
 - `on_attach`: [../lsp/denols.lua:67](../lsp/denols.lua#L67)
-- `root_markers` :
-  ```lua
-  { "deno.json", "deno.jsonc", ".git" }
-  ```
+- `root_dir`: [../lsp/denols.lua:67](../lsp/denols.lua#L67)
 - `settings` :
   ```lua
   {
@@ -4266,10 +4265,7 @@ vim.lsp.enable('flow')
 ```
 
 Default config:
-- `cmd` :
-  ```lua
-  { "npx", "--no-install", "flow", "lsp" }
-  ```
+- `cmd`: [../lsp/flow.lua:16](../lsp/flow.lua#L16)
 - `filetypes` :
   ```lua
   { "javascript", "javascriptreact", "javascript.jsx" }
@@ -4846,20 +4842,20 @@ Default config:
   {
     editorInfo = {
       name = "Neovim",
-      version = "0.12.0-dev+g4bbdffe829"
+      version = "0.12.0-dev+g2b02dfa020"
     },
     editorPluginInfo = {
       name = "Neovim LSP",
-      version = "0.12.0-dev+g4bbdffe829"
+      version = "0.12.0-dev+g2b02dfa020"
     },
     extension = {
       name = "Neovim LSP Client",
-      version = "0.12.0-dev+g4bbdffe829"
+      version = "0.12.0-dev+g2b02dfa020"
     },
     ide = {
       name = "Neovim",
       vendor = "Neovim",
-      version = "0.12.0-dev+g4bbdffe829"
+      version = "0.12.0-dev+g2b02dfa020"
     }
   }
   ```
@@ -5661,7 +5657,7 @@ Default config:
   ```lua
   {
     haskell = {
-      cabalFormattingProvider = "cabalfmt",
+      cabalFormattingProvider = "cabal-fmt",
       formattingProvider = "ormolu"
     }
   }
@@ -5988,6 +5984,10 @@ vim.lsp.enable('java_language_server')
 ```
 
 Default config:
+- `cmd` :
+  ```lua
+  { "java-language-server" }
+  ```
 - `filetypes` :
   ```lua
   { "java" }
@@ -6606,10 +6606,8 @@ https://github.com/lexical-lsp/lexical
 
 Lexical is a next-generation language server for the Elixir programming language.
 
-Follow the [Detailed Installation Instructions](https://github.com/lexical-lsp/lexical/blob/main/pages/installation.md)
-
-**By default, `lexical` doesn't have a `cmd` set.**
-This is because nvim-lspconfig does not make assumptions about your path.
+To install from source, follow the [Detailed Installation Instructions](https://github.com/lexical-lsp/lexical/blob/main/pages/installation.md).
+Ensure to point `cmd` to the generated `_build/dev/package/lexical/start_lexical.sh` executable.
 
 Snippet to enable the language server:
 ```lua
@@ -6617,6 +6615,10 @@ vim.lsp.enable('lexical')
 ```
 
 Default config:
+- `cmd` :
+  ```lua
+  { "lexical" }
+  ```
 - `filetypes` :
   ```lua
   { "elixir", "eelixir", "heex", "surface" }
@@ -7759,7 +7761,7 @@ Default config:
 
 https://github.com/elixir-tools/next-ls
 
-**By default, next-ls does not set its `cmd`. Please see the following [detailed instructions](https://www.elixir-tools.dev/docs/next-ls/installation/) for possible installation methods.**
+**Please see the following [detailed instructions](https://www.elixir-tools.dev/docs/next-ls/installation/) for possible installation methods.**
 
 Snippet to enable the language server:
 ```lua
@@ -7767,6 +7769,10 @@ vim.lsp.enable('nextls')
 ```
 
 Default config:
+- `cmd` :
+  ```lua
+  { "nextls", "--stdio" }
+  ```
 - `filetypes` :
   ```lua
   { "elixir", "eelixir", "heex", "surface" }
@@ -8169,8 +8175,6 @@ OmniSharp can also be built from source by following the instructions [here](htt
 
 OmniSharp requires the [dotnet-sdk](https://dotnet.microsoft.com/download) to be installed.
 
-**By default, omnisharp-roslyn doesn't have a `cmd` set.** This is because nvim-lspconfig does not make assumptions about your path. You must add the following to your init.vim or init.lua to set `cmd` to the absolute path ($HOME and ~ are not expanded) of the unzipped run script or binary.
-
 For `go_to_definition` to work fully, extended `textDocument/definition` handler is needed, for example see [omnisharp-extended-lsp.nvim](https://github.com/Hoffs/omnisharp-extended-lsp.nvim)
 
 Snippet to enable the language server:
@@ -8199,7 +8203,7 @@ Default config:
   ```lua
   {}
   ```
-- `root_dir`: [../lsp/omnisharp.lua:20](../lsp/omnisharp.lua#L20)
+- `root_dir`: [../lsp/omnisharp.lua:18](../lsp/omnisharp.lua#L18)
 - `settings` :
   ```lua
   {
@@ -8830,6 +8834,7 @@ Default config:
   ```lua
   { "postgres-language-server.jsonc" }
   ```
+- `workspace_required` : `true`
 
 ---
 
@@ -10241,6 +10246,33 @@ Default config:
 - `settings` :
   ```lua
   {}
+  ```
+
+---
+
+## rumdl
+
+https://github.com/rvben/rumdl
+
+Markdown Linter and Formatter written in Rust.
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('rumdl')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "rumdl", "server" }
+  ```
+- `filetypes` :
+  ```lua
+  { "markdown" }
+  ```
+- `root_markers` :
+  ```lua
+  { ".git" }
   ```
 
 ---
@@ -12636,6 +12668,8 @@ Use the `:LspTypescriptSourceAction` command to see "whole file" ("source") code
 - organize imports
 - remove unused code
 
+Use the `:LspTypescriptGoToSourceDefinition` command to navigate to the source definition of a symbol (e.g., jump to the original implementation instead of type definitions).
+
 ### Monorepo support
 
 `ts_ls` supports monorepos by default. It will automatically find the `tsconfig.json` or `jsconfig.json` corresponding to the package you are working on.
@@ -12678,8 +12712,8 @@ Default config:
     hostInfo = "neovim"
   }
   ```
-- `on_attach`: [../lsp/ts_ls.lua:45](../lsp/ts_ls.lua#L45)
-- `root_dir`: [../lsp/ts_ls.lua:45](../lsp/ts_ls.lua#L45)
+- `on_attach`: [../lsp/ts_ls.lua:47](../lsp/ts_ls.lua#L47)
+- `root_dir`: [../lsp/ts_ls.lua:47](../lsp/ts_ls.lua#L47)
 
 ---
 
@@ -13942,6 +13976,88 @@ Default config:
 - `filetypes` :
   ```lua
   { "wat" }
+  ```
+
+---
+
+## wc_language_server
+
+https://github.com/wc-toolkit/wc-language-server
+
+Web Components Language Server provides intelligent editor support for Web Components and custom elements.
+It offers advanced HTML diagnostics, completion, and validation for custom elements, including support for
+attribute types, deprecation, and duplicate attribute detection.
+
+The language server uses the [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest)
+to generate component integration and validation information
+
+`wc-language-server` can be installed by following the instructions at the [GitHub repository](https://github.com/wc-toolkit/wc-language-server/blob/main/packages/neovim/README.md).
+
+The default `cmd` assumes that the `wc-language-server` binary can be found in `$PATH`.
+
+Alternatively, you can install it via [mason.nvim](https://github.com/williamboman/mason.nvim):
+```vim
+:MasonInstall wc-language-server
+```
+
+## Configuration
+
+The language server reads settings from `wc.config.js` (or `.ts/.mjs/.cjs`) at the project root.
+Use it to customize manifest sources, file scoping, and diagnostic behavior.
+
+Example `wc.config.js`:
+```js
+export default {
+  // Fetch manifest from a custom path or URL
+  manifestSrc: './dist/custom-elements.json',
+
+  // Narrow which files opt into the language server
+  include: ['src/**/*.ts', 'src/**/*.html'],
+
+  // Skip specific globs
+  exclude: ['**/*.stories.ts'],
+
+  // Per-library overrides
+  libraries: {
+    '@your/pkg': {
+      manifestSrc: 'https://cdn.example.com/custom-elements.json',
+      tagFormatter: (tag) => tag.replace(/^x-/, 'my-'),
+    },
+  },
+
+  // Customize diagnostic severity levels
+  diagnosticSeverity: {
+    duplicateAttribute: 'warning',
+    unknownElement: 'info',
+  },
+};
+```
+
+See the [configuration documentation](https://github.com/wc-toolkit/wc-language-server#configuration) for more details.
+
+Snippet to enable the language server:
+```lua
+vim.lsp.enable('wc_language_server')
+```
+
+Default config:
+- `cmd` :
+  ```lua
+  { "wc-language-server", "--stdio" }
+  ```
+- `filetypes` :
+  ```lua
+  { "html", "javascriptreact", "typescriptreact", "astro", "svelte", "vue", "markdown", "mdx", "javascript", "typescript", "css", "scss", "less" }
+  ```
+- `init_options` :
+  ```lua
+  {
+    hostInfo = "neovim"
+  }
+  ```
+- `root_markers` :
+  ```lua
+  { "wc.config.js", "wc.config.ts", "wc.config.mjs", "wc.config.cjs", "custom-elements.json", "package.json", ".git" }
   ```
 
 ---
